@@ -20,7 +20,7 @@ services:
       # Update this once your frontend is deployed (Vercel/Netlify) —
       # comma-separated if you need more than one allowed origin.
       - key: CORS_ORIGINS
-        value: http://localhost:5173
+        value: https://animated-arithmetic-c0bc7a.netlify.app
       # Prompted for in the Render dashboard on first deploy — never
       # stored in this file. Leave blank to run on the fallback-only
       # assistant.
