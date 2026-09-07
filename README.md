@@ -65,6 +65,32 @@ npm run dev
 
 Frontend runs at http://localhost:5173.
 
+### Deploy the frontend to Netlify
+
+Netlify hosts the Vite frontend. The FastAPI backend must be deployed
+separately to a Python-capable host such as Render or Railway.
+
+1. Deploy the `backend` directory as a web service with this start command:
+
+  ```bash
+  uvicorn app.main:app --host 0.0.0.0 --port $PORT
+  ```
+
+  Set its `DATABASE_URL`, `SECRET_KEY`, and `CORS_ORIGINS` environment
+  variables. For `CORS_ORIGINS`, include the final Netlify URL, for example
+  `https://your-site.netlify.app`, alongside any local development origins.
+
+2. In Netlify, create a site from this repository and set **Base directory**
+  to `frontend`. Netlify will use `frontend/netlify.toml` automatically.
+
+3. Add the Netlify environment variable `VITE_API_URL` with the deployed
+  backend URL, for example `https://agriflow-api.onrender.com`, then trigger
+  a new deploy. Do not include a trailing slash.
+
+4. After both services are deployed, open the Netlify URL and verify that
+  `https://your-backend-url/health` returns a healthy response before testing
+  registration or login.
+
 ### Database
 
 Tables are created automatically the first time the backend starts
