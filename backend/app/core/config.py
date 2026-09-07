@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Some hosts (Render, old Heroku-style) hand out DATABASE_URL with the
+# Some hosts hand out DATABASE_URL with the
 # legacy "postgres://" scheme. Modern SQLAlchemy only accepts
 # "postgresql://" — this normalizes it once at startup so a production
 # deploy doesn't fail on a URL scheme mismatch outside our control.

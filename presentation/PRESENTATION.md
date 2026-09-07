@@ -84,9 +84,8 @@ a deliberate requirement from day one, not a patch.
 
 **"How far along is this — is it actually deployed?"**
 Fully built and tested locally across all 15 stages, including an
-automated backend test suite. Deployment configs (Render + Vercel/
-Netlify, free tier) are ready — see `DEPLOYMENT.md` — the remaining
-step is just clicking deploy with real hosting accounts.
+automated backend test suite. The project is ready to deploy to a
+hosting provider when a production environment is selected.
 
 **"What was the hardest technical part?"**
 Keeping the recommendation engine's numbers consistent everywhere they

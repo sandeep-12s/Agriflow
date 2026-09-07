@@ -19,7 +19,7 @@ rather than glossed over.
 | Appropriate authorization | ✅ | Every produce/recommendation/buyer-matching/transaction/processing route checks `farmer_id` ownership, not just "is logged in" — see `_get_owned_produce()` in `routers/produce.py` and the equivalent checks in `routers/recommendations.py`, `routers/buyers.py`, `routers/transactions.py`, `routers/processing.py`. |
 | SQL injection protection | ✅ | Every query goes through SQLAlchemy's ORM/query builder — no raw string-interpolated SQL anywhere. |
 | Rate limiting | ⚠️ Not implemented | Reasonable to skip for a hackathon MVP; would matter before any real production deployment. |
-| HTTPS / TLS | ✅ once deployed | Local dev is plain HTTP, which is normal for `localhost`. Render and Vercel/Netlify both provision TLS automatically for their default domains — see `DEPLOYMENT.md`. |
+| HTTPS / TLS | ✅ once deployed | Local dev is plain HTTP, which is normal for `localhost`. The selected hosting provider must provision TLS before production use. |
 | Password strength rules | ⚠️ Minimal | Only a 6-character minimum (`schemas/user.py`) — no complexity requirement. Fine for a demo, worth strengthening later. |
 
 ## Manual credential-leak check

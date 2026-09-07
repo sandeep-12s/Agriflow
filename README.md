@@ -99,11 +99,6 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
-## Deployment
-
-See `DEPLOYMENT.md` for the full guide — Render (backend + free
-Postgres) and Vercel/Netlify (frontend), all free-tier.
-
 ## Demo data disclosure
 
 All market prices, buyer offers, storage costs, and processing figures shown
