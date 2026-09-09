@@ -39,6 +39,11 @@ class Settings:
     # without it, per the spec's own fallback requirement.
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
     ASSISTANT_MODEL: str = os.getenv("ASSISTANT_MODEL", "claude-haiku-4-5-20251001")
+    DATA_GOV_API_KEY: str = os.getenv("DATA_GOV_API_KEY", "")
+    DATA_GOV_MANDI_RESOURCE_ID: str = os.getenv(
+        "DATA_GOV_MANDI_RESOURCE_ID",
+        "9ef84268-d588-465a-a308-a864a43d0070",
+    )
 
 
 settings = Settings()

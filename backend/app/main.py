@@ -13,7 +13,7 @@ from app.core.config import settings
 from app.db.database import init_db
 from app.routers import (
     auth, farmers, dashboard, produce, markets, recommendations,
-    buyers, transactions, storage, processing, assistant, analytics,
+    buyers, transactions, storage, processing, assistant, analytics, weather,
 )
 
 
@@ -53,6 +53,7 @@ app.include_router(storage.router)
 app.include_router(processing.router)
 app.include_router(assistant.router)
 app.include_router(analytics.router)
+app.include_router(weather.router)
 
 
 @app.get("/")

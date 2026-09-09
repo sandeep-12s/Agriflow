@@ -222,6 +222,46 @@ export function compareCropPrices(token: string, cropName: string) {
   return authRequest<CropPriceRow[]>(`/markets/compare/${encodeURIComponent(cropName)}`, token)
 }
 
+export interface LiveMarketPrice {
+  market_name: string
+  state: string | null
+  district: string | null
+  commodity: string
+  variety: string | null
+  min_price: number | null
+  max_price: number | null
+  modal_price: number | null
+  unit: string
+  arrival_date: string | null
+  source: string
+  is_live: boolean
+  fetched_at: string
+}
+
+export function getLiveMarketPrices(token: string, cropName: string, state?: string, district?: string) {
+  const params = new URLSearchParams({ crop_name: cropName })
+  if (state) params.set('state', state)
+  if (district) params.set('district', district)
+  return authRequest<LiveMarketPrice[]>(`/markets/live-prices?${params}`, token)
+}
+
+export interface WeatherResponse {
+  latitude: number
+  longitude: number
+  temperature_c: number
+  apparent_temperature_c: number
+  humidity_percent: number
+  wind_speed_kmh: number
+  weather_code: number
+  observed_at: string
+  source: string
+}
+
+export function getWeather(token: string, latitude: number, longitude: number) {
+  const params = new URLSearchParams({ latitude: String(latitude), longitude: String(longitude) })
+  return authRequest<WeatherResponse>(`/weather?${params}`, token)
+}
+
 // ---- Recommendations ----
 
 export interface RecommendationOption {

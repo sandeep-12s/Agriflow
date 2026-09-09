@@ -27,7 +27,7 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 function AnalyticsPage() {
-  const { token, logout } = useAuth()
+  const { token, logout, t } = useAuth()
   const navigate = useNavigate()
   const [data, setData] = useState<AnalyticsDashboard | null>(null)
   const [error, setError] = useState('')
@@ -52,7 +52,7 @@ function AnalyticsPage() {
   if (loading) {
     return (
       <Layout>
-        <LoadingSpinner label="Loading analytics…" />
+        <LoadingSpinner label={t('loading')} />
       </Layout>
     )
   }
@@ -60,7 +60,7 @@ function AnalyticsPage() {
   if (error || !data) {
     return (
       <Layout>
-        <ErrorBanner message={error || 'No data.'} />
+        <ErrorBanner message={error || t('noPriceData')} />
       </Layout>
     )
   }
@@ -84,42 +84,42 @@ function AnalyticsPage() {
       <div className="analytics-header mb-7">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-leaf/75 mb-2">
-            Performance overview
+            {t('analyticsOverview')}
           </p>
-          <h1 className="text-2xl md:text-3xl font-bold text-soil mb-1">Your farm, in numbers</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-soil mb-1">{t('farmNumbers')}</h1>
           <p className="text-sm text-soil/60">
-            See where value is being created across your produce, prices, and transactions.
+            {t('analyticsIntro')}
           </p>
         </div>
-        <div className="analytics-period">Live from your activity</div>
+        <div className="analytics-period">{t('liveActivity')}</div>
       </div>
 
       <div className="grid gap-3 md:grid-cols-3 mb-7">
         <StatCard
-          label="Wastage avoided"
+          label={t('wastageAvoided')}
           value={`₹${data.wastage_avoided.toLocaleString()}`}
-          hint="Value protected"
+          hint={t('valueProtected')}
           accent="green"
         />
         <StatCard
-          label="Transactions"
+          label={t('transactions')}
           value={data.transactions_summary.total_transactions}
-          hint="Completed proposals"
+          hint={t('completedProposals')}
           accent="gold"
         />
         <StatCard
-          label="Transaction value"
+          label={t('transactionValue')}
           value={`₹${data.transactions_summary.total_value.toLocaleString()}`}
-          hint="Total realized value"
+          hint={t('totalRealized')}
           accent="soil"
         />
       </div>
 
       {revenueProfitData.length === 0 ? (
         <div className="bg-white rounded-2xl border border-dashed border-soil/20 p-10 text-center">
-          <p className="text-soil font-semibold mb-1">Your farm story starts here</p>
+          <p className="text-soil font-semibold mb-1">{t('farmStory')}</p>
           <p className="text-sm text-soil/60">
-            Add produce and check its recommendations to start seeing charts here.
+            {t('analyticsEmpty')}
           </p>
         </div>
       ) : (

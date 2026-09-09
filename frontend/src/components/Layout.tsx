@@ -3,18 +3,18 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Dashboard' },
-  { to: '/produce', label: 'Produce' },
-  { to: '/market', label: 'Market' },
-  { to: '/buyers', label: 'Buyers' },
-  { to: '/storage', label: 'Storage' },
-  { to: '/processing', label: 'Processing' },
-  { to: '/assistant', label: 'Assistant' },
-  { to: '/analytics', label: 'Analytics' },
-]
+  { to: '/dashboard', key: 'dashboard' },
+  { to: '/produce', key: 'produce' },
+  { to: '/market', key: 'market' },
+  { to: '/buyers', key: 'buyers' },
+  { to: '/storage', key: 'storage' },
+  { to: '/processing', key: 'processing' },
+  { to: '/assistant', key: 'assistant' },
+  { to: '/analytics', key: 'analytics' },
+] as const
 
 function Layout({ children }: { children: ReactNode }) {
-  const { logout } = useAuth()
+  const { logout, language, setLanguage, t } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -51,23 +51,27 @@ function Layout({ children }: { children: ReactNode }) {
                   aria-current={isActive(item.to) ? 'page' : undefined}
                   className={linkClasses(item.to)}
                 >
-                  {item.label}
+                  {t(item.key)}
                 </Link>
               ))}
             </nav>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="hidden lg:inline text-xs font-medium text-soil/45 mr-2">FARMER WORKSPACE</span>
+            <span className="hidden lg:inline text-xs font-medium text-soil/45 mr-2">{t('farmerWorkspace')}</span>
+            <div className="hidden md:flex items-center gap-1 border border-soil/20 rounded-lg p-1" role="group" aria-label={t('responseLanguage')}>
+              <button onClick={() => setLanguage('en')} className={`text-xs px-2 py-1 rounded ${language === 'en' ? 'bg-leaf text-white' : 'text-soil'}`}>EN</button>
+              <button onClick={() => setLanguage('hi')} className={`text-xs px-2 py-1 rounded ${language === 'hi' ? 'bg-leaf text-white' : 'text-soil'}`}>हिन्दी</button>
+            </div>
             <button
               onClick={handleLogout}
               className="hidden md:inline-block text-sm font-medium text-soil border border-soil/20 rounded-lg px-3 py-2 hover:bg-husk transition"
             >
-              Log out
+              {t('logout')}
             </button>
             <button
               onClick={() => setMenuOpen((open) => !open)}
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-label={menuOpen ? t('closeMenu') : t('openMenu')}
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
               className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-soil/20 text-soil text-lg"
@@ -91,14 +95,18 @@ function Layout({ children }: { children: ReactNode }) {
                 aria-current={isActive(item.to) ? 'page' : undefined}
                 className={linkClasses(item.to)}
               >
-                {item.label}
+                {t(item.key)}
               </Link>
             ))}
+            <div className="flex items-center gap-1 mt-1 px-1" role="group" aria-label={t('responseLanguage')}>
+              <button onClick={() => setLanguage('en')} className={`text-xs px-2 py-1 rounded ${language === 'en' ? 'bg-leaf text-white' : 'text-soil'}`}>EN</button>
+              <button onClick={() => setLanguage('hi')} className={`text-xs px-2 py-1 rounded ${language === 'hi' ? 'bg-leaf text-white' : 'text-soil'}`}>हिन्दी</button>
+            </div>
             <button
               onClick={handleLogout}
               className="text-left text-sm font-medium text-soil border border-soil/20 rounded-lg px-3 py-2 mt-1 hover:bg-husk transition"
             >
-              Log out
+              {t('logout')}
             </button>
           </nav>
         )}

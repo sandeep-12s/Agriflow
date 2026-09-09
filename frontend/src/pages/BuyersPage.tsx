@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext'
 import { listBuyers, Buyer } from '../api/client'
 
 function BuyersPage() {
-  const { token, logout } = useAuth()
+  const { token, logout, t } = useAuth()
   const navigate = useNavigate()
   const [buyers, setBuyers] = useState<Buyer[]>([])
   const [loading, setLoading] = useState(true)
@@ -32,15 +32,15 @@ function BuyersPage() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-soil mb-1">Buyer Marketplace</h1>
-      <p className="text-xs text-soil/50 mb-4">Demo buyer postings for hackathon demonstration.</p>
+      <h1 className="text-xl font-bold text-soil mb-1">{t('buyersTitle')}</h1>
+      <p className="text-xs text-soil/50 mb-4">{t('buyerNote')}</p>
 
       <ErrorBanner message={error} />
 
       {loading ? (
-        <LoadingSpinner label="Loading buyers…" />
+        <LoadingSpinner label={t('loading')} />
       ) : buyers.length === 0 ? (
-        <EmptyState title="No buyer postings yet." />
+        <EmptyState title={t('noBuyers')} />
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
           {buyers.map((b) => (
@@ -50,9 +50,9 @@ function BuyersPage() {
               className="bg-white rounded-2xl border border-soil/10 p-4 hover:border-leaf transition"
             >
               <h3 className="font-semibold text-soil">{b.name}</h3>
-              <p className="text-sm text-soil/70 mb-1">Looking for: {b.product}</p>
+              <p className="text-sm text-soil/70 mb-1">{t('lookingFor')}: {b.product}</p>
               <p className="text-sm text-soil/70 mb-1">
-                Up to {b.required_quantity} Quintals · ₹{b.offered_price}/quintal
+                {t('upTo')} {b.required_quantity} Quintals · ₹{b.offered_price}/quintal
               </p>
               <p className="text-xs text-soil/50">
                 {b.location} · {b.quality_requirement}

@@ -8,7 +8,7 @@ import { matchingBuyers, createTransaction, getProduceById, Buyer, Produce } fro
 
 function ProduceMatchingBuyersPage() {
   const { id } = useParams()
-  const { token, logout } = useAuth()
+  const { token, logout, t } = useAuth()
   const navigate = useNavigate()
   const [produce, setProduce] = useState<Produce | null>(null)
   const [buyers, setBuyers] = useState<Buyer[]>([])
@@ -59,9 +59,9 @@ function ProduceMatchingBuyersPage() {
   return (
     <Layout>
       <Link to="/produce" className="text-sm text-leaf font-medium mb-3 inline-block">
-        ← Back to Produce
+        ← {t('backToProduce')}
       </Link>
-      <h1 className="text-xl font-bold text-soil mb-1">Matching Buyers</h1>
+      <h1 className="text-xl font-bold text-soil mb-1">{t('matchingBuyers')}</h1>
       {produce && (
         <p className="text-sm text-soil/60 mb-4">
           {produce.crop_name} · {produce.quantity} {produce.unit}
@@ -76,9 +76,9 @@ function ProduceMatchingBuyersPage() {
       )}
 
       {loading ? (
-        <LoadingSpinner label="Finding matching buyers…" />
+        <LoadingSpinner label={t('loading')} />
       ) : buyers.length === 0 ? (
-        <p className="text-sm text-soil/60">No buyers currently want this much of this crop.</p>
+        <p className="text-sm text-soil/60">{t('noMatchingBuyers')}</p>
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
           {buyers.map((b) => (
@@ -94,10 +94,10 @@ function ProduceMatchingBuyersPage() {
                 className="w-full bg-leaf text-white text-sm font-medium py-2 rounded-lg hover:bg-leaf/90 transition disabled:opacity-60"
               >
                 {proposingId === b.id
-                  ? 'Proposing…'
+                  ? t('proposing')
                   : produce?.status === 'sold'
-                    ? 'Produce already sold'
-                    : 'Propose Transaction'}
+                    ? t('alreadySold')
+                    : t('proposeTransaction')}
               </button>
             </div>
           ))}

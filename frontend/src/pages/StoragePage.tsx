@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext'
 import { listStorage, StorageFacility } from '../api/client'
 
 function StoragePage() {
-  const { token, logout } = useAuth()
+  const { token, logout, t } = useAuth()
   const navigate = useNavigate()
   const [facilities, setFacilities] = useState<StorageFacility[]>([])
   const [loading, setLoading] = useState(true)
@@ -32,17 +32,17 @@ function StoragePage() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-soil mb-1">Storage Finder</h1>
+      <h1 className="text-xl font-bold text-soil mb-1">{t('storageTitle')}</h1>
       <p className="text-xs text-soil/50 mb-4">
-        Demo storage facilities for hackathon demonstration.
+        {t('storageNote')}
       </p>
 
       <ErrorBanner message={error} />
 
       {loading ? (
-        <LoadingSpinner label="Loading storage facilities…" />
+        <LoadingSpinner label={t('loading')} />
       ) : facilities.length === 0 ? (
-        <EmptyState title="No storage facilities available." />
+        <EmptyState title={t('noStorage')} />
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
           {facilities.map((f) => (
@@ -59,7 +59,7 @@ function StoragePage() {
               </p>
               <p className="text-sm text-soil/70 mb-2">₹{f.cost_per_unit}/quintal/day</p>
               <p className="text-xs text-soil/50">
-                Suitable for: {f.supported_crops.split(',').join(', ')}
+                {t('suitableFor')}: {f.supported_crops.split(',').join(', ')}
               </p>
             </div>
           ))}

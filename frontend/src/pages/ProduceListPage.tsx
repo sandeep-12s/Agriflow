@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext'
 import { listProduce, deleteProduce, Produce } from '../api/client'
 
 function ProduceListPage() {
-  const { token, logout } = useAuth()
+  const { token, logout, t } = useAuth()
   const navigate = useNavigate()
   const [items, setItems] = useState<Produce[]>([])
   const [loading, setLoading] = useState(true)
@@ -35,7 +35,7 @@ function ProduceListPage() {
 
   const handleDelete = async (id: number) => {
     if (!token) return
-    if (!confirm('Delete this produce entry?')) return
+    if (!confirm(t('deleteConfirm'))) return
     try {
       await deleteProduce(token, id)
       setItems((prev) => prev.filter((p) => p.id !== id))
@@ -47,25 +47,25 @@ function ProduceListPage() {
   return (
     <Layout>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-bold text-soil">Your Produce</h1>
+        <h1 className="text-xl font-bold text-soil">{t('yourProduce')}</h1>
         <Link
           to="/produce/new"
           className="bg-leaf text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-leaf/90 transition"
         >
-          + Add Produce
+          + {t('addProduce')}
         </Link>
       </div>
 
       <ErrorBanner message={error} />
 
       {loading ? (
-        <LoadingSpinner label="Loading your produce…" />
+        <LoadingSpinner label={t('loadingProduce')} />
       ) : items.length === 0 ? (
         <EmptyState
-          title="You haven't added any produce yet."
+          title={t('noProduce')}
           action={
             <Link to="/produce/new" className="text-leaf font-medium text-sm">
-              Add your first entry →
+              {t('addFirstEntry')}
             </Link>
           }
         />
@@ -83,32 +83,32 @@ function ProduceListPage() {
                 {item.quantity} {item.unit} · {item.quality}
               </p>
               <p className="text-xs text-soil/50 mb-3">
-                Harvested {item.harvest_date} · {item.location}
+                {t('harvested')} {item.harvest_date} · {item.location}
               </p>
               <div className="flex flex-wrap gap-x-3 gap-y-2">
                 <Link to={`/produce/${item.id}`} className="text-sm text-leaf font-medium">
-                  View / Edit
+                  {t('viewEdit')}
                 </Link>
                 <Link
                   to={`/produce/${item.id}/recommendation`}
                   className="text-sm text-amber-700 font-medium"
                 >
-                  Get Recommendation
+                  {t('getRecommendation')}
                 </Link>
                 <Link to={`/produce/${item.id}/buyers`} className="text-sm text-soil font-medium">
-                  Find Buyers
+                  {t('findBuyers')}
                 </Link>
                 <Link
                   to={`/produce/${item.id}/processing`}
                   className="text-sm text-soil font-medium"
                 >
-                  Processing Options
+                  {t('processingOptions')}
                 </Link>
                 <button
                   onClick={() => handleDelete(item.id)}
                   className="text-sm text-red-600 font-medium"
                 >
-                  Delete
+                  {t('delete')}
                 </button>
               </div>
             </div>

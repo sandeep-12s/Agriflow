@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import ErrorBanner from '../components/ErrorBanner'
@@ -18,13 +18,15 @@ const STARTER_QUESTIONS = [
 ]
 
 function AssistantPage() {
-  const { token, logout } = useAuth()
+  const { token, logout, t, language: preferredLanguage } = useAuth()
   const navigate = useNavigate()
-  const [language, setLanguage] = useState<'en' | 'hi'>('en')
+  const [language, setLanguage] = useState<'en' | 'hi'>(preferredLanguage)
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => setLanguage(preferredLanguage), [preferredLanguage])
 
   const send = async (text: string) => {
     if (!token || !text.trim()) return
@@ -58,8 +60,8 @@ function AssistantPage() {
   return (
     <Layout>
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <h1 className="text-xl font-bold text-soil">Ask AgriFlow</h1>
-        <div className="flex gap-1 bg-white border border-soil/20 rounded-lg p-1" role="group" aria-label="Response language">
+        <h1 className="text-xl font-bold text-soil">{t('askAgriFlow')}</h1>
+        <div className="flex gap-1 bg-white border border-soil/20 rounded-lg p-1" role="group" aria-label={t('responseLanguage')}>
           {(['en', 'hi'] as const).map((lang) => (
             <button
               key={lang}
@@ -69,7 +71,7 @@ function AssistantPage() {
                 language === lang ? 'bg-leaf text-white' : 'text-soil'
               }`}
             >
-              {lang === 'en' ? 'English' : 'हिन्दी'}
+              {lang === 'en' ? t('languageEnglish') : t('languageHindi')}
             </button>
           ))}
         </div>
@@ -80,7 +82,7 @@ function AssistantPage() {
       <div className="bg-white rounded-2xl border border-soil/10 p-4 mb-4 min-h-[300px] flex flex-col gap-3">
         {messages.length === 0 && (
           <div>
-            <p className="text-sm text-soil/60 mb-3">Try asking:</p>
+            <p className="text-sm text-soil/60 mb-3">{t('tryAsking')}</p>
             <div className="flex flex-col gap-2">
               {STARTER_QUESTIONS.map((q) => (
                 <button
@@ -105,19 +107,19 @@ function AssistantPage() {
               {m.text}
               {m.role === 'assistant' && m.source && (
                 <p className="text-[10px] mt-1 opacity-60">
-                  {m.source === 'ai' ? 'AI response' : 'Quick answer'}
+                  {m.source === 'ai' ? t('aiResponse') : t('quickAnswer')}
                 </p>
               )}
             </div>
           </div>
         ))}
 
-        {sending && <p className="text-sm text-soil/40">Thinking…</p>}
+        {sending && <p className="text-sm text-soil/40">{t('thinking')}</p>}
       </div>
 
       <form onSubmit={handleSubmit} className="flex gap-2">
         <label htmlFor="assistant-question" className="sr-only">
-          Ask a question
+          {t('askQuestion')}
         </label>
         <input
           id="assistant-question"
@@ -132,7 +134,7 @@ function AssistantPage() {
           disabled={sending || !input.trim()}
           className="bg-leaf text-white font-medium px-4 py-2 rounded-lg hover:bg-leaf/90 transition disabled:opacity-60"
         >
-          Send
+          {t('send')}
         </button>
       </form>
     </Layout>

@@ -9,18 +9,16 @@ import {
   updateProduce,
   getProduceById,
   deleteProduce,
+  listCrops,
   ProducePayload,
 } from '../api/client'
 
-// Restricted to the crops AgriFlow already has demo market/buyer/processing
-// data for (Step 2's seed) — keeps crop names consistent so later steps
-// (price lookups, buyer matching, recommendations) can match on them exactly.
-const CROPS = ['Tomato', 'Potato', 'Mango', 'Wheat', 'Rice', 'Onion', 'Milk']
+const DEFAULT_CROP = 'Tomato'
 const UNITS = ['Quintal', 'Kg', 'Litre', 'Tonne']
 const QUALITIES = ['Grade A', 'Grade B', 'Grade C']
 
 const emptyForm: ProducePayload = {
-  crop_name: CROPS[0],
+  crop_name: DEFAULT_CROP,
   quantity: 0,
   unit: 'Quintal',
   quality: 'Grade A',
@@ -32,12 +30,18 @@ const emptyForm: ProducePayload = {
 function ProduceFormPage() {
   const { id } = useParams()
   const isEdit = Boolean(id)
-  const { token, logout } = useAuth()
+  const { token, logout, t } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState<ProducePayload>(emptyForm)
   const [loading, setLoading] = useState(isEdit)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [crops, setCrops] = useState<string[]>([DEFAULT_CROP])
+
+  useEffect(() => {
+    if (!token) return
+    listCrops(token).then(setCrops).catch(() => setError('Could not load the crop catalog.'))
+  }, [token])
 
   useEffect(() => {
     if (!isEdit || !token) return
@@ -90,7 +94,7 @@ function ProduceFormPage() {
 
   const handleDelete = async () => {
     if (!token || !id) return
-    if (!confirm('Delete this produce entry?')) return
+    if (!confirm(t('deleteConfirm'))) return
     try {
       await deleteProduce(token, Number(id))
       navigate('/produce')
@@ -102,7 +106,7 @@ function ProduceFormPage() {
   if (loading) {
     return (
       <Layout>
-        <LoadingSpinner label="Loading this entry…" />
+        <LoadingSpinner label={t('loading')} />
       </Layout>
     )
   }
@@ -110,7 +114,7 @@ function ProduceFormPage() {
   return (
     <Layout>
       <h1 className="text-xl font-bold text-soil mb-4">
-        {isEdit ? 'Edit Produce' : 'Add Produce'}
+        {isEdit ? t('editProduce') : t('addProduceTitle')}
       </h1>
 
       <ErrorBanner message={error} />
@@ -121,7 +125,7 @@ function ProduceFormPage() {
       >
         <div>
           <label htmlFor="crop_name" className="block text-sm font-medium text-soil mb-1">
-            Crop
+            {t('crop')}
           </label>
           <select
             id="crop_name"
@@ -129,7 +133,7 @@ function ProduceFormPage() {
             onChange={(e) => setForm((f) => ({ ...f, crop_name: e.target.value }))}
             className="w-full border border-soil/20 rounded-lg px-3 py-2"
           >
-            {CROPS.map((c) => (
+            {crops.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>
@@ -140,7 +144,7 @@ function ProduceFormPage() {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label htmlFor="quantity" className="block text-sm font-medium text-soil mb-1">
-              Quantity
+              {t('quantity')}
             </label>
             <input
               id="quantity"
@@ -155,7 +159,7 @@ function ProduceFormPage() {
           </div>
           <div>
             <label htmlFor="unit" className="block text-sm font-medium text-soil mb-1">
-              Unit
+              {t('unit')}
             </label>
             <select
               id="unit"
@@ -174,7 +178,7 @@ function ProduceFormPage() {
 
         <div>
           <label htmlFor="quality" className="block text-sm font-medium text-soil mb-1">
-            Quality
+            {t('quality')}
           </label>
           <select
             id="quality"
@@ -192,7 +196,7 @@ function ProduceFormPage() {
 
         <div>
           <label htmlFor="harvest_date" className="block text-sm font-medium text-soil mb-1">
-            Harvest date
+            {t('harvestDate')}
           </label>
           <input
             id="harvest_date"
@@ -206,7 +210,7 @@ function ProduceFormPage() {
 
         <div>
           <label htmlFor="location" className="block text-sm font-medium text-soil mb-1">
-            Location
+            {t('location')}
           </label>
           <input
             id="location"
@@ -223,7 +227,7 @@ function ProduceFormPage() {
             htmlFor="expected_sell_date"
             className="block text-sm font-medium text-soil mb-1"
           >
-            Expected selling date <span className="text-soil/40">(optional)</span>
+            {t('expectedSellDate')} <span className="text-soil/40">({t('optional')})</span>
           </label>
           <input
             id="expected_sell_date"
@@ -240,7 +244,7 @@ function ProduceFormPage() {
             disabled={saving}
             className="flex-1 bg-leaf text-white font-medium py-2 rounded-lg hover:bg-leaf/90 transition disabled:opacity-60"
           >
-            {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Add produce'}
+            {saving ? t('saving') : isEdit ? t('saveChanges') : t('addProduce')}
           </button>
           {isEdit && (
             <button
@@ -248,7 +252,7 @@ function ProduceFormPage() {
               onClick={handleDelete}
               className="px-4 py-2 rounded-lg border border-red-200 text-red-600 font-medium hover:bg-red-50 transition"
             >
-              Delete
+              {t('delete')}
             </button>
           )}
         </div>

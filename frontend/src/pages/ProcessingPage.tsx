@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext'
 import { listProcessingUnits, ProcessingUnit } from '../api/client'
 
 function ProcessingPage() {
-  const { token, logout } = useAuth()
+  const { token, logout, t } = useAuth()
   const navigate = useNavigate()
   const [units, setUnits] = useState<ProcessingUnit[]>([])
   const [loading, setLoading] = useState(true)
@@ -32,17 +32,17 @@ function ProcessingPage() {
 
   return (
     <Layout>
-      <h1 className="text-xl font-bold text-soil mb-1">Turn Produce into Value</h1>
+      <h1 className="text-xl font-bold text-soil mb-1">{t('processingTitle')}</h1>
       <p className="text-xs text-soil/50 mb-4">
-        Demo processing units for hackathon demonstration.
+        {t('processingNote')}
       </p>
 
       <ErrorBanner message={error} />
 
       {loading ? (
-        <LoadingSpinner label="Loading processing units…" />
+        <LoadingSpinner label={t('loading')} />
       ) : units.length === 0 ? (
-        <EmptyState title="No processing units available." />
+        <EmptyState title={t('noProcessing')} />
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
           {units.map((u) => (
@@ -52,7 +52,7 @@ function ProcessingPage() {
               </h3>
               <p className="text-sm text-soil/70 mb-1">{u.name}</p>
               <p className="text-sm text-soil/70 mb-1">
-                ₹{u.processing_cost}/quintal processing cost · {u.distance_km} km away
+                ₹{u.processing_cost}/quintal {t('processingCost')} · {u.distance_km} km {t('away')}
               </p>
               <p className="text-xs text-soil/50">{u.location}</p>
             </div>

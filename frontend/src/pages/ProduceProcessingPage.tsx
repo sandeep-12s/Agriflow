@@ -13,7 +13,7 @@ import {
 
 function ProduceProcessingPage() {
   const { id } = useParams()
-  const { token, logout } = useAuth()
+  const { token, logout, t } = useAuth()
   const navigate = useNavigate()
   const [produce, setProduce] = useState<Produce | null>(null)
   const [opportunities, setOpportunities] = useState<ProcessingOpportunity[]>([])
@@ -42,9 +42,9 @@ function ProduceProcessingPage() {
   return (
     <Layout>
       <Link to="/produce" className="text-sm text-leaf font-medium mb-3 inline-block">
-        ← Back to Produce
+        ← {t('backToProduce')}
       </Link>
-      <h1 className="text-xl font-bold text-soil mb-1">Processing Opportunities</h1>
+      <h1 className="text-xl font-bold text-soil mb-1">{t('processingOpportunities')}</h1>
       {produce && (
         <p className="text-sm text-soil/60 mb-4">
           {produce.crop_name} · {produce.quantity} {produce.unit}
@@ -54,9 +54,9 @@ function ProduceProcessingPage() {
       <ErrorBanner message={error} />
 
       {loading ? (
-        <LoadingSpinner label="Calculating processing opportunities…" />
+        <LoadingSpinner label={t('loading')} />
       ) : opportunities.length === 0 ? (
-        <p className="text-sm text-soil/60">No processing units accept this crop yet.</p>
+        <p className="text-sm text-soil/60">{t('noProcessingCrop')}</p>
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
           {opportunities.map((o) => (
@@ -69,11 +69,11 @@ function ProduceProcessingPage() {
               </p>
               <dl className="text-sm space-y-1">
                 <div className="flex justify-between">
-                  <dt className="text-soil/50">Input Quantity</dt>
+                  <dt className="text-soil/50">{t('inputQuantity')}</dt>
                   <dd className="text-soil">{o.input_quantity}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-soil/50">Expected Output</dt>
+                  <dt className="text-soil/50">{t('expectedOutput')}</dt>
                   <dd className="text-soil">{o.expected_output}</dd>
                 </div>
                 <div className="flex justify-between">
@@ -81,11 +81,11 @@ function ProduceProcessingPage() {
                   <dd className="text-soil">₹{o.processing_cost.toLocaleString()}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-soil/50">Estimated Revenue</dt>
+                  <dt className="text-soil/50">{t('estimatedRevenue')}</dt>
                   <dd className="text-soil">₹{o.estimated_revenue.toLocaleString()}</dd>
                 </div>
                 <div className="flex justify-between font-medium">
-                  <dt className="text-soil">Potential Profit</dt>
+                  <dt className="text-soil">{t('potentialProfitLabel')}</dt>
                   <dd className="text-leaf">₹{o.potential_profit.toLocaleString()}</dd>
                 </div>
               </dl>

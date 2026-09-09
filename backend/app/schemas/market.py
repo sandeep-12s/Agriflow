@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 
 from pydantic import BaseModel
@@ -38,3 +38,19 @@ class CropPriceComparisonRow(BaseModel):
     price_change_pct: Optional[float]
     trend: str                          # "up" / "down" / "flat" / "unknown"
     demand: str
+
+
+class LiveMarketPrice(BaseModel):
+    market_name: str
+    state: Optional[str] = None
+    district: Optional[str] = None
+    commodity: str
+    variety: Optional[str] = None
+    min_price: Optional[float] = None
+    max_price: Optional[float] = None
+    modal_price: Optional[float] = None
+    unit: str = "quintal"
+    arrival_date: Optional[str] = None
+    source: str
+    is_live: bool
+    fetched_at: datetime

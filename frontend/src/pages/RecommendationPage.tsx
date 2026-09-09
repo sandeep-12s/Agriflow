@@ -21,7 +21,7 @@ function riskColor(label: string) {
 
 function RecommendationPage() {
   const { id } = useParams()
-  const { token, logout } = useAuth()
+  const { token, logout, t } = useAuth()
   const navigate = useNavigate()
   const [data, setData] = useState<RecommendationResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -47,11 +47,11 @@ function RecommendationPage() {
   return (
     <Layout>
       <Link to="/produce" className="text-sm text-leaf font-medium mb-3 inline-block">
-        ← Back to Produce
+        ← {t('backToProduce')}
       </Link>
-      <h1 className="text-xl font-bold text-soil mb-1">Recommendation</h1>
+      <h1 className="text-xl font-bold text-soil mb-1">{t('recommendation')}</h1>
 
-      {loading && <LoadingSpinner label="Calculating…" />}
+      {loading && <LoadingSpinner label={t('loading')} />}
       <ErrorBanner message={error} />
 
       {data && (
@@ -60,7 +60,7 @@ function RecommendationPage() {
 
           <div className="bg-leaf text-white rounded-2xl p-4 mb-6">
             <p className="text-xs uppercase tracking-wide text-white/70 mb-1">
-              Recommended Action
+              {t('recommendedAction')}
             </p>
             <p className="text-lg font-bold">{OPTION_LABELS[data.recommended_option]}</p>
           </div>
@@ -78,17 +78,17 @@ function RecommendationPage() {
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-soil">{OPTION_LABELS[opt.option]}</h3>
                   <span className="text-xs bg-husk px-2 py-0.5 rounded-full text-soil/70">
-                    Score {opt.recommendation_score}/100
+                    {t('score')} {opt.recommendation_score}/100
                   </span>
                 </div>
                 <p className="text-sm text-soil/70 mb-1">
-                  Profit:{' '}
+                  {t('profit')}:{' '}
                   <span className="font-medium text-soil">
                     ₹{opt.expected_profit.toLocaleString()}
                   </span>
                 </p>
                 <p className={`text-sm mb-2 font-medium ${riskColor(opt.risk_label)}`}>
-                  Risk: {opt.risk_label}
+                  {t('risk')}: {opt.risk_label}
                 </p>
                 <p className="text-xs text-soil/50">{opt.reason}</p>
               </div>
@@ -96,8 +96,7 @@ function RecommendationPage() {
           </div>
 
           <p className="text-xs text-soil/40 mt-4">
-            All figures are estimated from demo market, storage, processing, and buyer data —
-            not live prices.
+            {t('estimatedData')}
           </p>
         </>
       )}
