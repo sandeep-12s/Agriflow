@@ -1,10 +1,7 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001'
+// Base URL configuration with fallback and trailing-slash cleanup
+const rawBaseUrl = import.meta.env.VITE_API_URL || 'https://agriflow-rguo.onrender.com'
+const API_BASE_URL = rawBaseUrl.replace(/\/$/, '')
 
-// FastAPI's own HTTPException(detail="...") comes back as a plain string,
-// but its automatic 422 validation errors come back as an array of
-// per-field objects like {loc: ["body", "phone"], msg: "field required"}.
-// Without this, the array case rendered as the useless literal text
-// "[object Object]" in the UI.
 function extractErrorMessage(body: unknown, fallback: string): string {
   const detail = (body as { detail?: unknown })?.detail
   if (typeof detail === 'string') return detail
@@ -64,7 +61,7 @@ export interface TokenResponse {
 async function handleAuthResponse(response: Response): Promise<TokenResponse> {
   if (!response.ok) {
     const body = await response.json().catch(() => null)
-    throw new Error(extractErrorMessage(body, `Request failed: ${response.status}`))
+    throw new Error(extractErrorMessage(body, `Request failed with status ${response.status}`))
   }
   return response.json()
 }
@@ -82,8 +79,9 @@ export async function requestRegistrationOtp(phone: string): Promise<OTPResponse
     }
     return response.json()
   } catch (error) {
+    console.error('OTP Request Error:', error)
     if (error instanceof TypeError) {
-      throw new Error('Could not connect to the AgriFlow server. Please try again in a moment.')
+      throw new Error('Could not connect to the AgriFlow server. Please check your CORS configuration or backend URL.')
     }
     throw error
   }
@@ -98,8 +96,9 @@ export async function registerFarmer(payload: RegisterPayload): Promise<TokenRes
     })
     return handleAuthResponse(response)
   } catch (error) {
+    console.error('Registration Error:', error)
     if (error instanceof TypeError) {
-      throw new Error('Could not connect to the AgriFlow server. Please try again in a moment.')
+      throw new Error('Could not connect to the AgriFlow server. Please check your CORS configuration or backend URL.')
     }
     throw error
   }
@@ -114,24 +113,23 @@ export async function loginFarmer(payload: LoginPayload): Promise<TokenResponse>
     })
     return handleAuthResponse(response)
   } catch (error) {
+    console.error('Login Fetch Error:', error)
     if (error instanceof TypeError) {
-      throw new Error('Could not connect to the AgriFlow server. Please try again in a moment.')
+      throw new Error('Could not connect to the AgriFlow server. Please check your CORS configuration or backend URL.')
     }
     throw error
   }
 }
 
 // ---- Generic authenticated request ----
-// Every protected endpoint (profile, dashboard, produce, and everything
-// added in later steps) goes through this one helper so the 401 →
-// force-logout behavior only has to be written once.
 
 async function authRequest<T>(
   path: string,
   token: string,
   options: { method?: string; body?: unknown } = {},
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const cleanPath = path.startsWith('/') ? path : `/${path}`
+  const response = await fetch(`${API_BASE_URL}${cleanPath}`, {
     method: options.method || 'GET',
     headers: {
       'Content-Type': 'application/json',
