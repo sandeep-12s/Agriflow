@@ -99,6 +99,34 @@ function LoginPage() {
               Create an account
             </Link>
           </p>
+
+          <div className="mt-6 pt-5 border-t border-soil/10">
+            <p className="text-xs font-semibold uppercase tracking-wider text-soil/50 text-center mb-3">
+              One-Click Demo Access
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('farmer@agriflow.in')
+                  setPassword('password123')
+                }}
+                className="py-2 px-3 text-xs font-medium rounded-lg bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 transition-colors text-center"
+              >
+                🌾 Demo Farmer
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('buyer@agriflow.in')
+                  setPassword('password123')
+                }}
+                className="py-2 px-3 text-xs font-medium rounded-lg bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 transition-colors text-center"
+              >
+                🏢 Demo Buyer
+              </button>
+            </div>
+          </div>
         </form>
         <p className="auth-footnote">AgriFlow · Decisions after harvest, made clearer.</p>
       </div>
