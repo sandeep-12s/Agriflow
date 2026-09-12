@@ -13,3 +13,5 @@ class WeatherOut(BaseModel):
     weather_code: int
     observed_at: datetime
     source: str
+    condition_text: str = "Clear sky"
+    advisory_alerts: list[dict] = []

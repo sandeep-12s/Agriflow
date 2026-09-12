@@ -41,6 +41,12 @@ def list_produce(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    if current_user.role == "buyer":
+        return (
+            db.query(Produce)
+            .order_by(Produce.created_at.desc())
+            .all()
+        )
     return (
         db.query(Produce)
         .filter(Produce.farmer_id == current_user.id)

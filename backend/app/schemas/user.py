@@ -15,6 +15,7 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=6, description="At least 6 characters")
     location: str = Field(min_length=2, max_length=120)
     language: str = Field(default="en", max_length=10)
+    role: str = Field(default="farmer", description="User role: farmer or buyer")
     otp: str = Field(pattern=r"^\d{6}$", description="Six-digit phone verification code")
 
 

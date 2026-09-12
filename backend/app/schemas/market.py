@@ -51,6 +51,8 @@ class LiveMarketPrice(BaseModel):
     modal_price: Optional[float] = None
     unit: str = "quintal"
     arrival_date: Optional[str] = None
+    arrival_volume: Optional[str] = None
+    price_change: Optional[float] = None
     source: str
     is_live: bool
     fetched_at: datetime

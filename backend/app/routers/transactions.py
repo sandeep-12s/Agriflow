@@ -66,6 +66,9 @@ def create_transaction(
     return transaction
 
 
+from app.services.crop_prediction import predict_next_crop
+
+
 @router.get("", response_model=list[TransactionOut])
 def list_transactions(
     current_user: User = Depends(get_current_user),
@@ -76,4 +79,46 @@ def list_transactions(
         .filter(Transaction.farmer_id == current_user.id)
         .order_by(Transaction.created_at.desc())
         .all()
+    )
+
+
+@router.get("/{transaction_id}/next-crop-prediction")
+def get_next_crop_prediction(
+    transaction_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    After completing or recording a transaction, predicts the next most profitable,
+    soil-restoring crop based on the farmer's region, season, and regional mandi rates.
+    """
+    txn = db.get(Transaction, transaction_id)
+    if txn is None or txn.farmer_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
+
+    crop_name = txn.produce.crop_name if txn.produce else "Crop"
+    location = txn.produce.location if txn.produce and txn.produce.location else current_user.location
+
+    return predict_next_crop(
+        previous_crop=crop_name,
+        farmer_location=location or "Uttar Pradesh",
+        language=current_user.language or "en",
+    )
+
+
+@router.get("/produce/{produce_id}/next-crop-prediction")
+def get_next_crop_prediction_for_produce(
+    produce_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Predicts next profitable crop rotation for a given produce entry."""
+    produce = db.get(Produce, produce_id)
+    if produce is None or produce.farmer_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Produce not found")
+
+    return predict_next_crop(
+        previous_crop=produce.crop_name,
+        farmer_location=produce.location or current_user.location or "Uttar Pradesh",
+        language=current_user.language or "en",
     )

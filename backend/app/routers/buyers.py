@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.core.deps import get_current_user
 from app.db.database import get_db
 from app.db.models import User, Buyer, Produce
-from app.schemas.buyer import BuyerOut
+from app.schemas.buyer import BuyerOut, BuyerCreate, BuyerUpdate
 
 router = APIRouter(prefix="/buyers", tags=["buyers"])
 
@@ -21,6 +21,40 @@ def list_buyers(
     db: Session = Depends(get_db),
 ):
     return db.query(Buyer).order_by(Buyer.offered_price.desc()).all()
+
+
+@router.post("", response_model=BuyerOut, status_code=status.HTTP_201_CREATED)
+def create_buyer_requirement(
+    payload: BuyerCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Allows a registered buyer or trader to post what produce they want to purchase."""
+    buyer = Buyer(
+        user_id=current_user.id,
+        name=payload.name or current_user.name,
+        product=payload.product,
+        required_quantity=payload.required_quantity,
+        offered_price=payload.offered_price,
+        location=payload.location or current_user.location,
+        latitude=payload.latitude,
+        longitude=payload.longitude,
+        quality_requirement=payload.quality_requirement,
+        contact=payload.contact or current_user.phone or current_user.email,
+    )
+    db.add(buyer)
+    db.commit()
+    db.refresh(buyer)
+    return buyer
+
+
+@router.get("/my-requirements", response_model=list[BuyerOut])
+def get_my_requirements(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Lists requirements posted by the logged-in buyer user."""
+    return db.query(Buyer).filter(Buyer.user_id == current_user.id).order_by(Buyer.id.desc()).all()
 
 
 @router.get("/matching/{produce_id}", response_model=list[BuyerOut])
@@ -36,7 +70,7 @@ def matching_buyers(
 
     return (
         db.query(Buyer)
-        .filter(Buyer.product == produce.crop_name, Buyer.required_quantity >= produce.quantity)
+        .filter(Buyer.product.ilike(produce.crop_name), Buyer.required_quantity >= produce.quantity)
         .order_by(Buyer.offered_price.desc())
         .all()
     )
@@ -52,3 +86,40 @@ def get_buyer(
     if buyer is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Buyer not found")
     return buyer
+
+
+@router.put("/{buyer_id}", response_model=BuyerOut)
+def update_buyer_requirement(
+    buyer_id: int,
+    payload: BuyerUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    buyer = db.get(Buyer, buyer_id)
+    if buyer is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Buyer requirement not found")
+    if buyer.user_id != current_user.id and current_user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to edit this requirement")
+
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(buyer, key, value)
+
+    db.commit()
+    db.refresh(buyer)
+    return buyer
+
+
+@router.delete("/{buyer_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_buyer_requirement(
+    buyer_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    buyer = db.get(Buyer, buyer_id)
+    if buyer is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Buyer requirement not found")
+    if buyer.user_id != current_user.id and current_user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this requirement")
+
+    db.delete(buyer)
+    db.commit()

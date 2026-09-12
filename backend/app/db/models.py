@@ -53,8 +53,9 @@ class User(Base):
     language: Mapped[str] = mapped_column(String(10), default="en")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
 
-    produce: Mapped[list["Produce"]] = relationship(back_populates="farmer")
+    produce: Mapped[list["Produce"]] = relationship(back_populates="farmer", cascade="all, delete-orphan")
     transactions: Mapped[list["Transaction"]] = relationship(back_populates="farmer")
+    buyer_requirements: Mapped[list["Buyer"]] = relationship(back_populates="user")
 
 
 class RegistrationOTP(Base):
@@ -85,7 +86,9 @@ class Produce(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
 
     farmer: Mapped["User"] = relationship(back_populates="produce")
-    recommendations: Mapped[list["Recommendation"]] = relationship(back_populates="produce")
+    recommendations: Mapped[list["Recommendation"]] = relationship(
+        back_populates="produce", cascade="all, delete-orphan"
+    )
     transactions: Mapped[list["Transaction"]] = relationship(back_populates="produce")
 
 
@@ -101,7 +104,9 @@ class Market(Base):
     # need the farmer's own coordinates, which the app doesn't collect yet.
     distance_km: Mapped[float] = mapped_column(Float, default=0.0)
 
-    prices: Mapped[list["MarketPrice"]] = relationship(back_populates="market")
+    prices: Mapped[list["MarketPrice"]] = relationship(
+        back_populates="market", cascade="all, delete-orphan"
+    )
 
 
 class MarketPrice(Base):
@@ -121,14 +126,18 @@ class Buyer(Base):
     __tablename__ = "buyers"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     name: Mapped[str] = mapped_column(String(120))
     product: Mapped[str] = mapped_column(String(80), index=True)
     required_quantity: Mapped[float] = mapped_column(Float)
     offered_price: Mapped[float] = mapped_column(Float)
     location: Mapped[str] = mapped_column(String(120))
+    latitude: Mapped[float | None] = mapped_column(Float, nullable=True)
+    longitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     quality_requirement: Mapped[str] = mapped_column(String(20), default="Grade A")
     contact: Mapped[str] = mapped_column(String(80))
 
+    user: Mapped["User | None"] = relationship(back_populates="buyer_requirements")
     transactions: Mapped[list["Transaction"]] = relationship(back_populates="buyer")
 
 
@@ -138,6 +147,8 @@ class StorageFacility(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(120))
     location: Mapped[str] = mapped_column(String(120))
+    latitude: Mapped[float | None] = mapped_column(Float, nullable=True)
+    longitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     type: Mapped[str] = mapped_column(String(50))
     capacity: Mapped[float] = mapped_column(Float)
     available_capacity: Mapped[float] = mapped_column(Float)
@@ -154,13 +165,17 @@ class ProcessingUnit(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(120))
     location: Mapped[str] = mapped_column(String(120))
+    latitude: Mapped[float | None] = mapped_column(Float, nullable=True)
+    longitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     input_product: Mapped[str] = mapped_column(String(80), index=True)
     input_capacity: Mapped[float] = mapped_column(Float)
     processing_cost: Mapped[float] = mapped_column(Float)
     output_product: Mapped[str] = mapped_column(String(80))
     estimated_output: Mapped[float] = mapped_column(Float)  # output units per input unit
-    # Demo distance, same approach as Market.distance_km — see seed.py.
     distance_km: Mapped[float] = mapped_column(Float, default=0.0)
+    contact_email: Mapped[str | None] = mapped_column(String(180), nullable=True)
+    contact_phone: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class Recommendation(Base):

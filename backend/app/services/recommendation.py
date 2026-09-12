@@ -103,7 +103,7 @@ def evaluate_produce(produce: Produce, db: Session, current_user) -> list[Option
     # ---- STORE ----
     storage = (
         db.query(StorageFacility)
-        .filter(StorageFacility.supported_crops.contains(produce.crop_name))
+        .filter(StorageFacility.supported_crops.ilike(f"%{produce.crop_name}%"))
         .first()
     )
     if storage:
@@ -137,7 +137,7 @@ def evaluate_produce(produce: Produce, db: Session, current_user) -> list[Option
     # ---- PROCESS ----
     processor = (
         db.query(ProcessingUnit)
-        .filter(ProcessingUnit.input_product == produce.crop_name)
+        .filter(ProcessingUnit.input_product.ilike(produce.crop_name))
         .first()
     )
     if processor and processor.output_product in PROCESSED_PRODUCT_PRICE:
@@ -171,7 +171,7 @@ def evaluate_produce(produce: Produce, db: Session, current_user) -> list[Option
     # compared apples-to-apples against the same total quantity.
     buyer = (
         db.query(Buyer)
-        .filter(Buyer.product == produce.crop_name, Buyer.required_quantity >= produce.quantity)
+        .filter(Buyer.product.ilike(produce.crop_name), Buyer.required_quantity >= produce.quantity)
         .order_by(Buyer.offered_price.desc())
         .first()
     )

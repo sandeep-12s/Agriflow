@@ -41,7 +41,7 @@ def processing_opportunities(
 
     units = (
         db.query(ProcessingUnit)
-        .filter(ProcessingUnit.input_product == produce.crop_name)
+        .filter(ProcessingUnit.input_product.ilike(produce.crop_name))
         .all()
     )
 

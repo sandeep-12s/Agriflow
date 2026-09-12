@@ -4,6 +4,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -77,9 +78,11 @@ def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
 
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 def register(payload: UserCreate, db: Session = Depends(get_db)):
+    email_clean = payload.email.strip().lower()
+    phone_clean = payload.phone.strip()
     existing = (
         db.query(User)
-        .filter((User.email == payload.email) | (User.phone == payload.phone))
+        .filter((func.lower(User.email) == email_clean) | (User.phone == phone_clean))
         .first()
     )
     if existing:
@@ -90,7 +93,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
 
     otp = (
         db.query(RegistrationOTP)
-        .filter(RegistrationOTP.phone == payload.phone, RegistrationOTP.used.is_(False))
+        .filter(RegistrationOTP.phone == phone_clean, RegistrationOTP.used.is_(False))
         .order_by(RegistrationOTP.created_at.desc())
         .first()
     )
@@ -100,17 +103,21 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Too many incorrect verification attempts")
 
     otp.attempts += 1
-    if otp.code_hash != hash_otp(payload.phone, payload.otp):
+    if otp.code_hash != hash_otp(phone_clean, payload.otp):
         db.commit()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect verification code")
     otp.used = True
 
+    role_val = payload.role.strip().lower()
+    user_role = "buyer" if role_val == "buyer" else "farmer"
+
     user = User(
-        name=payload.name,
-        phone=payload.phone,
-        email=payload.email,
+        name=payload.name.strip(),
+        phone=phone_clean,
+        email=email_clean,
         password_hash=hash_password(payload.password),
-        location=payload.location,
+        role=user_role,
+        location=payload.location.strip(),
         language=payload.language,
     )
     db.add(user)
@@ -122,7 +129,8 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(payload: UserLogin, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == payload.email).first()
+    email_clean = payload.email.strip().lower()
+    user = db.query(User).filter(func.lower(User.email) == email_clean).first()
     if user is None or not verify_password(payload.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

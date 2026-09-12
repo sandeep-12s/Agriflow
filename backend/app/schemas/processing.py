@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -5,12 +7,17 @@ class ProcessingUnitOut(BaseModel):
     id: int
     name: str
     location: str
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     input_product: str
     input_capacity: float
     processing_cost: float
     output_product: str
     estimated_output: float
     distance_km: float
+    contact_email: Optional[str] = None
+    contact_phone: Optional[str] = None
+    description: Optional[str] = None
 
     model_config = {"from_attributes": True}
 

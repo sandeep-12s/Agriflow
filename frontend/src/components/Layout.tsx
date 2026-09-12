@@ -1,23 +1,36 @@
 import { ReactNode, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { SUPPORTED_LANGUAGES } from '../i18n'
 
-const NAV_ITEMS = [
-  { to: '/dashboard', key: 'dashboard' },
-  { to: '/produce', key: 'produce' },
-  { to: '/market', key: 'market' },
-  { to: '/buyers', key: 'buyers' },
-  { to: '/storage', key: 'storage' },
-  { to: '/processing', key: 'processing' },
-  { to: '/assistant', key: 'assistant' },
-  { to: '/analytics', key: 'analytics' },
-] as const
+interface NavItem {
+  to: string
+  key: 'dashboard' | 'produce' | 'market' | 'buyers' | 'buyerPortal' | 'storage' | 'processing' | 'assistant' | 'analytics'
+  roles: ('farmer' | 'buyer')[]
+}
+
+const ALL_NAV_ITEMS: NavItem[] = [
+  { to: '/dashboard', key: 'dashboard', roles: ['farmer', 'buyer'] },
+  { to: '/produce', key: 'produce', roles: ['farmer'] },
+  { to: '/market', key: 'market', roles: ['farmer', 'buyer'] },
+  { to: '/buyers', key: 'buyers', roles: ['farmer'] },
+  { to: '/buyer/portal', key: 'buyerPortal', roles: ['buyer'] },
+  { to: '/storage', key: 'storage', roles: ['farmer'] },
+  { to: '/processing', key: 'processing', roles: ['farmer'] },
+  { to: '/assistant', key: 'assistant', roles: ['farmer', 'buyer'] },
+  { to: '/analytics', key: 'analytics', roles: ['farmer'] },
+]
 
 function Layout({ children }: { children: ReactNode }) {
-  const { logout, language, setLanguage, t } = useAuth()
+  const { user, logout, language, setLanguage, t, isAutoLanguage, detectedRegion, autoDetectLanguage } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const isBuyer = user?.role === 'buyer'
+  const navItems = ALL_NAV_ITEMS.filter((item) =>
+    isBuyer ? item.roles.includes('buyer') : item.roles.includes('farmer')
+  )
 
   const handleLogout = () => {
     logout()
@@ -37,14 +50,14 @@ function Layout({ children }: { children: ReactNode }) {
       <header className="app-header">
         <div className="app-header-inner max-w-[1400px] mx-auto flex items-center justify-between px-4 md:px-8">
           <div className="flex items-center gap-7">
-            <Link to="/dashboard" className="flex items-center gap-2.5 text-soil hover:text-leaf">
+            <Link to={isBuyer ? '/buyer/portal' : '/dashboard'} className="flex items-center gap-2.5 text-soil hover:text-leaf">
               <span className="brand-mark">AF</span>
               <span className="text-lg font-bold tracking-tight">AgriFlow</span>
             </Link>
             {/* Full nav shown from md breakpoint up — below that it collapses
                 into the hamburger menu so 8 links never overflow a phone screen. */}
             <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
-              {NAV_ITEMS.map((item) => (
+              {navItems.map((item) => (
                 <Link
                   key={item.to}
                   to={item.to}
@@ -58,10 +71,44 @@ function Layout({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="hidden lg:inline text-xs font-medium text-soil/45 mr-2">{t('farmerWorkspace')}</span>
-            <div className="hidden md:flex items-center gap-1 border border-soil/20 rounded-lg p-1" role="group" aria-label={t('responseLanguage')}>
-              <button onClick={() => setLanguage('en')} className={`text-xs px-2 py-1 rounded ${language === 'en' ? 'bg-leaf text-white' : 'text-soil'}`}>EN</button>
-              <button onClick={() => setLanguage('hi')} className={`text-xs px-2 py-1 rounded ${language === 'hi' ? 'bg-leaf text-white' : 'text-soil'}`}>हिन्दी</button>
+            <span className="hidden lg:inline text-xs font-bold px-2.5 py-1 rounded-full bg-soil/5 text-soil/60 mr-2">
+              {isBuyer ? '🏢 BUYER WORKSPACE' : '🌾 ' + t('farmerWorkspace')}
+            </span>
+
+            {/* Detected Region Badge if auto-selected */}
+            {detectedRegion && isAutoLanguage && (
+              <span
+                className="hidden xl:inline-flex items-center gap-1 text-[11px] font-bold text-leaf bg-leaf/10 border border-leaf/25 px-2.5 py-1 rounded-xl shadow-xs"
+                title={`${t('regionDetected')}: ${detectedRegion.state}`}
+              >
+                <span>📍</span>
+                <span>{detectedRegion.state}</span>
+              </span>
+            )}
+
+            <div className="hidden md:flex items-center gap-1.5 bg-sand/60 border border-soil/20 rounded-xl px-2.5 py-1.5 shadow-xs" role="group" aria-label={t('responseLanguage')}>
+              <span className="text-sm">🌐</span>
+              <select
+                value={isAutoLanguage ? 'auto' : language}
+                onChange={(e) => {
+                  if (e.target.value === 'auto') {
+                    autoDetectLanguage()
+                  } else {
+                    setLanguage(e.target.value as any, true)
+                  }
+                }}
+                className="bg-transparent text-xs font-bold text-soil outline-none cursor-pointer pr-1"
+                aria-label="Select state language"
+              >
+                <option value="auto">
+                  📍 {t('autoDetectRegion')}{detectedRegion ? ` (${detectedRegion.state})` : ''}
+                </option>
+                {SUPPORTED_LANGUAGES.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.flag} {l.nativeName} ({l.label})
+                  </option>
+                ))}
+              </select>
             </div>
             <button
               onClick={handleLogout}
@@ -87,7 +134,7 @@ function Layout({ children }: { children: ReactNode }) {
             aria-label="Main navigation, mobile"
             className="md:hidden border-t border-soil/10 px-4 py-3 flex flex-col gap-1"
           >
-            {NAV_ITEMS.map((item) => (
+            {navItems.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
@@ -98,9 +145,33 @@ function Layout({ children }: { children: ReactNode }) {
                 {t(item.key)}
               </Link>
             ))}
-            <div className="flex items-center gap-1 mt-1 px-1" role="group" aria-label={t('responseLanguage')}>
-              <button onClick={() => setLanguage('en')} className={`text-xs px-2 py-1 rounded ${language === 'en' ? 'bg-leaf text-white' : 'text-soil'}`}>EN</button>
-              <button onClick={() => setLanguage('hi')} className={`text-xs px-2 py-1 rounded ${language === 'hi' ? 'bg-leaf text-white' : 'text-soil'}`}>हिन्दी</button>
+            <div className="flex items-center justify-between py-2 px-3 bg-sand/40 border border-soil/15 rounded-xl my-1.5">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-soil/75">🌐 {t('responseLanguage')}:</span>
+                {detectedRegion && isAutoLanguage && (
+                  <span className="text-[10px] font-bold text-leaf bg-leaf/10 px-1.5 py-0.5 rounded-md">
+                    📍 {detectedRegion.state}
+                  </span>
+                )}
+              </div>
+              <select
+                value={isAutoLanguage ? 'auto' : language}
+                onChange={(e) => {
+                  if (e.target.value === 'auto') {
+                    autoDetectLanguage()
+                  } else {
+                    setLanguage(e.target.value as any, true)
+                  }
+                }}
+                className="bg-white border border-soil/20 text-xs font-bold text-soil rounded-lg px-2.5 py-1 outline-none"
+              >
+                <option value="auto">📍 {t('autoDetectRegion')}</option>
+                {SUPPORTED_LANGUAGES.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.flag} {l.nativeName}
+                  </option>
+                ))}
+              </select>
             </div>
             <button
               onClick={handleLogout}

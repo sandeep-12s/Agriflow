@@ -5,6 +5,8 @@ class StorageFacilityOut(BaseModel):
     id: int
     name: str
     location: str
+    latitude: float | None = None
+    longitude: float | None = None
     type: str
     distance_km: float
     capacity: float

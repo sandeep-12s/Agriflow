@@ -81,39 +81,63 @@ def seed(db: Optional[Session] = None) -> None:
         # --- Buyers ---
         buyers = [
             Buyer(name="FreshFoods Pvt Ltd", product="Tomato", required_quantity=20,
-                  offered_price=2400, location="Bareilly, UP", quality_requirement="Grade A",
-                  contact="demo-buyer-1@example.com"),
+                  offered_price=2400, location="Bareilly, UP", latitude=28.367, longitude=79.430,
+                  quality_requirement="Grade A", contact="demo-buyer-1@example.com"),
             Buyer(name="AgroMart Wholesale", product="Potato", required_quantity=50,
-                  offered_price=1300, location="Pilibhit, UP", quality_requirement="Grade B",
-                  contact="demo-buyer-2@example.com"),
+                  offered_price=1300, location="Pilibhit, UP", latitude=28.631, longitude=79.803,
+                  quality_requirement="Grade B", contact="demo-buyer-2@example.com"),
             Buyer(name="Golden Harvest Exports", product="Mango", required_quantity=15,
-                  offered_price=4200, location="Shahjahanpur, UP", quality_requirement="Grade A",
-                  contact="demo-buyer-3@example.com"),
+                  offered_price=4200, location="Shahjahanpur, UP", latitude=27.880, longitude=79.910,
+                  quality_requirement="Grade A", contact="demo-buyer-3@example.com"),
         ]
         db.add_all(buyers)
 
         # --- Storage facilities ---
         storage = [
             StorageFacility(name="ColdChain Storage Hub", location="Bareilly, UP", type="Cold Storage",
-                             capacity=1000, available_capacity=400, cost_per_unit=15,
-                             supported_crops="Tomato,Potato,Mango,Milk", distance_km=10),
+                            capacity=1000, available_capacity=400, cost_per_unit=15,
+                            supported_crops="Tomato,Potato,Mango,Milk", distance_km=10,
+                            latitude=28.375, longitude=79.415),
             StorageFacility(name="Community Grain Warehouse", location="Pilibhit, UP", type="Dry Warehouse",
-                             capacity=5000, available_capacity=2200, cost_per_unit=5,
-                             supported_crops="Wheat,Rice,Onion", distance_km=45),
+                            capacity=5000, available_capacity=2200, cost_per_unit=5,
+                            supported_crops="Wheat,Rice,Onion", distance_km=45,
+                            latitude=28.620, longitude=79.795),
         ]
         db.add_all(storage)
 
         # --- Processing units ---
         processing = [
-            ProcessingUnit(name="Sunrise Tomato Processing", location="Bareilly, UP",
-                            input_product="Tomato", input_capacity=50, processing_cost=300,
-                            output_product="Tomato Puree", estimated_output=0.35, distance_km=12),
-            ProcessingUnit(name="Ganges Mango Co.", location="Shahjahanpur, UP",
-                            input_product="Mango", input_capacity=30, processing_cost=450,
-                            output_product="Mango Pulp", estimated_output=0.6, distance_km=35),
-            ProcessingUnit(name="Local Dairy Cooperative", location="Bareilly, UP",
-                            input_product="Milk", input_capacity=200, processing_cost=200,
-                            output_product="Paneer", estimated_output=0.2, distance_km=10),
+            ProcessingUnit(
+                name="Sunrise Tomato Processing Co.", location="Bareilly, UP",
+                latitude=28.347, longitude=79.420,
+                input_product="Tomato", input_capacity=50, processing_cost=300,
+                output_product="Tomato Puree", estimated_output=0.35, distance_km=12,
+                contact_email="orders@sunrisetomato.in", contact_phone="+91-9870012345",
+                description="State-of-the-art tomato processing facility with cold-chain handling. "
+                            "Certified by FSSAI. Accepts contract farming produce. Payment within 7 days. "
+                            "Capacity: 50 MT/day. Produces puree, ketchup concentrate and canned tomatoes.",
+            ),
+            ProcessingUnit(
+                name="Ganges Mango Co. Pvt Ltd", location="Shahjahanpur, UP",
+                latitude=27.883, longitude=79.908,
+                input_product="Mango", input_capacity=30, processing_cost=450,
+                output_product="Mango Pulp", estimated_output=0.6, distance_km=35,
+                contact_email="procurement@gangesmango.com", contact_phone="+91-9455098765",
+                description="Leading Alphonso & Dasheri mango pulp exporter with 15+ years experience. "
+                            "ISO 22000:2018 certified. Exports to UAE, UK, USA. Handles Safeda, Dashehari & Langra varieties. "
+                            "Minimum intake: 5 MT per lot. Free farm pick-up above 10 MT.",
+            ),
+            ProcessingUnit(
+                name="Local Dairy Cooperative (LDCC)", location="Bareilly, UP",
+                latitude=28.363, longitude=79.398,
+                input_product="Milk", input_capacity=200, processing_cost=200,
+                output_product="Paneer", estimated_output=0.2, distance_km=10,
+                contact_email="milk@ldcc-bareilly.coop", contact_phone="+91-5812-245678",
+                description="Farmer-owned cooperative with 3,200 member households. "
+                            "Processes milk into paneer, ghee, curd and butter. "
+                            "Daily collection route covers 40 km radius. "
+                            "Guaranteed minimum price above MSP. NDDB affiliated.",
+            ),
         ]
         db.add_all(processing)
 

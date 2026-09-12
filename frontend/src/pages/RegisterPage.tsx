@@ -2,28 +2,75 @@ import { useState, FormEvent, ChangeEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { registerFarmer, requestRegistrationOtp } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import { SUPPORTED_LANGUAGES, Language } from '../i18n'
+import { detectLanguageFromLocationText, detectRegionAndLanguage } from '../utils/regionLanguage'
 import ErrorBanner from '../components/ErrorBanner'
 
 function RegisterPage() {
+  const [role, setRole] = useState<'farmer' | 'buyer'>('farmer')
   const [form, setForm] = useState({
     name: '',
     phone: '',
     email: '',
     password: '',
     location: '',
-    language: 'en',
+    language: 'hi' as Language,
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [otpRequested, setOtpRequested] = useState(false)
   const [otp, setOtp] = useState('')
   const [otpMessage, setOtpMessage] = useState('')
+  const [detectedRegionBadge, setDetectedRegionBadge] = useState<string | null>(null)
+  const [detectingGps, setDetectingGps] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
 
   const update =
     (field: keyof typeof form) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
       setForm((f) => ({ ...f, [field]: e.target.value }))
+
+  const handleLocationChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    setForm((f) => ({ ...f, location: val }))
+    const match = detectLanguageFromLocationText(val)
+    if (match) {
+      setForm((f) => ({ ...f, location: val, language: match.language }))
+      setDetectedRegionBadge(`📍 ${match.state} detected → Language auto-set to ${match.nativeName}`)
+    } else {
+      setDetectedRegionBadge(null)
+    }
+  }
+
+  const handleAutoDetectLocation = () => {
+    if (!('geolocation' in navigator)) {
+      setError('Geolocation is not supported by your browser.')
+      return
+    }
+    setDetectingGps(true)
+    setError('')
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const res = await detectRegionAndLanguage({
+            coords: { latitude: pos.coords.latitude, longitude: pos.coords.longitude },
+          })
+          const resolvedLoc = res.district ? `${res.district}, ${res.state}` : res.state
+          setForm((f) => ({ ...f, location: resolvedLoc, language: res.language }))
+          setDetectedRegionBadge(`📍 ${res.state} detected → Language auto-set to ${res.nativeName}`)
+        } catch {
+          setError('Could not auto-detect location.')
+        } finally {
+          setDetectingGps(false)
+        }
+      },
+      () => {
+        setDetectingGps(false)
+        setError('Location permission denied.')
+      },
+      { timeout: 8000 }
+    )
+  }
 
   const handleRequestOtp = async () => {
     setError('')
@@ -49,9 +96,13 @@ function RegisterPage() {
     setError('')
     setLoading(true)
     try {
-      const { access_token } = await registerFarmer({ ...form, otp })
+      const { access_token } = await registerFarmer({ ...form, role, otp })
       login(access_token)
-      navigate('/dashboard')
+      if (role === 'buyer') {
+        navigate('/buyer/portal')
+      } else {
+        navigate('/dashboard')
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed')
     } finally {
@@ -85,8 +136,36 @@ function RegisterPage() {
           </div>
           <div className="mb-6">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-leaf/75 mb-2">Get started</p>
-            <h1 className="text-3xl font-bold text-soil mb-2">Create your farmer account</h1>
-            <p className="auth-intro text-sm">Set up your workspace and make your next harvest count.</p>
+            <h1 className="text-3xl font-bold text-soil mb-2">
+              {role === 'buyer' ? 'Create your buyer account' : 'Create your farmer account'}
+            </h1>
+            <p className="auth-intro text-sm">
+              {role === 'buyer'
+                ? 'Post purchasing orders and source quality produce directly from farmers.'
+                : 'Set up your workspace and make your next harvest count.'}
+            </p>
+
+            {/* Account Type Selector */}
+            <div className="grid grid-cols-2 gap-2 mt-4 p-1 bg-soil/5 rounded-2xl border border-soil/10">
+              <button
+                type="button"
+                onClick={() => setRole('farmer')}
+                className={`py-2 px-3 rounded-xl text-xs font-bold transition ${
+                  role === 'farmer' ? 'bg-white shadow-xs text-leaf' : 'text-soil/60 hover:text-soil'
+                }`}
+              >
+                👨‍🌾 Farmer / Producer
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('buyer')}
+                className={`py-2 px-3 rounded-xl text-xs font-bold transition ${
+                  role === 'buyer' ? 'bg-white shadow-xs text-leaf' : 'text-soil/60 hover:text-soil'
+                }`}
+              >
+                🏢 Buyer / Trader
+              </button>
+            </div>
           </div>
 
           <ErrorBanner message={error} />
@@ -102,14 +181,43 @@ function RegisterPage() {
             type="password"
             autoComplete="new-password"
           />
-          <Field id="location" label="Location" value={form.location} onChange={update('location')} />
+          <div className="flex items-center justify-between mb-1">
+            <label htmlFor="location" className="auth-label mb-0">Location / Farm District</label>
+            <button
+              type="button"
+              onClick={handleAutoDetectLocation}
+              disabled={detectingGps}
+              className="text-[11px] font-bold text-leaf hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <span>📍</span>
+              <span>{detectingGps ? 'Detecting GPS…' : 'Auto-detect GPS'}</span>
+            </button>
+          </div>
+          <input
+            id="location"
+            type="text"
+            required
+            placeholder="e.g. Nashik, Ludhiana, Rajkot, Guntur, Bareilly"
+            value={form.location}
+            onChange={handleLocationChange}
+            className="auth-input mb-3"
+          />
+
+          {detectedRegionBadge && (
+            <p className="text-xs font-bold text-leaf bg-leaf/10 border border-leaf/25 px-3 py-2 rounded-xl mb-4 flex items-center gap-1.5 animate-fadeIn shadow-xs">
+              {detectedRegionBadge}
+            </p>
+          )}
 
           <label htmlFor="language" className="auth-label">
-            Preferred language
+            Preferred language (Auto-selected by region)
           </label>
           <select id="language" value={form.language} onChange={update('language')} className="auth-input mb-6">
-            <option value="en">English</option>
-            <option value="hi">हिन्दी (Hindi)</option>
+            {SUPPORTED_LANGUAGES.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.flag} {l.nativeName} ({l.label})
+              </option>
+            ))}
           </select>
 
           {otpRequested && (

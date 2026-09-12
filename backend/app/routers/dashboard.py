@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from app.core.deps import get_current_user
 from app.db.database import get_db
 from app.db.models import User, Produce, Recommendation, Buyer
-from app.schemas.dashboard import DashboardSummary
+from app.schemas.dashboard import DashboardSummary, BuyerDashboardSummary
 from app.services.recommendation import risk_label
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -74,5 +74,46 @@ def get_dashboard_summary(
         wastage_risk=wastage_risk,
         active_recommendations=recommendation_count,
         available_buyers=available_buyers,
+        next_action=next_action,
+    )
+
+
+@router.get("/buyer-summary", response_model=BuyerDashboardSummary)
+def get_buyer_dashboard_summary(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Procurement intelligence summary for buyers & wholesale agents."""
+    from app.db.models import Market, MarketPrice
+
+    # 1. Count buyer's active purchase requirements
+    active_reqs = db.query(Buyer).filter(Buyer.user_id == current_user.id).count()
+
+    # 2. Local farmer supply available
+    produce_query = db.query(Produce)
+    total_lots = produce_query.count()
+    total_qty = produce_query.with_entities(func.coalesce(func.sum(Produce.quantity), 0.0)).scalar()
+
+    # 3. Unique crops available
+    unique_crops = db.query(Produce.crop_name).distinct().count()
+
+    # 4. Market benchmarks
+    avg_price = db.query(func.coalesce(func.avg(MarketPrice.price), 2250.0)).scalar()
+    total_mandis = db.query(Market).count()
+
+    if active_reqs == 0:
+        next_action = "Post your first buying requirement to connect directly with local farmers."
+    elif total_lots == 0:
+        next_action = "Check regional APMC Mandi rates to benchmark your procurement prices."
+    else:
+        next_action = f"You have {total_lots} fresh farmer produce lots ready for direct procurement in your region."
+
+    return BuyerDashboardSummary(
+        active_requirements_count=active_reqs,
+        total_farmer_produce_lots=total_lots,
+        total_supply_quantity_qtl=float(total_qty),
+        unique_crops_available=unique_crops,
+        avg_market_price_qtl=round(float(avg_price), 2),
+        active_mandis_count=total_mandis,
         next_action=next_action,
     )

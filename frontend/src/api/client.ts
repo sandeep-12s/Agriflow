@@ -47,6 +47,7 @@ export interface RegisterPayload {
   password: string
   location: string
   language: string
+  role?: string
   otp: string
 }
 
@@ -189,8 +190,22 @@ export interface DashboardSummary {
   next_action: string
 }
 
+export interface BuyerDashboardSummary {
+  active_requirements_count: number
+  total_farmer_produce_lots: number
+  total_supply_quantity_qtl: number
+  unique_crops_available: number
+  avg_market_price_qtl: number
+  active_mandis_count: number
+  next_action: string
+}
+
 export function getDashboardSummary(token: string) {
   return authRequest<DashboardSummary>('/dashboard/summary', token)
+}
+
+export function getBuyerDashboardSummary(token: string) {
+  return authRequest<BuyerDashboardSummary>('/dashboard/buyer-summary', token)
 }
 
 // ---- Markets ----
@@ -239,16 +254,51 @@ export interface LiveMarketPrice {
   modal_price: number | null
   unit: string
   arrival_date: string | null
+  arrival_volume?: string | null
+  price_change?: number | null
   source: string
   is_live: boolean
   fetched_at: string
 }
 
-export function getLiveMarketPrices(token: string, cropName: string, state?: string, district?: string) {
+export function getLiveMarketPrices(
+  token: string,
+  cropName: string,
+  state?: string,
+  district?: string,
+  lat?: number,
+  lng?: number
+) {
   const params = new URLSearchParams({ crop_name: cropName })
   if (state) params.set('state', state)
   if (district) params.set('district', district)
+  if (lat !== undefined) params.set('latitude', lat.toString())
+  if (lng !== undefined) params.set('longitude', lng.toString())
   return authRequest<LiveMarketPrice[]>(`/markets/live-prices?${params}`, token)
+}
+
+export function getRegionalMandiFeed(
+  token: string,
+  params: { latitude?: number; longitude?: number; state?: string; district?: string }
+) {
+  const q = new URLSearchParams()
+  if (params.latitude !== undefined) q.set('latitude', params.latitude.toString())
+  if (params.longitude !== undefined) q.set('longitude', params.longitude.toString())
+  if (params.state) q.set('state', params.state)
+  if (params.district) q.set('district', params.district)
+  return authRequest<{
+    region_title: string
+    state: string
+    district: string
+    crops_count: number
+    prices: LiveMarketPrice[]
+  }>(`/markets/regional-mandi-feed?${q}`, token)
+}
+
+export interface WeatherAdvisoryAlert {
+  level: 'low' | 'medium' | 'high'
+  title: string
+  message: string
 }
 
 export interface WeatherResponse {
@@ -261,6 +311,8 @@ export interface WeatherResponse {
   weather_code: number
   observed_at: string
   source: string
+  condition_text?: string
+  advisory_alerts?: WeatherAdvisoryAlert[]
 }
 
 export function getWeather(token: string, latitude: number, longitude: number) {
@@ -292,17 +344,32 @@ export function getRecommendation(token: string, produceId: number) {
   return authRequest<RecommendationResponse>(`/recommendations/${produceId}`, token)
 }
 
-// ---- Buyers ----
+// ---- Buyers & Purchasing Orders ----
 
 export interface Buyer {
   id: number
+  user_id?: number | null
   name: string
   product: string
   required_quantity: number
   offered_price: number
   location: string
+  latitude?: number | null
+  longitude?: number | null
   quality_requirement: string
   contact: string
+}
+
+export interface BuyerPayload {
+  name?: string
+  product: string
+  required_quantity: number
+  offered_price: number
+  location: string
+  latitude?: number | null
+  longitude?: number | null
+  quality_requirement?: string
+  contact?: string
 }
 
 export function listBuyers(token: string) {
@@ -317,7 +384,23 @@ export function matchingBuyers(token: string, produceId: number) {
   return authRequest<Buyer[]>(`/buyers/matching/${produceId}`, token)
 }
 
-// ---- Transactions ----
+export function createBuyerRequirement(token: string, payload: BuyerPayload) {
+  return authRequest<Buyer>('/buyers', token, { method: 'POST', body: payload })
+}
+
+export function getMyBuyerRequirements(token: string) {
+  return authRequest<Buyer[]>('/buyers/my-requirements', token)
+}
+
+export function updateBuyerRequirement(token: string, id: number, payload: Partial<BuyerPayload>) {
+  return authRequest<Buyer>(`/buyers/${id}`, token, { method: 'PUT', body: payload })
+}
+
+export function deleteBuyerRequirement(token: string, id: number) {
+  return authRequest<void>(`/buyers/${id}`, token, { method: 'DELETE' })
+}
+
+// ---- Transactions & Next Crop Prediction ----
 
 export interface TransactionPayload {
   buyer_id: number
@@ -337,6 +420,23 @@ export interface Transaction {
   created_at: string
 }
 
+export interface NextCropPrediction {
+  crop_name: string
+  variety: string
+  reason: string
+  rotation_benefit: string
+  expected_yield_per_acre: string
+  estimated_modal_price: number
+  estimated_revenue_per_acre: number
+  estimated_cost_per_acre: number
+  estimated_profit_per_acre: number
+  roi_potential: string
+  water_need: string
+  season: string
+  benchmark_mandi: string
+  ai_advisory: string
+}
+
 export function createTransaction(token: string, payload: TransactionPayload) {
   return authRequest<Transaction>('/transactions', token, { method: 'POST', body: payload })
 }
@@ -345,12 +445,22 @@ export function listTransactions(token: string) {
   return authRequest<Transaction[]>('/transactions', token)
 }
 
+export function getNextCropPrediction(token: string, transactionId: number) {
+  return authRequest<NextCropPrediction>(`/transactions/${transactionId}/next-crop-prediction`, token)
+}
+
+export function getNextCropPredictionForProduce(token: string, produceId: number) {
+  return authRequest<NextCropPrediction>(`/transactions/produce/${produceId}/next-crop-prediction`, token)
+}
+
 // ---- Storage ----
 
 export interface StorageFacility {
   id: number
   name: string
   location: string
+  latitude?: number | null
+  longitude?: number | null
   type: string
   distance_km: number
   capacity: number
@@ -374,12 +484,17 @@ export interface ProcessingUnit {
   id: number
   name: string
   location: string
+  latitude?: number | null
+  longitude?: number | null
   input_product: string
   input_capacity: number
   processing_cost: number
   output_product: string
   estimated_output: number
   distance_km: number
+  contact_email?: string | null
+  contact_phone?: string | null
+  description?: string | null
 }
 
 export interface ProcessingOpportunity {
@@ -411,10 +526,38 @@ export interface AssistantChatResponse {
   source: 'ai' | 'fallback'
 }
 
+export interface CropImageAnalysisResponse {
+  crop_name: string
+  condition: string
+  severity: 'Healthy' | 'Mild' | 'Moderate' | 'Severe'
+  confidence_pct: number
+  symptoms: string
+  chemical_treatment: string
+  organic_remedy: string
+  prevention: string
+  summary: string
+}
+
 export function sendChatMessage(token: string, message: string, language: string) {
   return authRequest<AssistantChatResponse>('/assistant/chat', token, {
     method: 'POST',
     body: { message, language },
+  })
+}
+
+export function analyzeCropImage(
+  token: string,
+  imageBase64: string,
+  cropHint?: string,
+  language: string = 'en'
+) {
+  return authRequest<CropImageAnalysisResponse>('/assistant/analyze-crop-image', token, {
+    method: 'POST',
+    body: {
+      image_base64: imageBase64,
+      crop_hint: cropHint,
+      language,
+    },
   })
 }
 
@@ -502,3 +645,34 @@ export function updateProduce(token: string, id: number, payload: Partial<Produc
 export function deleteProduce(token: string, id: number) {
   return authRequest<void>(`/produce/${id}`, token, { method: 'DELETE' })
 }
+
+// ---- Region & Language Detection ----
+
+export interface DetectedRegionResponse {
+  state: string
+  district: string
+  language: string
+  language_name: string
+  language_native: string
+}
+
+export async function detectFarmerRegion(params: {
+  latitude?: number
+  longitude?: number
+  location?: string
+  state?: string
+  district?: string
+}): Promise<DetectedRegionResponse> {
+  const query = new URLSearchParams()
+  if (params.latitude !== undefined) query.set('latitude', params.latitude.toString())
+  if (params.longitude !== undefined) query.set('longitude', params.longitude.toString())
+  if (params.location) query.set('location', params.location)
+  if (params.state) query.set('state', params.state)
+  if (params.district) query.set('district', params.district)
+
+  const url = `${API_BASE_URL}/farmers/detect-region?${query.toString()}`
+  const response = await fetch(url)
+  if (!response.ok) throw new Error(`Region detection failed: ${response.status}`)
+  return response.json()
+}
+
