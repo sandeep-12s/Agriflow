@@ -12,7 +12,7 @@ load_dotenv()
 # legacy "postgres://" scheme. Modern SQLAlchemy only accepts
 # "postgresql://" — this normalizes it once at startup so a production
 # deploy doesn't fail on a URL scheme mismatch outside our control.
-_database_url = os.getenv("DATABASE_URL", "sqlite:///./agriflow.db")
+_database_url = os.getenv("DATABASE_URL", "sqlite:///./agriflow.db").strip().strip('"').strip("'")
 if _database_url.startswith("postgres://"):
     _database_url = _database_url.replace("postgres://", "postgresql://", 1)
 

@@ -345,6 +345,53 @@ def seed_processing(db: Session) -> None:
     db.add_all(processing)
 
 
+def seed_users(db: Session) -> None:
+    from app.db.models import User, UserRole
+    if db.query(User).first():
+        return
+
+    users = [
+        User(
+            name="sandeep yadav",
+            email="sy2697081@gmail.com",
+            phone="8115444593",
+            location="Bareilly, Uttar Pradesh",
+            role=UserRole.farmer,
+            language="en",
+            password_hash="$2b$12$OPNhgIkHPrLxL0nnnmmB1ON08LA7HRG6zn8KwJnH5Op2Rx4LZmmCK",
+        ),
+        User(
+            name="sandeep",
+            email="sy8115444@gmail.com",
+            phone="9519662950",
+            location="Bareilly, Uttar Pradesh",
+            role=UserRole.buyer,
+            language="en",
+            password_hash="$2b$12$h7NaQ7OfTx9wDuTDpf4sKOf6Xu5DG6oY9esv31i5mBV2r29T8Txqu",
+        ),
+        User(
+            name="Farmer Ramesh",
+            email="farmer@agriflow.in",
+            phone="+919876543210",
+            location="Nashik, Maharashtra",
+            role=UserRole.farmer,
+            language="mr",
+            password_hash="$2b$12$MMOnONGDu9wivlWUPjEmveUSiLcXt16TGkOpsxezcIhsuoXS1Cqhq",
+        ),
+        User(
+            name="Agro Buyer Anita",
+            email="buyer@agriflow.in",
+            phone="+919876543212",
+            location="Delhi NCR",
+            role=UserRole.buyer,
+            language="hi",
+            password_hash="$2b$12$MMOnONGDu9wivlWUPjEmveUSiLcXt16TGkOpsxezcIhsuoXS1Cqhq",
+        ),
+    ]
+    db.add_all(users)
+    db.flush()
+
+
 def seed_if_empty(db: Optional[Session] = None) -> None:
     """
     Checks all core tables and auto-seeds them if empty.
@@ -355,6 +402,7 @@ def seed_if_empty(db: Optional[Session] = None) -> None:
         init_db()
         db = SessionLocal()
     try:
+        seed_users(db)
         seed_markets_and_prices(db)
         seed_buyers(db)
         seed_storage(db)
