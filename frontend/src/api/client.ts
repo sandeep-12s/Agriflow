@@ -358,6 +358,7 @@ export interface Buyer {
   longitude?: number | null
   quality_requirement: string
   contact: string
+  distance_km?: number | null
 }
 
 export interface BuyerPayload {

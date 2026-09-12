@@ -37,5 +37,6 @@ class BuyerOut(BaseModel):
     longitude: float | None = None
     quality_requirement: str
     contact: str
+    distance_km: float | None = None
 
     model_config = {"from_attributes": True}

@@ -20,9 +20,14 @@ from app.routers import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Runs once when the server starts up — creates any tables that
-    # don't exist yet. Safe to run every time; see init_db()'s docstring
-    # for why this replaces a full migration tool at MVP stage.
+    # don't exist yet and automatically seeds initial verified facilities.
     init_db()
+    try:
+        from app.db.seed import seed_if_empty
+        seed_if_empty()
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).warning("Startup auto-seed check: %s", exc)
     yield
 
 

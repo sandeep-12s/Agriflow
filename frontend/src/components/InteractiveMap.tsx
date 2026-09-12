@@ -7,7 +7,7 @@ export interface MapMarkerItem {
   latitude?: number | null
   longitude?: number | null
   address: string
-  category: 'storage' | 'buyer' | 'market' | 'farmer'
+  category: 'storage' | 'buyer' | 'market' | 'farmer' | 'processing'
   badge?: string
   details?: { label: string; value: string }[]
 }

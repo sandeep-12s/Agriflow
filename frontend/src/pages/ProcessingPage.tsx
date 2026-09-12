@@ -6,11 +6,13 @@ import ErrorBanner from '../components/ErrorBanner'
 import EmptyState from '../components/EmptyState'
 import { useAuth } from '../context/AuthContext'
 import { listProcessingUnits, ProcessingUnit } from '../api/client'
+import InteractiveMap, { MapMarkerItem } from '../components/InteractiveMap'
 
 function ProcessingPage() {
   const { token, logout, t } = useAuth()
   const navigate = useNavigate()
   const [units, setUnits] = useState<ProcessingUnit[]>([])
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedUnit, setSelectedUnit] = useState<ProcessingUnit | null>(null)
@@ -58,18 +60,57 @@ function ProcessingPage() {
     )}`
   }
 
+  const mapItems: MapMarkerItem[] = units.map((u, idx) => ({
+    id: u.id,
+    title: u.name,
+    address: u.location,
+    latitude: u.latitude ?? (28.35 + idx * 0.04),
+    longitude: u.longitude ?? (79.42 + idx * 0.05),
+    category: 'processing',
+    badge: `₹${u.processing_cost}/qtl fee`,
+    details: [
+      { label: 'Input Crop', value: u.input_product },
+      { label: 'Output Product', value: u.output_product },
+      { label: 'Capacity', value: `${u.input_capacity} MT/day` },
+      { label: 'Distance', value: `${u.distance_km} km away` },
+      { label: 'Contact', value: u.contact_phone || u.contact_email || 'Verified Facility' },
+    ],
+  }))
+
   return (
     <Layout>
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-xl font-bold text-soil">{t('processingTitle')}</h1>
+          <h1 className="text-xl font-bold text-soil mb-1">{t('processingTitle')}</h1>
           <p className="text-xs text-soil/60">
             Connect with certified food processing units & agro-companies to turn raw harvests into high-margin products.
           </p>
         </div>
-        <span className="text-xs font-semibold px-3 py-1 bg-leaf/10 text-leaf border border-leaf/20 rounded-full self-start md:self-auto">
-          🏭 {units.length} Verified Agro-Processors Active
-        </span>
+
+        {/* View mode toggle */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold px-3 py-1.5 bg-leaf/10 text-leaf border border-leaf/20 rounded-full hidden sm:inline-block">
+            🏭 {units.length} Verified Agro-Processors Active
+          </span>
+          <div className="flex items-center bg-soil/5 p-1 rounded-xl border border-soil/10 text-xs font-semibold">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-1.5 rounded-lg transition ${
+                viewMode === 'list' ? 'bg-white shadow-xs text-soil' : 'text-soil/60 hover:text-soil'
+              }`}
+            >
+              📋 List View
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              className={`px-3 py-1.5 rounded-lg transition ${
+                viewMode === 'map' ? 'bg-white shadow-xs text-leaf font-bold' : 'text-soil/60 hover:text-soil'
+              }`}
+            >
+              📍 Google Maps View
+            </button>
+          </div>
+        </div>
       </div>
 
       <ErrorBanner message={error} />
@@ -92,6 +133,18 @@ function ProcessingPage() {
         <EmptyState
           title={t('noProcessing')}
           description="No processing facilities registered in your immediate vicinity yet."
+        />
+      ) : viewMode === 'map' ? (
+        <InteractiveMap
+          items={mapItems}
+          title="Agro-Processing Map"
+          onSelectItem={(item: MapMarkerItem) => {
+            const unit = units.find((u) => u.id === item.id)
+            if (unit) {
+              setSelectedUnit(unit)
+              setInquirySuccess(null)
+            }
+          }}
         />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

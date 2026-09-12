@@ -44,6 +44,7 @@ function BuyersPage() {
       { label: 'Buying Crop', value: b.product },
       { label: 'Quantity Needed', value: `${b.required_quantity} Quintals` },
       { label: 'Offered Price', value: `₹${b.offered_price}/quintal` },
+      { label: 'Distance', value: b.distance_km !== undefined && b.distance_km !== null ? `${b.distance_km} km away` : 'Near Agricultural Zone' },
       { label: 'Quality', value: b.quality_requirement },
       { label: 'Contact', value: b.contact },
     ],
@@ -106,13 +107,20 @@ function BuyersPage() {
                 className="bg-white rounded-2xl border border-soil/10 p-4 hover:border-leaf transition flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-start justify-between mb-1">
+                  <div className="flex items-start justify-between mb-1 gap-2">
                     <Link to={`/buyers/${b.id}`} className="font-semibold text-soil hover:text-leaf">
                       {b.name}
                     </Link>
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-leaf/15 text-leaf">
-                      ₹{b.offered_price}/qtl
-                    </span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {b.distance_km !== undefined && b.distance_km !== null && (
+                        <span className="text-[11px] font-semibold text-soil/50 bg-soil/5 px-2 py-0.5 rounded-full">
+                          {b.distance_km} km away
+                        </span>
+                      )}
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-leaf/15 text-leaf">
+                        ₹{b.offered_price}/qtl
+                      </span>
+                    </div>
                   </div>
 
                   <p className="text-sm text-soil/80 mb-1">

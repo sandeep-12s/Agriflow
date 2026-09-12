@@ -519,3 +519,112 @@ def get_live_mandi_prices_for_region(
         "prices": results,
     }
 
+
+CITY_COORDINATES: dict[str, tuple[float, float]] = {
+    # Maharashtra
+    "nashik": (19.997, 73.789),
+    "nasik": (19.997, 73.789),
+    "pune": (18.520, 73.856),
+    "mumbai": (19.076, 72.877),
+    "nagpur": (21.145, 79.088),
+    "solapur": (17.659, 75.906),
+    "kolhapur": (16.705, 74.243),
+    "ahmednagar": (19.095, 74.749),
+    "aurangabad": (19.876, 75.343),
+    # Punjab & Haryana
+    "ludhiana": (30.901, 75.857),
+    "jalandhar": (31.326, 75.576),
+    "amritsar": (31.634, 74.872),
+    "patiala": (30.339, 76.386),
+    "bathinda": (30.211, 74.945),
+    "karnal": (29.685, 76.990),
+    "hisar": (29.149, 75.721),
+    # Gujarat
+    "ahmedabad": (23.022, 72.571),
+    "surat": (21.170, 72.831),
+    "rajkot": (22.303, 70.802),
+    "vadodara": (22.307, 73.181),
+    "anand": (22.564, 72.928),
+    # UP, MP, Bihar, Rajasthan
+    "bareilly": (28.367, 79.430),
+    "agra": (27.176, 78.008),
+    "lucknow": (26.846, 80.946),
+    "kanpur": (26.449, 80.331),
+    "varanasi": (25.317, 82.973),
+    "pilibhit": (28.631, 79.803),
+    "shahjahanpur": (27.880, 79.910),
+    "indore": (22.719, 75.857),
+    "bhopal": (23.259, 77.412),
+    "patna": (25.594, 85.137),
+    "purnea": (25.777, 87.475),
+    "darbhanga": (26.154, 85.891),
+    "jaipur": (26.912, 75.787),
+    "jodhpur": (26.238, 73.024),
+    # South India
+    "bengaluru": (12.971, 77.594),
+    "bangalore": (12.971, 77.594),
+    "mysuru": (12.295, 76.639),
+    "hyderabad": (17.385, 78.486),
+    "guntur": (16.306, 80.436),
+    "visakhapatnam": (17.686, 83.218),
+    "chennai": (13.082, 80.270),
+    "coimbatore": (11.016, 76.955),
+    "madurai": (9.925, 78.119),
+    "kochi": (9.931, 76.267),
+    "thiruvananthapuram": (8.524, 76.936),
+    # East & North East
+    "kolkata": (22.572, 88.363),
+    "siliguri": (26.727, 88.395),
+    "bhubaneswar": (20.296, 85.824),
+    "cuttack": (20.462, 85.882),
+    "guwahati": (26.144, 91.736),
+    "srinagar": (34.083, 74.797),
+    "panaji": (15.490, 73.827),
+    "gangtok": (27.338, 88.606),
+}
+
+
+def get_coordinates_for_location(location_str: Optional[str]) -> Optional[tuple[float, float]]:
+    if not location_str:
+        return None
+    loc_lower = location_str.lower().strip()
+    for city, coords in CITY_COORDINATES.items():
+        if city in loc_lower:
+            return coords
+    
+    hub_mapping = {
+        "maharashtra": (19.997, 73.789),
+        "punjab": (30.901, 75.857),
+        "gujarat": (22.303, 70.802),
+        "uttar pradesh": (28.367, 79.430),
+        "karnataka": (12.971, 77.594),
+        "tamil nadu": (11.016, 76.955),
+        "andhra pradesh": (16.306, 80.436),
+        "telangana": (17.385, 78.486),
+        "kerala": (9.931, 76.267),
+        "west bengal": (22.572, 88.363),
+        "madhya pradesh": (22.719, 75.857),
+        "bihar": (25.594, 85.137),
+        "rajasthan": (26.912, 75.787),
+        "haryana": (29.685, 76.990),
+        "odisha": (20.296, 85.824),
+        "assam": (26.144, 91.736),
+        "jammu and kashmir": (34.083, 74.797),
+        "goa": (15.490, 73.827),
+        "sikkim": (27.338, 88.606),
+    }
+    for state, coords in hub_mapping.items():
+        if state in loc_lower:
+            return coords
+    return None
+
+
+def haversine_distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    r = 6371.0
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return round(r * c, 1)
+
+
