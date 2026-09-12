@@ -24,7 +24,7 @@ class Settings:
     # Comma-separated list in .env, split into a Python list here
     CORS_ORIGINS: list[str] = [origin.strip() for origin in os.getenv(
         "CORS_ORIGINS",
-        "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174",
+        "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,https://agriflow-1-nc1a.onrender.com",
     ).split(",") if origin.strip()]
 
     SECRET_KEY: str = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")

@@ -1,4 +1,9 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001'
+const defaultUrl = import.meta.env.PROD
+  ? 'https://agriflow-rguo.onrender.com'
+  : 'http://127.0.0.1:8001'
+
+const rawBaseUrl = import.meta.env.VITE_API_URL || defaultUrl
+const API_BASE_URL = rawBaseUrl.replace(/\/$/, '')
 
 // FastAPI's own HTTPException(detail="...") comes back as a plain string,
 // but its automatic 422 validation errors come back as an array of
@@ -131,7 +136,8 @@ async function authRequest<T>(
   token: string,
   options: { method?: string; body?: unknown } = {},
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const cleanPath = path.startsWith('/') ? path : `/${path}`
+  const response = await fetch(`${API_BASE_URL}${cleanPath}`, {
     method: options.method || 'GET',
     headers: {
       'Content-Type': 'application/json',
