@@ -12,7 +12,6 @@ from app.core.security import hash_password, verify_password, create_access_toke
 from app.db.database import get_db
 from app.db.models import User, RegistrationOTP
 from app.schemas.user import UserCreate, UserLogin, Token, OTPRequest, OTPResponse
-from app.services.otp import send_otp_sms, twilio_configured
 from app.services.otp import send_otp_sms, sms_gateway_configured
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -51,7 +50,6 @@ def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
 
     code = f"{secrets.randbelow(1_000_000):06d}"
     sms_sent = False
-    if twilio_configured():
     if sms_gateway_configured():
         try:
             send_otp_sms(payload.phone, code)
