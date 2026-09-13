@@ -1,5 +1,6 @@
 """Registration, phone verification, login, and logout endpoints."""
 import hashlib
+import logging
 import secrets
 from datetime import datetime, timedelta, timezone
 
@@ -13,6 +14,8 @@ from app.db.database import get_db
 from app.db.models import User, RegistrationOTP
 from app.schemas.user import UserCreate, UserLogin, Token, OTPRequest, OTPResponse
 from app.services.otp import send_otp_sms, sms_gateway_configured
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -61,6 +64,8 @@ def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="SMS delivery is not configured on this server",
         )
+        except Exception as error:
+            logger.error("SMS dispatch error: %s", error)
 
     db.add(RegistrationOTP(
         phone=payload.phone,
@@ -71,8 +76,10 @@ def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
 
     return OTPResponse(
         message="Verification code sent to your phone." if sms_sent else "Development verification code generated.",
+        message="Verification code sent to your phone via SMS." if sms_sent else "SMS gateway not configured on server.",
         expires_in=OTP_EXPIRY_SECONDS,
         dev_code=code if not sms_sent and settings.ENV == "development" else None,
+        dev_code=None if sms_sent else code,
     )
 
 

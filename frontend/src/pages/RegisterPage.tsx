@@ -89,6 +89,17 @@ function RegisterPage() {
           ? `📱 Verification code sent via SMS to ${form.phone}. Please enter the 6-digit code below.`
           : `📱 6-digit verification code sent to ${form.phone}.`
       )
+      if (response.dev_code) {
+        setOtp(response.dev_code)
+        setOtpMessage(
+          `⚠️ Live SMS gateway (Fast2SMS / Twilio) is not configured in Render environment variables yet. Verification code: ${response.dev_code} (Auto-filled below for instant testing).`
+        )
+      } else {
+        setOtp('')
+        setOtpMessage(
+          `📱 Verification code sent via SMS to ${form.phone}. Please check your phone messages and enter the 6-digit code below.`
+        )
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not send verification code.')
     } finally {
@@ -230,10 +241,19 @@ function RegisterPage() {
               <div className="otp-message" role="status">{otpMessage}</div>
               <label htmlFor="otp" className="auth-label">Phone verification code</label>
               <div className="p-3 mb-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 font-medium" role="status">
+              <div
+                className={`p-3 mb-4 rounded-xl border text-xs font-medium ${
+                  otpMessage.includes('⚠️')
+                    ? 'bg-amber-50 border-amber-300 text-amber-900'
+                    : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                }`}
+                role="status"
+              >
                 {otpMessage}
               </div>
               <label htmlFor="otp" className="auth-label">
                 Enter 6-Digit SMS Code / OTP
+                Enter 6-Digit Verification Code (OTP)
               </label>
               <input
                 id="otp"
