@@ -880,202 +880,546 @@ def generate_expert_farm_response(message: str, language: str) -> str:
     detected_crops = [crop for crop, aliases in crop_aliases.items() if any(alias in lowered for alias in aliases)]
 
     # Detect specific issues/conditions
+    has_borer = any(w in lowered for w in ["borer", "illi", "sundi", "chhedak", "caterpillar", "worm", "इल्ली", "सुंडी", "कीड़ा", "छेदक", "लारवा", "bollworm"])
+    has_sucking = any(w in lowered for w in ["whitefly", "thrips", "aphid", "mahun", "chepa", "tela", "mite", "makdi", "सफेद मक्खी", "थ्रिप्स", "माहू", "चेपा", "तेला", "मकड़ी"])
+    has_wilt = any(w in lowered for w in ["wilt", "root rot", "damping off", "sukha", "उकठा", "विल्ट", "जड़ सड़न", "जड़ गलन", "मुरझाना"])
     has_blight = any(w in lowered for w in ["blight", "jhulsa", "झुलसा", "late blight", "early blight", "sheath blight", "leaf blight"])
-    has_leaf_curl = any(w in lowered for w in ["leaf curl", "curl", "muradiya", "whitefly", "मरोड़िया", "चुर्रा-मुर्रा", "पत्ती मरोड़", "curly", "curling"])
     has_rust = any(w in lowered for w in ["rust", "gerua", "ratuwa", "रतुआ", "गेरुआ", "yellow rust", "stripe rust", "brown rust"])
-    has_aphid = any(w in lowered for w in ["aphid", "mahun", "chepa", "माहू", "चेपा", "तेला"])
-    has_rot_storage = any(w in lowered for w in ["rot", "rotting", "rotan", "rotten", "storage", "cold storage", "store", "सड़", "सड़ना", "गोदाम", "भंडारण"])
+    has_leaf_curl = any(w in lowered for w in ["leaf curl", "curl", "muradiya", "मरोड़िया", "चुर्रा-मुर्रा", "पत्ती मरोड़", "curly", "curling"])
+    has_fruit_rot = any(w in lowered for w in ["fruit rot", "anthracnose", "dieback", "फल सड़न", "डाईबैक", "सड़न"])
+    has_mildew = any(w in lowered for w in ["mildew", "powdery mildew", "downy mildew", "churna", "छाछिया", "चूर्णिल"])
+    has_termite = any(w in lowered for w in ["termite", "termites", "deemak", "दीमक"])
+    has_yellowing = any(w in lowered for w in ["yellow", "yellowing", "pila", "peela", "zinc", "chlorosis", "पीला", "पीलापन", "जिंक"])
+    has_fertilizer = any(w in lowered for w in ["fertilizer", "urea", "dap", "npk", "potash", "khad", "खाद", "यूरिया", "डीएपी", "एनपीके", "पोटाश"])
+    has_weed = any(w in lowered for w in ["weed", "herbicide", "weedicide", "ghas", "kharpatwar", "खरपतवार", "घास", "गुल्ली डंडा"])
+    has_flower_drop = any(w in lowered for w in ["flower drop", "fruit drop", "phool jhadna", "girna", "फूल झड़", "फूल गिर", "फल गिर"])
+    has_growth = any(w in lowered for w in ["growth", "tonic", "booster", "बढ़वार", "ग्रोथ", "टॉनिक", "कल्ले"])
+    has_storage = any(w in lowered for w in ["rot", "rotting", "rotan", "storage", "cold storage", "store", "गोदाम", "भंडारण"])
+    has_mandi = any(w in lowered for w in ["mandi", "price", "rate", "bhav", "daam", "मंडी", "भाव", "रेट", "दाम", "बेचना", "खरीदार"])
 
-    # 4. Contextual Crop + Disease / Issue Resolution
-    if "potato" in detected_crops:
-        if has_blight and has_leaf_curl:
+    # 4. Contextual Crop + Issue Specific Resolution
+    # --- CATERPILLARS & FRUIT/STEM BORERS ---
+    if has_borer:
+        if "tomato" in detected_crops:
             if language in ["hi", "pa", "mr", "gu"]:
                 return (
-                    "🥔 **आलू झुलसा (Blight) एवं पत्ती मरोड़ (PLRV) नियंत्रण सलाह:**\n\n"
-                    "1. **आलू का झुलसा (पछेती व अगेती झुलसा):**\n"
-                    "• **पहचान:** पत्तियों के किनारों पर काले-भूरे पानी जैसे तेजी से फैलते धब्बे और सुबह के समय पत्तियों के नीचे सफेद फफूंद।\n"
-                    "• **उपचार:** **रिडोमिल (Metalaxyl 8% + Mancozeb 64% WP)** 2.5 ग्राम प्रति लीटर पानी या **साइमोक्सानिल + मैनकोजेब (Curzate)** 2.5 ग्राम/लीटर का 24–48 घंटे में छिड़काव करें।\n"
-                    "• **सुरक्षात्मक:** रोग आने से पहले **मैनकोजेब 75% WP** 2.5 ग्राम/लीटर का स्प्रे करें।\n\n"
-                    "2. **आलू पत्ती मरोड़ (Potato Leafroll Virus - PLRV):**\n\n"
-                    "• **पहचान:** पत्तियां ऊपर की ओर मुड़कर चमड़े जैसी सख्त हो जाती हैं और पौधा बौना रह जाता है। यह हरे माहू (Aphids) द्वारा फैलता है।\n"
-                    "• **माहू रोकथाम:** **थियामेथोक्सम 25% WG** 0.3 ग्राम/लीटर या **इमिडाक्लोप्रिड 17.8% SL** 0.5 मिली/लीटर का छिड़काव करें।\n"
-                    "• **सफाई (Roguing):** वायरस से ग्रसित बौने पौधों को जड़ सहित उखाड़कर नष्ट करें ताकि कंदों में वायरस न फैले।"
+                    "🍅 **टमाटर फल छेदक इल्ली (Tomato Fruit Borer / Helicoverpa) नियंत्रण:**\n\n"
+                    "• **पहचान:** टमाटर के फलों में गोल छेद और भीतर इल्लियां, जिससे फल सड़कर गिर जाते हैं।\n"
+                    "• **कीटनाशक छिड़काव:** **कोराजन (Chlorantraniliprole 18.5% SC)** 0.3 मिली प्रति लीटर पानी (60 मिली/एकड़) या **एमामेक्टिन बेंजोएट 5% SG (Proclaim)** 0.5 ग्राम/लीटर का छिड़काव करें।\n"
+                    "• **जैविक नियंत्रण:** खेत में प्रति एकड़ 8-10 फेरोमोन ट्रैप (Pheromone Traps) लगाएं और 5% नीम तेल (10,000 ppm) 3 मिली/लीटर स्प्रे करें।\n"
+                    "• **मित्र कीट:** ट्राइकोग्रामा (Trichogramma pretiosum) परजीवी कार्ड 50,000 अंडे/एकड़ छोड़ें।"
                 )
             return (
-                "🥔 **Potato Blight & Leaf Curl (PLRV) Complete Management Advisory:**\n\n"
-                "1. **Potato Blight (Late Blight & Early Blight):**\n"
-                "• **Symptoms:** Rapidly expanding water-soaked blackish lesions on leaf margins with white downy fungal growth on leaf undersides in humid mornings.\n"
-                "• **Immediate Action:** Spray systemic fungicide **Metalaxyl 8% + Mancozeb 64% WP (Ridomil MZ)** @ 2.5 g/liter of water, or **Cymoxanil + Mancozeb (Curzate)** @ 2.5 g/liter within 24–48 hours.\n"
-                "• **Protective Barrier:** Apply **Mancozeb 75% WP** @ 2.5 g/liter before rainfall or cloudy spells.\n\n"
-                "2. **Potato Leaf Curl (Potato Leafroll Virus - PLRV):**\n"
-                "• **Symptoms:** Upward rolling of leaflet margins, leathery brittle texture, and stunted tillering. Spread by green peach aphids (*Myzus persicae*).\n"
-                "• **Vector Control:** Spray **Thiamethoxam 25% WG** @ 0.3 g/liter or **Imidacloprid 17.8% SL** @ 0.5 ml/liter to halt aphid transmission.\n"
-                "• **Field Roguing:** Immediately uproot and burn severely stunted virus-infected bushes to prevent viral migration to daughter tubers."
+                "🍅 **Tomato Fruit Borer (Helicoverpa armigera) Management:**\n\n"
+                "• **Symptoms:** Circular entry holes on green and ripe fruits with larval excreta, leading to fruit rot and premature drop.\n"
+                "• **Chemical Remedy:** Spray **Chlorantraniliprole 18.5% SC (Coragen)** @ 0.3 ml/liter (60 ml/acre) or **Emamectin Benzoate 5% SG** @ 0.5 g/liter.\n"
+                "• **Biological & Traps:** Install 8–10 Helicoverpa pheromone traps/acre; spray cold-pressed Neem oil (10,000 ppm) @ 3 ml/liter.\n"
+                "• **Cultural Practice:** Intercrop with African Marigold (1 row per 16 tomato rows) as an oviposition trap crop."
             )
-        elif has_blight:
+        elif "chilli" in detected_crops:
             if language in ["hi", "pa", "mr", "gu"]:
                 return (
-                    "🥔 **आलू का पछेती/अगेती झुलसा (Potato Blight) नियंत्रण:**\n\n"
-                    "• **लक्षण:** पत्तियों के किनारों पर काले पानी जैसे धब्बे जो ठंड और कोहरे में तेजी से फैलते हैं।\n"
-                    "• **दवा:** **रिडोमिल (Metalaxyl + Mancozeb)** 2.5 ग्राम प्रति लीटर या **मैनकोजेब 75% WP** 2.5 ग्राम/लीटर का छिड़काव करें।\n"
-                    "• **सावधानी:** खेत में अतिरिक्त यूरिया न डालें और पत्तियों को सूखा रखने के लिए ऊपर से सिंचाई न करें।"
+                    "🌶️ **मिर्च फल छेदक व पत्ती खाने वाली इल्ली (Spodoptera / Fruit Borer) नियंत्रण:**\n\n"
+                    "• **पहचान:** हरी व लाल मिर्च में बारीक छेद और रात के समय पत्तियों को काटने वाली इल्लियां।\n"
+                    "• **दवा:** **फेम (Flubendiamide 39.35% SC - Fame)** 0.3 मिली प्रति लीटर पानी या **कोराजन** 0.3 मिली/लीटर का छिड़काव शाम को करें।\n"
+                    "• **जैविक उपाय:** स्लैप ट्रैप या फेरोमोन ट्रैप लगाएं और 5% नीम तेल का स्प्रे करें।"
                 )
             return (
-                "🥔 **Potato Blight (Late & Early Blight) Treatment:**\n\n"
-                "• **Symptoms:** Dark brown water-soaked lesions expanding rapidly on leaf tips and margins; white fungal fuzz underneath in humid mornings.\n"
-                "• **Treatment:** Spray systemic fungicide **Metalaxyl 8% + Mancozeb 64% WP (Ridomil MZ)** @ 2.5 g/liter or **Cymoxanil + Mancozeb** @ 2.5 g/liter.\n"
-                "• **Cultural Practice:** Earth up tubers well with soil to prevent fungal spores from washing into seed tubers during rains."
+                "🌶️ **Chilli Fruit Borer & Leaf Caterpillars (Spodoptera exigua) Control:**\n\n"
+                "• **Symptoms:** Bore holes in developing pods with hollow fruit interiors and nocturnal defoliation.\n"
+                "• **Remedy:** Spray **Flubendiamide 39.35% SC (Fame)** @ 0.3 ml/liter or **Chlorantraniliprole 18.5% SC (Coragen)** @ 0.3 ml/liter during dusk.\n"
+                "• **Organic Control:** Set up Spodoptera pheromone traps @ 8/acre; apply Bacillus thuringiensis (Bt) @ 2 g/liter."
             )
-        elif has_leaf_curl:
+        elif "paddy" in detected_crops:
             if language in ["hi", "pa", "mr", "gu"]:
                 return (
-                    "🥔 **आलू का पत्ती मरोड़ रोग (Potato Leafroll Virus - PLRV):**\n\n"
-                    "• **लक्षण:** पत्तियां ऊपर की ओर मुड़ जाती हैं, खड़खड़ करती हैं और कंद छोटे रह जाते हैं। यह माहू कीट से फैलता है।\n"
-                    "• **रोकथाम:** **थियामेथोक्सम 25% WG** 0.3 ग्राम/लीटर या **इमिडाक्लोप्रिड** 0.5 मिली/लीटर स्प्रे करें।\n"
-                    "• **सलाह:** रोगग्रस्त पौधों को खेत से उखाड़कर नष्ट करें ताकि अन्य स्वस्थ पौधों में न फैले।"
+                    "🌾 **धान का तना छेदक कीट (Paddy Yellow Stem Borer) नियंत्रण:**\n\n"
+                    "• **लक्षण:** कल्ले निकलते समय गोभ का सूखना ('डेड हार्ट') और बालियां आने पर सफेद सूखी बालियां ('व्हाइट हेड')।\n"
+                    "• **दवा:** खेत में 2-3 इंच पानी भरकर **कार्टाप हाइड्रोक्लोराइड 4G (Cartap)** 7.5 किग्रा प्रति एकड़ या **फर्टेरा (Chlorantraniliprole 0.4% GR)** 4 किग्रा/एकड़ डालें।\n"
+                    "• **स्प्रे विकल्प:** **कोराजन** 0.3 मिली/लीटर पानी का छिड़काव करें।"
                 )
             return (
-                "🥔 **Potato Leaf Curl (PLRV) Treatment:**\n\n"
-                "• **Cause & Symptoms:** Viral disease transmitted by aphids; leaves curl upwards into cups with a brittle, papery texture.\n"
-                "• **Control:** Spray systemic insecticide **Thiamethoxam 25% WG** @ 0.3 g/liter or **Imidacloprid 17.8% SL** @ 0.5 ml/liter to kill aphid vectors.\n"
-                "• **Field Hygiene:** Rogue out and discard infected bushes; use certified disease-free seed tubers next season."
+                "🌾 **Paddy / Rice Yellow Stem Borer (Scirpophaga incertulas) Treatment:**\n\n"
+                "• **Symptoms:** Central vegetative shoot withers into 'Dead Heart'; bleached empty panicles appear as 'White Head'.\n"
+                "• **Granular Application:** Broadcast **Cartap Hydrochloride 4G** @ 7.5 kg/acre or **Chlorantraniliprole 0.4% GR (Ferterra)** @ 4 kg/acre in 2–3 inches standing water.\n"
+                "• **Foliar Alternative:** Spray **Coragen 18.5% SC** @ 60 ml in 200 L water/acre at early tiller stage."
+            )
+        elif "cotton" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌱 **कपास की गुलाबी सुंडी व अमेरिकन इल्ली (Pink Bollworm) रोकथाम:**\n\n"
+                    "• **पहचान:** फूल गुलाब के फूल जैसे बंधे रह जाते हैं (रोसेट फूल) और हरे टिंडों में छेद होकर रुई काली पड़ जाती है।\n"
+                    "• **दवा:** **प्रोफेनोफॉस + सायपरमेथ्रिन (Profenofos 40% + Cypermethrin 4% EC)** 2 मिली/लीटर या **एमामेक्टिन बेंजोएट 5% SG** 0.5 ग्राम/लीटर का छिड़काव करें।\n"
+                    "• **ट्रैप:** खेत में प्रति एकड़ 8-10 गुलाबी सुंडी फेरोमोन ट्रैप (Pheromone Traps) अवश्य लगाएं।"
+                )
+            return (
+                "🌱 **Cotton Pink Bollworm (Pectinophora gossypiella) Control:**\n\n"
+                "• **Symptoms:** Rosetted flower buds that fail to bloom normally; pin-hole entry in developing bolls with lint staining.\n"
+                "• **Chemical Spray:** Apply **Profenofos 40% + Cypermethrin 4% EC** @ 2 ml/liter or **Emamectin Benzoate 5% SG** @ 0.5 g/liter.\n"
+                "• **Pheromone Monitoring:** Install 8–10 Gossyplure pheromone traps per acre to disrupt mating flights."
+            )
+        else:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🐛 **फसल में इल्ली व कीट (Caterpillar / Borer) नियंत्रण:**\n\n"
+                    "• **उपचार:** **एमामेक्टिन बेंजोएट 5% SG (Proclaim)** 0.5 ग्राम प्रति लीटर या **कोराजन** 0.3 मिली/लीटर का छिड़काव करें।\n"
+                    "• **जैविक तरीका:** 5% नीम तेल (10,000 ppm) 3 मिली प्रति लीटर पानी में मिलाकर स्प्रे करें।"
+                )
+            return (
+                "🐛 **Crop Caterpillar & Borer Management:**\n\n"
+                "• **Chemical Control:** Spray **Emamectin Benzoate 5% SG** @ 0.5 g/liter or **Chlorantraniliprole 18.5% SC** @ 0.3 ml/liter.\n"
+                "• **Organic Protection:** Apply 5% cold-pressed Neem oil (10,000 ppm) @ 3 ml/liter with mild detergent."
             )
 
-    if "wheat" in detected_crops:
-        if has_blight and has_leaf_curl:
+    # --- SUCKING PESTS (Aphids, Thrips, Whitefly, Mites) ---
+    if has_sucking:
+        if "mustard" in detected_crops:
             if language in ["hi", "pa", "mr", "gu"]:
                 return (
-                    "🌾 **गेहूं का झुलसा (Head/Foliar Blight) एवं पत्ती मरोड़/ऐंठन नियंत्रण सलाह:**\n\n"
-                    "1. **गेहूं का झुलसा (Fusarium Head Blight व पर्ण झुलसा):**\n"
-                    "• **पहचान:** बालियों में दानों का सूखकर सफेद/हल्का गुलाबी होना, और पत्तियों पर भूरे-पीले धब्बे फैलना।\n"
-                    "• **उपचार:** **टेबुकोनाज़ोल 25.9% EC (Folicur)** 1 मिली प्रति लीटर या **प्रोपिकोनाज़ोल 25% EC (Tilt)** 1 मिली/लीटर (200 मिली प्रति एकड़ 200 लीटर पानी में) का छिड़काव करें।\n"
-                    "• **समय:** बालियां निकलते समय सुबह ओस सूखने के बाद स्प्रे करें।\n\n"
-                    "2. **गेहूं में पत्ती मुड़ना / ऐंठन (Wheat Curl Mite व माहू/जिंक की कमी):**\n"
-                    "• **पहचान:** गेहूं की पत्तियां अंदर की ओर नली की तरह मुड़ जाती हैं और पौधे की बढ़वार रुक जाती है। यह व्हीट कर्ल माइट या माहू द्वारा वायरस (WSMV) फैलने या जिंक की भारी कमी से होता है।\n"
-                    "• **कीट नियंत्रण:** **रोगोर (Dimethoate 30% EC)** 1.5 मिली प्रति लीटर या **इमिडाक्लोप्रिड 17.8% SL** 0.5 मिली/लीटर का छिड़काव करें।\n"
-                    "• **पोषण छिड़काव:** मुड़ी हुई पत्तियों को पुनः हरा व मजबूत करने के लिए **जिंक सल्फेट (21%)** 5 ग्राम + **यूरिया** 20 ग्राम प्रति लीटर पानी का पर्णीय छिड़काव करें।"
+                    "🌱 **सरसों का माहू / चेपा (Mustard Aphids) नियंत्रण:**\n\n"
+                    "• **पहचान:** फलियों और टहनियों पर चिपके काले-हरे माहू कीट, जो रस चूसकर फलियों को सुखा देते हैं।\n"
+                    "• **दवा:** **रोगोर (Dimethoate 30% EC)** 1.5 मिली प्रति लीटर पानी या **इमिडाक्लोप्रिड 17.8% SL** 0.5 मिली/लीटर का सुबह के समय छिड़काव करें।\n"
+                    "• **देसी उपाय:** सुबह ओस के समय लकड़ी की छनी हुई राख बुरकें या नीम तेल 3 मिली/लीटर स्प्रे करें।"
                 )
             return (
-                "🌾 **Wheat Blight & Leaf Curl Complete Management Advisory:**\n\n"
-                "1. **Wheat Head Blight (Fusarium) & Foliar Blight:**\n"
-                "• **Symptoms:** Bleached, prematurely ripened spikelets/earheads with pinkish fungal spores; foliar tan spots with yellow chlorotic halos.\n"
-                "• **Immediate Treatment:** Spray **Tebuconazole 25.9% EC (Folicur)** @ 1 ml/liter of water, or **Propiconazole 25% EC (Tilt)** @ 1 ml/liter (200 ml in 200 liters water/acre).\n"
-                "• **Timing:** Apply during heading or early flowering stage on clear sunny mornings after dew has evaporated.\n\n"
-                "2. **Wheat Leaf Curl & Twisting (Wheat Curl Mite, Aphid Vector & Micronutrient Stress):**\n"
-                "• **Symptoms:** Leaves rolled tightly inward longitudinally like straw cylinders; mosaic streaking; stunted tillers. Caused by Wheat Curl Mites (*Aceria tosichella*) carrying streak mosaic virus, or severe zinc deficiency.\n"
-                "• **Vector Control:** Spray **Dimethoate 30% EC (Rogor)** @ 1.5 ml/liter or **Imidacloprid 17.8% SL** @ 0.5 ml/liter to arrest vector mites and aphids.\n"
-                "• **Foliar Recovery Spray:** Spray water-soluble **Zinc Sulphate 21%** @ 5 g/liter + **Urea** @ 20 g/liter (2% solution) to revitalize curled foliage and accelerate tiller growth."
+                "🌱 **Mustard Aphids (Lipaphis erysimi / Chepa) Control:**\n\n"
+                "• **Symptoms:** Dense colonies of green/black aphids clustering on terminal shoots, inflorescences, and pods.\n"
+                "• **Remedy:** Spray **Dimethoate 30% EC (Rogor)** @ 1.5 ml/liter or **Imidacloprid 17.8% SL** @ 0.5 ml/liter.\n"
+                "• **Organic Option:** Dust fine wood ash during morning dew or spray cold-pressed Neem oil @ 3 ml/liter."
             )
-        elif has_blight:
+        elif "onion" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🧅 **प्याज का थ्रिप्स कीट (Onion Thrips) नियंत्रण:**\n\n"
+                    "• **पहचान:** पत्तियों पर सफेद-चांदी जैसी धारियां और पत्तियों का ऊपर से सूखना।\n"
+                    "• **दवा:** **प्रोफेनोफॉस 50% EC (Profenofos)** 2 मिली प्रति लीटर या **फिप्रोनिल 5% SC** 1.5 मिली/लीटर (चिपको/स्टिकर मिलाकर) छिड़कें।\n"
+                    "• **ट्रैप:** खेत में प्रति एकड़ 20 नीले स्टिकी ट्रैप (Blue Sticky Traps) लगाएं।"
+                )
+            return (
+                "🧅 **Onion Thrips (Thrips tabaci) Management:**\n\n"
+                "• **Symptoms:** Silvery white blotches and curling on tubular leaves; leaf tips dry downwards, choking bulb growth.\n"
+                "• **Treatment:** Spray **Profenofos 50% EC** @ 2 ml/liter or **Fipronil 5% SC** @ 1.5 ml/liter mixed with a non-ionic sticker.\n"
+                "• **Monitoring:** Install 20 blue sticky traps per acre."
+            )
+        elif "chilli" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌶️ **मिर्च में थ्रिप्स व मकड़ी (Thrips & Mites) रोकथाम:**\n\n"
+                    "• **पहचान:** थ्रिप्स से पत्तियां ऊपर की ओर नाव जैसे मुड़ती हैं; मकड़ी से पत्तियां नीचे की ओर उल्टी मुड़ती हैं।\n"
+                    "• **थ्रिप्स हेतु:** **फिप्रोनिल 5% SC** 2 मिली/लीटर या **डायफेंथियूरॉन 50% WP (Pegasus)** 1.2 ग्राम/लीटर का छिड़काव करें।\n"
+                    "• **मकड़ी हेतु:** **ओबेरॉन (Spiromesifen 22.9% SC)** 1 मिली प्रति लीटर पानी में मिलाकर स्प्रे करें।"
+                )
+            return (
+                "🌶️ **Chilli Thrips & Yellow Mite Control:**\n\n"
+                "• **Identification:** Thrips curl leaves upwards like boats; mites curl leaves downwards into inverted umbrellas.\n"
+                "• **Thrips Treatment:** Spray **Fipronil 5% SC** @ 2 ml/liter or **Diafenthiuron 50% WP (Pegasus)** @ 1.2 g/liter.\n"
+                "• **Mite Treatment:** Apply **Spiromesifen 22.9% SC (Oberon)** @ 1 ml/liter."
+            )
+        else:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌿 **रसचूसक कीट (सफेद मक्खी, माहू, थ्रिप्स) रोकथाम:**\n\n"
+                    "• **दवा:** **इमिडाक्लोप्रिड 17.8% SL** 0.5 मिली प्रति लीटर या **थियामेथोक्सम 25% WG** 0.3 ग्राम/लीटर का छिड़काव करें।\n"
+                    "• **पीले ट्रैप:** खेत में प्रति एकड़ 15-20 पीले चिपचिपे ट्रैप लगाएं जो सफेद मक्खी व माहू को आकर्षित कर चिपका लेते हैं।"
+                )
+            return (
+                "🌿 **Sucking Pests (Whiteflies, Aphids, Thrips) Control:**\n\n"
+                "• **Chemical Control:** Spray **Imidacloprid 17.8% SL** @ 0.5 ml/liter or **Thiamethoxam 25% WG** @ 0.3 g/liter.\n"
+                "• **Yellow Sticky Traps:** Erect 15–20 yellow sticky traps/acre to trap winged adult vectors."
+            )
+
+    # --- YELLOWING & MICRONUTRIENT DEFICIENCY ---
+    if has_yellowing:
+        if "wheat" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌾 **गेहूं में पीलापन व जिंक/नाइट्रोजन की कमी:**\n\n"
+                    "• **कारण:** पहली या दूसरी सिंचाई के बाद जड़ों में हवा की कमी या जिंक व नाइट्रोजन की कमी से पत्तियां पीली पड़ती हैं।\n"
+                    "• **पोषक स्प्रे:** **जिंक सल्फेट (21%)** 5 ग्राम + **यूरिया** 15 ग्राम प्रति लीटर पानी का पर्णीय छिड़काव (Foliar Spray) करें।\n"
+                    "• **सावधानी:** खेत में पानी भरा न रहने दें, जल निकासी की समुचित व्यवस्था करें।"
+                )
+            return (
+                "🌾 **Wheat Foliar Yellowing & Zinc Deficiency Treatment:**\n\n"
+                "• **Causes:** Post-irrigation oxygen stress or deficiency of available zinc and nitrogen in alkaline soils.\n"
+                "• **Foliar Spray:** Dissolve water-soluble **Zinc Sulphate 21%** @ 5 g/liter + **Urea** @ 15 g/liter and spray during sunny morning hours.\n"
+                "• **Field Care:** Ensure prompt drainage to avoid stagnant root suffocation."
+            )
+        elif "paddy" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌾 **धान का खैरा रोग (जिंक की भारी कमी):**\n\n"
+                    "• **लक्षण:** निचली पत्तियों पर हल्के पीले धब्बे जो बाद में कत्थई/तांबई रंग के हो जाते हैं और पौधों की बढ़वार रुक जाती है।\n"
+                    "• **दवा छिड़काव:** **जिंक सल्फेट (21%)** 5 किग्रा + **बुझा हुआ चूना** 2.5 किग्रा (या यूरिया 2.5 किग्रा) को 200 लीटर पानी में घोलकर प्रति एकड़ छिड़कें।"
+                )
+            return (
+                "🌾 **Rice Khaira Disease (Zinc Deficiency):**\n\n"
+                "• **Symptoms:** Chlorotic yellow patches on lower leaves transforming into rusty bronze spots with severely stunted tillering.\n"
+                "• **Foliar Remedy:** Spray **Zinc Sulphate 21%** @ 5 kg + **Slaked Lime** 2.5 kg (or Urea 2.5 kg) in 200 L water per acre."
+            )
+        else:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌿 **फसल में पीलापन दूर करने का संपूर्ण उपाय:**\n\n"
+                    "• **19:19:19 NPK:** 5 ग्राम प्रति लीटर पानी + **चिलेटेड सूक्ष्म पोषक तत्व (Chelated Micronutrients)** 1.5 ग्राम/लीटर मिलाकर छिड़काव करें।\n"
+                    "• **जिंक की कमी:** जिंक सल्फेट 4 ग्राम + यूरिया 10 ग्राम प्रति लीटर पानी का स्प्रे 7-10 दिनों में पत्तियां पुनः हरी कर देता है।"
+                )
+            return (
+                "🌿 **Foliar Yellowing (Chlorosis) & Deficiency Remedy:**\n\n"
+                "• **Complete Foliar Nutrition:** Spray 100% water-soluble **NPK 19:19:19** @ 5 g/liter + **Chelated Multi-Micronutrient formulation** @ 1.5 g/liter.\n"
+                "• **Zinc Remedy:** Zinc Sulphate 21% @ 4 g/liter + Urea @ 10 g/liter restores deep green canopy in 7–10 days."
+            )
+
+    # --- FERTILIZER & NPK SCHEDULE ---
+    if has_fertilizer:
+        if "wheat" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌾 **गेहूं फसल हेतु संतुलित खाद एवं उर्वरक मात्रा (प्रति एकड़):**\n\n"
+                    "• **बुवाई के समय (Basal Dose):** 1 बोरी डीएपी (50 किग्रा) + आधा बोरी पोटाश (25 किग्रा MOP) + 10 किग्रा जिंक सल्फेट।\n"
+                    "• **पहली सिंचाई (CRI स्टेज - 21 दिन):** 1 बोरी यूरिया (45 किग्रा) + 5 किग्रा जाइम।\n"
+                    "• **दूसरी सिंचाई (कल्ले निकलते समय - 40 दिन):** 1 बोरी यूरिया (45 किग्रा)।\n"
+                    "• **स्प्रे:** बालियां निकलते समय 0:52:34 (1 किग्रा/एकड़) का छिड़काव दानों को मोटा व चमकदार बनाता है।"
+                )
+            return (
+                "🌾 **Wheat Fertilizer & Nutrient Dosage (Per Acre):**\n\n"
+                "• **Basal (At Sowing):** 1 bag DAP (50 kg) + 1/2 bag MOP Potash (25 kg) + 10 kg Zinc Sulphate (21%).\n"
+                "• **1st Top Dressing (CRI stage - 21 days):** 1 bag Urea (45 kg) with first irrigation.\n"
+                "• **2nd Top Dressing (Tillering - 40-45 days):** 1 bag Urea (45 kg).\n"
+                "• **Flag Leaf Spray:** Water-soluble **NPK 0:52:34** @ 1 kg in 150 L water/acre enhances grain size and earhead weight."
+            )
+        elif "mustard" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌱 **सरसों में खाद व सल्फर का विशेष महत्व (प्रति एकड़):**\n\n"
+                    "• **बुवाई के समय:** 1 बोरी डीएपी (50 किग्रा) + **बेंटोनाइट सल्फर (90%)** 10 किग्रा अवश्य डालें (सल्फर से दानों में तेल की मात्रा 3-4% बढ़ती है)।\n"
+                    "• **पहली सिंचाई पर (30-35 दिन):** 1 बोरी यूरिया (40-45 किग्रा) डालें।"
+                )
+            return (
+                "🌱 **Mustard Fertilizer Schedule & Critical Sulphur Requirement:**\n\n"
+                "• **Basal Sowing:** 1 bag DAP (50 kg) + **Bentonite Sulphur 90%** @ 10 kg/acre (essential to increase seed oil percentage by 3–4%).\n"
+                "• **First Irrigation (30–35 days):** Top-dress 1 bag Urea (45 kg) before flowering starts."
+            )
+        elif "potato" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🥔 **आलू में खाद व पोटाश प्रबंधन (प्रति एकड़):**\n\n"
+                    "• **बुवाई के समय:** 1.5 बोरी डीएपी (75 किग्रा) + **1 बोरी पोटाश (50 किग्रा MOP)** + 1 बोरी यूरिया (50 किग्रा)।\n"
+                    "• **मिट्टी चढ़ाते समय (Earthing-up 30 दिन):** 1 बोरी यूरिया (45 किग्रा) + 10 किग्रा बायो-जाइम।\n"
+                    "• **कंद फुलाव हेतु स्प्रे:** 0:0:50 (पोटेशियम सल्फेट) 5 ग्राम प्रति लीटर पानी का छिड़काव आलू का साइज बड़ा करता है।"
+                )
+            return (
+                "🥔 **Potato Fertilizer & High Potash Schedule (Per Acre):**\n\n"
+                "• **Basal Application:** 1.5 bags DAP (75 kg) + **1 bag MOP Potash (50 kg)** + 1 bag Urea (50 kg).\n"
+                "• **Earthing Up (30 days):** Top-dress 1 bag Urea (45 kg).\n"
+                "• **Tuber Bulking Spray:** Foliar spray of **NPK 0:0:50 (SOP)** @ 5 g/liter at 60–70 days maximizes grade-A tuber size."
+            )
+        else:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌱 **फसल खाद व पोषण प्रबंधन:**\n\n"
+                    "• **मूल सिद्धांत:** फास्फोरस (DAP) व पोटाश (MOP) हमेशा बुवाई के समय नीचे दें; यूरिया को 2 से 3 किस्तों में सिंचाई के साथ दें।\n"
+                    "• **पर्णीय छिड़काव:** वनस्पति बढ़वार में 19:19:19, फूल आते समय 12:61:00, और फल/दाना भरते समय 0:0:50 का स्प्रे सर्वोत्तम परिणाम देता है।"
+                )
+            return (
+                "🌱 **Balanced Fertilizer & Crop Nutrition Strategy:**\n\n"
+                "• **Core Rule:** Apply all DAP (Phosphorus) and Potash as basal at sowing; split Nitrogen (Urea) into 2–3 equal doses with irrigations.\n"
+                "• **Stage Sprays:** NPK 19:19:19 for vegetative growth, 12:61:00 for flowering, and 0:0:50 for fruit/grain filling."
+            )
+
+    # --- WEED & HERBICIDE CONTROL ---
+    if has_weed:
+        if "wheat" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌾 **गेहूं में खरपतवार (गुल्ली डंडा व चौड़ी पत्ती बथुआ) नियंत्रण:**\n\n"
+                    "• **गुल्ली डंडा / मंडूसी (Phalaris minor):** बुवाई के 30-35 दिन बाद **क्लोडीनाफॉप 15% WP (Clodinafop - Topic)** 160 ग्राम प्रति एकड़ 150 लीटर पानी में फ्लैट फैन नोजल से स्प्रे करें।\n"
+                    "• **चौड़ी पत्ती वाले खरपतवार (बथुआ, सेंजी):** **2,4-D एमाइन साल्ट 58% SL** 400 मिली/एकड़ या **मेटसल्फ्यूरॉन मिथाइल 20% WP (Algrip)** 8 ग्राम/एकड़ का छिड़काव करें।\n"
+                    "• **संयुक्त स्प्रे:** **टोटल (Sulfosulfuron + Metsulfuron)** 16 ग्राम प्रति एकड़ पहली सिंचाई के बाद पर्याप्त नमी में छिड़कें।"
+                )
+            return (
+                "🌾 **Wheat Weed Control (Canary Grass / Phalaris minor & Broadleaf Weeds):**\n\n"
+                "• **Grassy Weeds (Gulli Danda):** Spray **Clodinafop-propargyl 15% WP (Topic)** @ 160 g in 150 L water/acre at 30–35 days using a flat-fan nozzle.\n"
+                "• **Broadleaf Weeds (Bathua, Senji):** Spray **2,4-D Amine Salt 58% SL** @ 400 ml/acre or **Metsulfuron-methyl 20% WP (Algrip)** @ 8 g/acre.\n"
+                "• **Combined Formulation:** Apply **Sulfosulfuron 75% + Metsulfuron 5% WG (Total)** @ 16 g/acre under adequate soil moisture."
+            )
+        elif "onion" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🧅 **प्याज में खरपतवार नियंत्रण:**\n\n"
+                    "• **रोपाई के तुरंत बाद (Pre-emergence):** रोपाई के 48-72 घंटे के भीतर **पेंडीमेथालिन 30% EC (Stomp)** 1 लीटर प्रति एकड़ 200 लीटर पानी में स्प्रे करें।\n"
+                    "• **खड़ी फसल में (Post-emergence):** रोपाई के 20-25 दिन बाद खरपतवार 2-3 पत्ती के होने पर **ऑक्सीफ्लोरफेन 23.5% EC (Goal)** 0.5 मिली/लीटर का छिड़काव करें।"
+                )
+            return (
+                "🧅 **Onion Weed Management:**\n\n"
+                "• **Pre-Emergence:** Spray **Pendimethalin 30% EC (Stomp)** @ 1 liter/acre within 48–72 hours of transplanting in moist soil.\n"
+                "• **Post-Emergence (20–25 days):** Spray **Oxyfluorfen 23.5% EC (Goal)** @ 0.5 ml/liter when weed seedlings are in 2–3 leaf stage."
+            )
+        elif "paddy" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌾 **धान में खरपतवार नियंत्रण:**\n\n"
+                    "• **रोपाई के 3 दिन के भीतर:** **प्रेटिलाक्लोर 50% EC (Pretilachlor - Rifit)** 500 मिली प्रति एकड़ बालू में मिलाकर खड़े पानी में बिखेरें।\n"
+                    "• **खड़ी फसल में (15-20 दिन बाद):** **बिस्पायरीबैक सोडियम 10% SC (Nominee Gold)** 100 मिली प्रति एकड़ 150 लीटर पानी में स्प्रे करें।"
+                )
+            return (
+                "🌾 **Paddy / Rice Weed Control:**\n\n"
+                "• **Early Pre-Emergence (Within 3 days of transplanting):** Broadcast **Pretilachlor 50% EC (Rifit)** @ 500 ml/acre mixed with sand in standing water.\n"
+                "• **Post-Emergence (15–20 days):** Spray **Bispyribac-sodium 10% SC (Nominee Gold)** @ 100 ml in 150 L water/acre."
+            )
+        else:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌿 **खरपतवार नियंत्रण सलाह:**\n\n"
+                    "• **सावधानी:** खरपतवारनाशी का छिड़काव हमेशा खेत में पर्याप्त नमी होने पर ही करें और कट नोजल / फ्लैट फैन नोजल का प्रयोग करें।"
+                )
+            return (
+                "🌿 **Selective Herbicide Advisory:**\n\n"
+                "• **Best Practice:** Apply herbicides strictly under adequate soil moisture conditions using a flat-fan nozzle for uniform soil coverage."
+            )
+
+    # --- TERMITES ---
+    if has_termite:
+        if language in ["hi", "pa", "mr", "gu"]:
+            return (
+                "🐜 **फसल में दीमक (Termite) नियंत्रण:**\n\n"
+                "• **सिंचाई के साथ उपचार:** **क्लोरोपायरीफॉस 20% EC (Chlorpyrifos)** 1.5 से 2 लीटर प्रति एकड़ सिंचाई के पानी के साथ चलाएं।\n"
+                "• **दानेदार दवा:** **फिप्रोनिल 0.3% GR (Regent)** 8 किग्रा प्रति एकड़ बालू या खाद में मिलाकर जड़ों के पास बुरकें।\n"
+                "• **सावधानी:** खेत में कच्चा गोबर कभी न डालें; हमेशा पूरी तरह सड़ा हुआ गोबर ही उपयोग करें।"
+            )
+        return (
+            "🐜 **Crop Termite (Odontotermes obesus) Control:**\n\n"
+            "• **Water Drenching:** Apply **Chlorpyrifos 20% EC** @ 1.5–2 liters per acre metered into irrigation water streams.\n"
+            "• **Granular Soil Application:** Broadcast **Fipronil 0.3% GR (Regent)** @ 8 kg/acre mixed with dry soil/fertilizer around root zones.\n"
+            "• **Preventive Hygiene:** Never apply raw, un-decomposed cattle manure as it directly attracts subterranean termite colonies."
+        )
+
+    # --- FLOWER & FRUIT DROP ---
+    if has_flower_drop:
+        if language in ["hi", "pa", "mr", "gu"]:
+            return (
+                "🌸 **फूल व फल झड़ने से रोकने का उपाय:**\n\n"
+                "• **हार्मोन स्प्रे:** **प्लानोफिक्स (Alpha Naphthyl Acetic Acid - Planofix)** 0.25 मिली प्रति 4.5 लीटर पानी (1 मिली प्रति 18 लीटर) में मिलाकर सुबह स्प्रे करें।\n"
+                "• **बोरॉन पोषण:** **बोरॉन 20% (Boron)** 1.5 ग्राम प्रति लीटर पानी का छिड़काव फूलों को झड़ने से रोकता है और परागण मजबूत करता है।"
+            )
+        return (
+            "🌸 **Flower & Fruit Drop Prevention:**\n\n"
+            "• **Growth Regulator:** Spray **Planofix (Alpha Naphthyl Acetic Acid)** @ 0.25 ml per 4.5 liters water (do not overdose) at early flowering.\n"
+            "• **Boron Foliar:** Spray water-soluble **Boron 20%** @ 1.5 g/liter to accelerate pollen tube growth and improve fruit setting."
+        )
+
+    # --- WILT & ROOT ROT ---
+    if has_wilt:
+        if language in ["hi", "pa", "mr", "gu"]:
+            return (
+                "🌱 **उकठा (विल्ट) एवं जड़ सड़न / गलन नियंत्रण:**\n\n"
+                "• **ड्रेंचिंग (जड़ों में डालना):** **कॉपर ऑक्सीक्लोराइड 50% WP (Blitox)** 3 ग्राम + **स्ट्रेप्टोसाइक्लिन** 1 ग्राम प्रति 10 लीटर पानी का घोल बनाकर पौधों की जड़ों में डालें।\n"
+                "• **जैविक फफूंदनाशी:** **ट्राइकोडर्मा विरिडी (Trichoderma)** 2 किग्रा को 50 किग्रा सड़ी गोबर की खाद में मिलाकर खेत में डालें।"
+            )
+        return (
+            "🌱 **Wilt, Root Rot & Damping-Off Management:**\n\n"
+            "• **Root Drenching:** Drench affected root zones with **Copper Oxychloride 50% WP (Blitox)** @ 3 g/liter + **Streptocycline** @ 1 g/10 liters water.\n"
+            "• **Bio-Fungicide:** Enrich well-rotted FYM with **Trichoderma viride** @ 2 kg/acre and apply around plant bases."
+        )
+
+    # --- JOINT BLIGHT & LEAF CURL ---
+    if "potato" in detected_crops and has_blight and has_leaf_curl:
+        if language in ["hi", "pa", "mr", "gu"]:
+            return (
+                "🥔 **आलू झुलसा (Blight) एवं पत्ती मरोड़ (PLRV) नियंत्रण सलाह:**\n\n"
+                "1. **आलू का झुलसा (पछेती व अगेती झुलसा):**\n"
+                "• **पहचान:** पत्तियों के किनारों पर काले-भूरे पानी जैसे तेजी से फैलते धब्बे और सुबह के समय पत्तियों के नीचे सफेद फफूंद।\n"
+                "• **उपचार:** **रिडोमिल (Metalaxyl 8% + Mancozeb 64% WP)** 2.5 ग्राम प्रति लीटर पानी या **साइमोक्सानिल + मैनकोजेब (Curzate)** 2.5 ग्राम/लीटर का 24–48 घंटे में छिड़काव करें।\n"
+                "• **सुरक्षात्मक:** रोग आने से पहले **मैनकोजेब 75% WP** 2.5 ग्राम/लीटर का स्प्रे करें।\n\n"
+                "2. **आलू पत्ती मरोड़ (Potato Leafroll Virus - PLRV):**\n"
+                "• **पहचान:** पत्तियां ऊपर की ओर मुड़कर चमड़े जैसी सख्त हो जाती हैं।\n"
+                "• **माहू रोकथाम:** **थियामेथोक्सम 25% WG** 0.3 ग्राम/लीटर या **इमिडाक्लोप्रिड 17.8% SL** 0.5 मिली/लीटर का छिड़काव करें।"
+            )
+        return (
+            "🥔 **Potato Blight & Leaf Curl (PLRV) Complete Management Advisory:**\n\n"
+            "1. **Potato Blight (Late Blight & Early Blight):**\n"
+            "• **Symptoms:** Rapidly expanding water-soaked blackish lesions on leaf margins with white downy fungal growth on leaf undersides in humid mornings.\n"
+            "• **Immediate Action:** Spray systemic fungicide **Metalaxyl 8% + Mancozeb 64% WP (Ridomil MZ)** @ 2.5 g/liter of water, or **Cymoxanil + Mancozeb (Curzate)** @ 2.5 g/liter within 24–48 hours.\n"
+            "• **Protective Barrier:** Apply **Mancozeb 75% WP** @ 2.5 g/liter before rainfall or cloudy spells.\n\n"
+            "2. **Potato Leaf Curl (Potato Leafroll Virus - PLRV):**\n"
+            "• **Symptoms:** Upward rolling of leaflet margins, leathery brittle texture, and stunted tillering. Spread by green peach aphids (*Myzus persicae*).\n"
+            "• **Vector Control:** Spray **Thiamethoxam 25% WG** @ 0.3 g/liter or **Imidacloprid 17.8% SL** @ 0.5 ml/liter to halt aphid transmission."
+        )
+
+    if "wheat" in detected_crops and has_blight and has_leaf_curl:
+        if language in ["hi", "pa", "mr", "gu"]:
+            return (
+                "🌾 **गेहूं का झुलसा (Head/Foliar Blight) एवं पत्ती मरोड़/ऐंठन नियंत्रण सलाह:**\n\n"
+                "1. **गेहूं का झुलसा (Fusarium Head Blight व पर्ण झुलसा):**\n"
+                "• **पहचान:** बालियों में दानों का सूखकर सफेद/हल्का गुलाबी होना, और पत्तियों पर भूरे-पीले धब्बे फैलना।\n"
+                "• **उपचार:** **टेबुकोनाज़ोल 25.9% EC (Folicur)** 1 मिली प्रति लीटर या **प्रोपिकोनाज़ोल 25% EC (Tilt)** 1 मिली/लीटर (200 मिली प्रति एकड़ 200 लीटर पानी में) का छिड़काव करें।\n\n"
+                "2. **गेहूं में पत्ती मुड़ना / ऐंठन (Wheat Curl Mite व माहू):**\n"
+                "• **कीट नियंत्रण:** **रोगोर (Dimethoate 30% EC)** 1.5 मिली प्रति लीटर या **इमिडाक्लोप्रिड 17.8% SL** 0.5 मिली/लीटर का छिड़काव करें।\n"
+                "• **पोषण छिड़काव:** **जिंक सल्फेट (21%)** 5 ग्राम + **यूरिया** 20 ग्राम प्रति लीटर पानी का पर्णीय छिड़काव करें।"
+            )
+        return (
+            "🌾 **Wheat Blight & Leaf Curl Complete Management Advisory:**\n\n"
+            "1. **Wheat Head Blight (Fusarium) & Foliar Blight:**\n"
+            "• **Symptoms:** Bleached, prematurely ripened spikelets/earheads with pinkish fungal spores; foliar tan spots with yellow chlorotic halos.\n"
+            "• **Immediate Treatment:** Spray **Tebuconazole 25.9% EC (Folicur)** @ 1 ml/liter of water, or **Propiconazole 25% EC (Tilt)** @ 1 ml/liter (200 ml in 200 liters water/acre).\n\n"
+            "2. **Wheat Leaf Curl & Twisting (Wheat Curl Mite & Aphid Vector):**\n"
+            "• **Vector Control:** Spray **Dimethoate 30% EC (Rogor)** @ 1.5 ml/liter or **Imidacloprid 17.8% SL** @ 0.5 ml/liter.\n"
+            "• **Foliar Recovery Spray:** Spray water-soluble **Zinc Sulphate 21%** @ 5 g/liter + **Urea** @ 20 g/liter."
+        )
+
+    # --- BLIGHT & LEAF SPOT ---
+    if has_blight:
+        if "wheat" in detected_crops:
             if language in ["hi", "pa", "mr", "gu"]:
                 return (
                     "🌾 **गेहूं का झुलसा (Wheat Head Blight / Alternaria) नियंत्रण:**\n\n"
                     "• **लक्षण:** बालियों का समय से पहले पककर सूख जाना और पत्तियों पर भूरे धब्बे बनना।\n"
-                    "• **दवा:** **प्रोपिकोनाज़ोल 25% EC (Tilt)** 1 मिली/लीटर पानी या **टेबुकोनाज़ोल 25.9% EC** 1 मिली/लीटर (200 मिली प्रति एकड़) छिड़कें।\n"
-                    "• **सावधानी:** फूल आते समय ऊपर से सिंचाई करने से बचें।"
+                    "• **दवा:** **प्रोपिकोनाज़ोल 25% EC (Tilt)** 1 मिली/लीटर पानी या **टेबुकोनाज़ोल 25.9% EC (Folicur)** 1 मिली/लीटर (200 मिली प्रति एकड़) छिड़कें।"
                 )
             return (
                 "🌾 **Wheat Blight (Fusarium Head Blight & Foliar Blight) Treatment:**\n\n"
                 "• **Symptoms:** Prematurely bleached earheads and tan spindle-shaped foliar lesions with chlorotic halos.\n"
-                "• **Remedy:** Spray **Propiconazole 25% EC (Tilt)** @ 1 ml/liter or **Tebuconazole 25.9% EC (Folicur)** @ 1 ml/liter (200 ml in 200 L water/acre).\n"
-                "• **Management:** Spray immediately at earhead emergence during calm sunny weather."
+                "• **Remedy:** Spray **Propiconazole 25% EC (Tilt)** @ 1 ml/liter or **Tebuconazole 25.9% EC (Folicur)** @ 1 ml/liter (200 ml in 200 L water/acre)."
             )
-        elif has_leaf_curl:
+        if "potato" in detected_crops:
             if language in ["hi", "pa", "mr", "gu"]:
                 return (
-                    "🌾 **गेहूं में पत्ती मुड़ना एवं सिकुड़न (Wheat Leaf Twisting & Mite/Aphid Control):**\n\n"
-                    "• **कारण:** गेहूं में पत्तियां मुड़ना रसचूसक कीटों (माहू, व्हीट कर्ल माइट) या जिंक की कमी के कारण होता है।\n"
-                    "• **दवा:** **रोगोर (Dimethoate 30% EC)** 1.5 मिली/लीटर या **इमिडाक्लोप्रिड** 0.5 मिली/लीटर का छिड़काव करें।\n"
-                    "• **पोषक तत्व:** 5 ग्राम जिंक सल्फेट + 20 ग्राम यूरिया प्रति लीटर पानी में मिलाकर स्प्रे करें।"
+                    "🥔 **आलू का पछेती/अगेती झुलसा (Potato Blight) नियंत्रण:**\n\n"
+                    "• **लक्षण:** पत्तियों के किनारों पर काले पानी जैसे धब्बे जो ठंड और कोहरे में तेजी से फैलते हैं।\n"
+                    "• **दवा:** **रिडोमिल (Metalaxyl + Mancozeb)** 2.5 ग्राम प्रति लीटर या **साइमोक्सानिल + मैनकोजेब** 2.5 ग्राम/लीटर का 24 घंटे में छिड़काव करें।"
                 )
             return (
-                "🌾 **Wheat Leaf Curl & Twisting Advisory:**\n\n"
-                "• **Causes:** Longitudinal leaf rolling in wheat is triggered by Wheat Curl Mites, aphids, or micronutrient zinc stress.\n"
-                "• **Treatment:** Spray **Dimethoate 30% EC (Rogor)** @ 1.5 ml/liter or **Imidacloprid 17.8% SL** @ 0.5 ml/liter.\n"
-                "• **Nutrient Booster:** Apply foliar spray of water-soluble **Zinc Sulphate (21%)** @ 5 g/liter + **Urea** @ 20 g/liter."
+                "🥔 **Potato Late Blight Treatment:**\n\n"
+                "• **Remedy:** Spray **Metalaxyl 8% + Mancozeb 64% WP (Ridomil MZ)** @ 2.5 g/liter or **Cymoxanil + Mancozeb** @ 2.5 g/liter immediately."
             )
-        elif has_rust:
+        elif "tomato" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🍅 **टमाटर झुलसा (Early & Late Blight) नियंत्रण:**\n\n"
+                    "• **उपचार:** **मैनकोजेब 75% WP** 2.5 ग्राम/लीटर या **एजोक्सीस्ट्रोबिन 23% SC** 1 मिली/लीटर का तुरंत छिड़काव करें।"
+                )
+            return (
+                "🍅 **Tomato Blight Management:**\n\n"
+                "• **Treatment:** Spray **Mancozeb 75% WP** @ 2.5 g/liter or **Azoxystrobin 23% SC** @ 1 ml/liter."
+            )
+        elif "paddy" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌾 **धान का जीवाणु झुलसा एवं शीथ ब्लाइट:**\n\n"
+                    "• **दवा:** **वैलिडामाइसिन 3% L** 2 मिली/लीटर या **स्ट्रेप्टोसाइक्लिन** 6 ग्राम + **कॉपर ऑक्सीक्लोराइड** 300 ग्राम प्रति 200 लीटर पानी प्रति एकड़ छिड़कें।"
+                )
+            return (
+                "🌾 **Paddy Bacterial Leaf Blight & Sheath Blight:**\n\n"
+                "• **Treatment:** Spray **Validamycin 3% L** @ 2 ml/liter or **Streptocycline** @ 6 g + **Copper Oxychloride** @ 300 g/acre."
+            )
+        else:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌿 **फसल झुलसा (Blight) नियंत्रण:**\n\n"
+                    "• **दवा:** **मैनकोजेब 75% WP** 2.5 ग्राम प्रति लीटर या **कॉपर ऑक्सीक्लोराइड** 3 ग्राम/लीटर का छिड़काव करें।"
+                )
+            return (
+                "🌿 **Foliar Blight Treatment:**\n\n"
+                "• **Remedy:** Spray **Mancozeb 75% WP** @ 2.5 g/liter or **Copper Oxychloride 50% WP** @ 3 g/liter."
+            )
+
+    # --- RUST ---
+    if has_rust:
+        if "wheat" in detected_crops:
             if language in ["hi", "pa", "mr", "gu"]:
                 return (
                     "🌾 **गेहूं का पीला व भूरा रतुआ (Yellow/Brown Rust) नियंत्रण:**\n\n"
-                    "• **लक्षण:** पत्तियों पर समानांतर धारियों में पीले या नारंगी रंग के बारीक दाने (पाउडर)। छूने पर उंगली पर पीला रंग लग जाता है।\n"
-                    "• **दवा:** **प्रोपिकोनाज़ोल 25% EC (Tilt)** 1 मिली प्रति लीटर पानी (200 मिली प्रति एकड़) धूप निकलने पर छिड़कें।\n"
-                    "• **सावधानी:** सुबह की ओस सूखने के बाद ही स्प्रे करें। 15 दिन बाद आवश्यकतानुसार दोहराएं।"
+                    "• **दवा:** **प्रोपिकोनाज़ोल 25% EC (Tilt)** 1 मिली प्रति लीटर पानी (200 मिली प्रति एकड़) सुबह ओस सूखने के बाद धूप में छिड़कें।"
                 )
             return (
-                "🌾 **Wheat Yellow & Brown Rust (Puccinia striiformis) Treatment:**\n\n"
-                "• **Symptoms:** Bright yellow or orange powdery pustules arranged in parallel stripes along leaf veins.\n"
-                "• **Remedy:** Spray **Propiconazole 25% EC (Tilt)** @ 1 ml/liter (200 ml in 200 liters water/acre).\n"
-                "• **Timing:** Spray during morning hours once dew dries; repeat after 15 days if cool humid conditions persist."
+                "🌾 **Wheat Yellow & Brown Rust (Tilt Spray):**\n\n"
+                "• **Remedy:** Spray **Propiconazole 25% EC (Tilt)** @ 1 ml/liter (200 ml in 200 L water/acre) once morning dew has evaporated."
             )
-
-    if "tomato" in detected_crops:
-        if has_blight and has_leaf_curl:
+        elif "mustard" in detected_crops:
             if language in ["hi", "pa", "mr", "gu"]:
                 return (
-                    "🍅 **टमाटर झुलसा (Blight) एवं पत्ती मरोड़ (Leaf Curl) संयुक्त प्रबंधन:**\n\n"
-                    "1. **टमाटर झुलसा (अगेती व पछेती झुलसा):**\n"
-                    "• **पहचान:** पत्तियों पर छल्लेदार काले-भूरे धब्बे और तने पर काले घाव।\n"
-                    "• **उपचार:** **मैनकोजेब 75% WP** 2.5 ग्राम/लीटर या **एजोक्सीस्ट्रोबिन 23% SC** 1 मिली/लीटर का छिड़काव करें।\n\n"
-                    "2. **टमाटर पत्ती मरोड़ (Tomato Leaf Curl Virus - ToLCV):**\n"
-                    "• **पहचान:** पत्तियां ऊपर की ओर मुड़कर छोटी, मोटी व पीली हो जाती हैं और फूल गिर जाते हैं। यह सफेद मक्खी से फैलता है।\n"
-                    "• **सफेद मक्खी नियंत्रण:** **इमिडाक्लोप्रिड 17.8% SL** 0.5 मिली/लीटर या **थियामेथोक्सम 25% WG** 0.3 ग्राम/लीटर का छिड़काव करें।\n"
-                    "• **जैविक विधि:** खेत में प्रति एकड़ 20 पीले चिपचिपे कार्ड (Yellow Sticky Traps) लगाएं और 5 मिली नीम तेल प्रति लीटर पानी में स्प्रे करें।"
+                    "🌱 **सरसों का सफेद रतुआ (White Rust):**\n\n"
+                    "• **दवा:** **रिडोमिल (Metalaxyl + Mancozeb)** 2 ग्राम प्रति लीटर पानी का छिड़काव करें।"
                 )
             return (
-                "🍅 **Tomato Blight & Leaf Curl (ToLCV) Comprehensive Management:**\n\n"
-                "1. **Tomato Blight (Early & Late Blight):**\n"
-                "• **Symptoms:** Concentric dark brown target-spots on lower leaves with yellow halos and dark sunken stem lesions.\n"
-                "• **Fungicide Spray:** Apply **Mancozeb 75% WP** @ 2.5 g/liter of water or **Azoxystrobin 23% SC** @ 1 ml/liter.\n\n"
-                "2. **Tomato Leaf Curl Virus (ToLCV):**\n"
-                "• **Symptoms:** Severe upward rolling, crinkling, chlorotic yellowing, and stunted bushy growth caused by whitefly (*Bemisia tabaci*) vectors.\n"
-                "• **Vector Control:** Spray **Imidacloprid 17.8% SL** @ 0.5 ml/liter or **Thiamethoxam 25% WG** @ 0.3 g/liter.\n"
-                "• **Organic Protection:** Install 15–20 yellow sticky traps per acre; spray cold-pressed Neem oil (10,000 ppm) @ 3 ml/liter."
+                "🌱 **Mustard White Rust Control:**\n\n"
+                "• **Remedy:** Spray **Metalaxyl 8% + Mancozeb 64% WP** @ 2 g/liter."
             )
 
+    # --- LEAF CURL ---
+    if has_leaf_curl:
+        if "chilli" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🌶️ **मिर्च पत्ती मरोड़ (चुर्रा-मुर्रा) रोग:**\n\n"
+                    "• **कारण:** थ्रिप्स और सफेद मक्खी वायरस फैलाते हैं।\n"
+                    "• **दवा:** **फिप्रोनिल 5% SC** 2 मिली/लीटर या **इमिडाक्लोप्रिड** 0.5 मिली/लीटर + नीले व पीले स्टिकी ट्रैप लगाएं।"
+                )
+            return (
+                "🌶️ **Chilli Leaf Curl & Thrips:**\n\n"
+                "• **Remedy:** Spray **Fipronil 5% SC** @ 2 ml/liter or **Imidacloprid 17.8% SL** @ 0.5 ml/liter."
+            )
+        elif "tomato" in detected_crops:
+            if language in ["hi", "pa", "mr", "gu"]:
+                return (
+                    "🍅 **टमाटर पत्ती मरोड़ (ToLCV):**\n\n"
+                    "• **रोकथाम:** सफेद मक्खी रोकने के लिए **इमिडाक्लोप्रिड** 0.5 मिली/लीटर और 15 पीले स्टिकी ट्रैप प्रति एकड़ लगाएं।"
+                )
+            return (
+                "🍅 **Tomato Leaf Curl (ToLCV):**\n\n"
+                "• **Remedy:** Control whiteflies with **Imidacloprid 17.8% SL** @ 0.5 ml/liter and yellow sticky traps."
+            )
+
+    # --- MANDI & SELLING STRATEGY ---
+    if has_mandi:
+        if language in ["hi", "pa", "mr", "gu"]:
+            return (
+                "📊 **AgriFlow मंडी भाव व स्मार्ट बिक्री रणनीति:**\n\n"
+                "• **सीधी बिक्री:** AgriFlow के **'सत्यापित खरीदार' (Buyers)** पेज पर जाकर सीधे व्यापारियों से संपर्क करें और बिचौलियों का कमीशन बचाएं।\n"
+                "• **भाव कम होने पर:** यदि मंडी में भाव कम है, तो अपनी फसल को तुरंत औने-पौने दाम पर न बेचें। AgriFlow के **'कोल्ड स्टोरेज' (Storage)** टैब से पास का गोदाम बुक करें या **'प्रसंस्करण' (Processing)** विकल्प चुनें।\n"
+                "• **गुणवत्ता ग्रेडिंग:** फसल को साफ और ग्रेड (A, B, C) करके बेचने से 15-20% अधिक भाव मिलता है।"
+            )
+        return (
+            "📊 **AgriFlow Mandi Selling & Price Strategy:**\n\n"
+            "• **Direct Buyer Linkage:** Visit the **Verified Buyers** tab on AgriFlow to sell directly to wholesale processors and eliminate middleman commission.\n"
+            "• **Avoid Distress Selling:** When spot APMC prices are depressed, store surplus in nearby accredited cold warehouses via AgriFlow's **Storage** page.\n"
+            "• **Grading:** Cleaned and sorted produce fetches 15–20% premium over mixed bulk lots."
+        )
+
+    # --- ROSE & FLORICULTURE ---
     if "rose" in detected_crops:
         if language in ["hi", "pa", "mr", "gu"]:
             return (
                 "🌹 **गुलाब के पौधे की बीमारी एवं देखभाल सलाह:**\n\n"
-                "• **पहचान:** पत्तियों और कलियों पर सफेद फफूंद (पाउडरी मिल्ड्यू) या गोल काले धब्बे (ब्लैक स्पॉट), जिसके कारण पत्तियां पीली होकर गिर जाती हैं।\n"
-                "• **दवा:** **हेक्साकोनाज़ोल 5% SC** 1 मिली प्रति लीटर या **बाविस्टिन (Carbendazim 50% WP)** 1.5 ग्राम/लीटर का छिड़काव करें।\n"
-                "• **जैविक तरीका:** 3 ग्राम बेकिंग सोडा + 2 मिली नीम तेल प्रति लीटर पानी में मिलाकर पत्तियों पर स्प्रे करें।\n"
-                "• **छंटाई:** सूखी व रोगग्रस्त डालियों को काटें और कटिंग वाले स्थान पर फफूंदनाशक का लेप लगाएं।"
+                "• **पहचान:** पत्तियों और कलियों पर सफेद फफूंद (पाउडरी मिल्ड्यू) या काले धब्बे (ब्लैक स्पॉट)।\n"
+                "• **दवा:** **हेक्साकोनाज़ोल 5% SC** 1 मिली प्रति लीटर या **बाविस्टिन (Carbendazim)** 1.5 ग्राम/लीटर का छिड़काव करें।\n"
+                "• **जैविक तरीका:** 3 ग्राम बेकिंग सोडा + 2 मिली नीम तेल प्रति लीटर पानी में मिलाकर स्प्रे करें।"
             )
         return (
-            "🌹 **Rose / Flower Plant Care & Disease Management Advisory:**\n\n"
-            "• **Identification:** White powdery fungal coating on tender shoots (Powdery Mildew) or fringed black spots causing premature leaf drop (Black Spot).\n"
-            "• **Chemical Remedy:** Spray **Hexaconazole 5% SC** @ 1 ml/liter of water or **Carbendazim 50% WP (Bavistin)** @ 1.5 g/liter every 10–12 days.\n"
-            "• **Organic Remedy:** Spray baking soda solution (3 g baking soda + 2 ml cold-pressed neem oil in 1 liter water).\n"
-            "• **Pruning:** Prune dead diseased canes at a 45° angle just above an outward-facing bud; water at soil root base only."
+            "🌹 **Rose & Floriculture Care Advisory:**\n\n"
+            "• **Identification:** White powdery mildew on buds or circular black spots on leaves.\n"
+            "• **Chemical Remedy:** Spray **Hexaconazole 5% SC** @ 1 ml/liter or **Carbendazim 50% WP (Bavistin)** @ 1.5 g/liter.\n"
+            "• **Organic:** Spray baking soda solution (3 g baking soda + 2 ml neem oil per liter water)."
         )
 
-    if "paddy" in detected_crops and has_blight:
-        if language in ["hi", "pa", "mr", "gu"]:
-            return (
-                "🌾 **धान का जीवाणु झुलसा एवं शीथ ब्लाइट (Paddy Blight) नियंत्रण:**\n\n"
-                "• **लक्षण:** पत्तियों के सिरों से नीचे की ओर पीले सूखे किनारे (झुलसा), और तनों पर धब्बे।\n"
-                "• **दवा:** **वैलिडामाइसिन 3% L** 2 मिली प्रति लीटर या **स्ट्रेप्टोसाइक्लिन** 6 ग्राम + **कॉपर ऑक्सीक्लोराइड** 300 ग्राम प्रति 200 लीटर पानी प्रति एकड़ छिड़कें।\n"
-                "• **प्रबंधन:** खेत से 2 दिन के लिए पानी निकाल दें और यूरिया की अधिक खुराक न दें।"
-            )
-        return (
-            "🌾 **Paddy / Rice Bacterial Leaf Blight & Sheath Blight Treatment:**\n\n"
-            "• **Symptoms:** Water-soaked wavy lesions starting from leaf tips and moving downwards; grayish oval lesions on lower leaf sheaths.\n"
-            "• **Remedy:** Spray **Validamycin 3% L** @ 2 ml/liter or **Streptocycline** @ 6 g + **Copper Oxychloride 50% WP** @ 300 g in 200 L water/acre.\n"
-            "• **Water Management:** Drain standing field water temporarily for 2–3 days to break bacterial spreading."
-        )
+    # 5. ONLY if NO specific issue/question was identified and ONLY crop was mentioned, return general crop advisory
+    has_any_specific_issue = (
+        has_borer or has_sucking or has_wilt or has_blight or has_rust or
+        has_leaf_curl or has_fruit_rot or has_mildew or has_termite or
+        has_yellowing or has_fertilizer or has_weed or has_flower_drop or
+        has_growth or has_storage or has_mandi
+    )
 
-    # 5. If only crop is detected (general crop advisory)
-    for crop_key in detected_crops:
-        crop_dict = CROPS_MULTILINGUAL_ADVISORY.get(crop_key, {})
-        if language in crop_dict:
-            return crop_dict[language]
-        if language != "en" and "hi" in crop_dict:
-            return crop_dict["hi"]
-        if "en" in crop_dict:
-            return crop_dict["en"]
+    if not has_any_specific_issue:
+        for crop_key in detected_crops:
+            crop_dict = CROPS_MULTILINGUAL_ADVISORY.get(crop_key, {})
+            if language in crop_dict:
+                return crop_dict[language]
+            if language != "en" and "hi" in crop_dict:
+                return crop_dict["hi"]
+            if "en" in crop_dict:
+                return crop_dict["en"]
 
-    # 6. Fallback to generic agricultural topics if no crop matched
+    # 6. Fallback to generic agricultural topics
     for keywords, en_ans, hi_ans in AGRONOMIC_TOPICS:
         if any(kw in lowered for kw in keywords):
             return hi_ans if language in ["hi", "pa", "mr", "gu"] else en_ans

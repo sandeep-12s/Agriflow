@@ -115,17 +115,42 @@ export function setVoiceEnabled(enabled: boolean): void {
 }
 
 /**
- * Pronounces a spoken text message in the user's selected language.
+ * Stops any active speech playback immediately.
  */
-export function speakText(text: string, langCode: string = 'hi'): void {
-  if (!isVoiceSupported() || !getVoiceEnabled()) return
+export function stopSpeech(): void {
+  if (isVoiceSupported()) {
+    try {
+      window.speechSynthesis.cancel()
+    } catch {
+      // ignore
+    }
+  }
+}
+
+/**
+ * Pronounces a spoken text message in the user's selected language.
+ * @param text The sentence to speak
+ * @param langCode Target regional language code
+ * @param force If true, bypasses getVoiceEnabled() check (essential for explicit button clicks like 'Listen Solution')
+ * @param onEnd Callback when speech completes
+ * @param onError Callback when speech encounters an error
+ */
+export function speakText(
+  text: string,
+  langCode: string = 'hi',
+  force: boolean = false,
+  onEnd?: () => void,
+  onError?: (err: unknown) => void
+): void {
+  if (!isVoiceSupported()) return
+  if (!force && !getVoiceEnabled()) return
 
   try {
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume()
+    }
     window.speechSynthesis.cancel() // Stop any previous speech
 
-    const utterance = new SpeechSynthesisUtterance(text)
-
-    // Map internal language codes to BCP 47 voice tags
     const langMap: Record<string, string> = {
       hi: 'hi-IN',
       en: 'en-IN',
@@ -140,22 +165,41 @@ export function speakText(text: string, langCode: string = 'hi'): void {
       or: 'or-IN',
       ur: 'ur-IN',
     }
-    utterance.lang = langMap[langCode] || 'hi-IN'
-    utterance.rate = 0.95 // Slightly slower for clear rural understanding
-    utterance.pitch = 1.0
 
-    // Try to find native voice if available in browser
-    const voices = window.speechSynthesis.getVoices()
-    const matchingVoice = voices.find(
-      (v) => v.lang.startsWith(utterance.lang) || v.lang.startsWith(langCode)
-    )
-    if (matchingVoice) {
-      utterance.voice = matchingVoice
+    const targetLang = langMap[langCode] || 'hi-IN'
+
+    const doSpeak = () => {
+      try {
+        const utterance = new SpeechSynthesisUtterance(text)
+        utterance.lang = targetLang
+        utterance.rate = 0.95 // Clear rural understanding pace
+        utterance.pitch = 1.0
+
+        const voices = window.speechSynthesis.getVoices()
+        const matchingVoice = voices.find(
+          (v) => v.lang.toLowerCase().replace('_', '-').startsWith(targetLang.toLowerCase()) ||
+                 v.lang.toLowerCase().startsWith(langCode.toLowerCase())
+        )
+        if (matchingVoice) {
+          utterance.voice = matchingVoice
+        }
+
+        if (onEnd) utterance.onend = () => onEnd()
+        if (onError) utterance.onerror = (e) => onError(e)
+
+        window.speechSynthesis.resume()
+        window.speechSynthesis.speak(utterance)
+      } catch (err) {
+        console.warn('Speech playback error:', err)
+        if (onError) onError(err)
+      }
     }
 
-    window.speechSynthesis.speak(utterance)
+    // Chrome/Android can drop speak() if called synchronously after cancel()
+    setTimeout(doSpeak, 60)
   } catch (err) {
     console.warn('Voice navigation error:', err)
+    if (onError) onError(err)
   }
 }
 

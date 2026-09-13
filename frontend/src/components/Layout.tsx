@@ -2,6 +2,7 @@ import { ReactNode, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { SUPPORTED_LANGUAGES, TranslationKey } from '../i18n'
+import AssistantDialog from './AssistantDialog'
 
 interface NavItem {
   to: string
@@ -27,6 +28,7 @@ function Layout({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [assistantOpen, setAssistantOpen] = useState(false)
 
   const isBuyer = user?.role === 'buyer'
   const navItems = ALL_NAV_ITEMS.filter((item) =>
@@ -188,6 +190,22 @@ function Layout({ children }: { children: ReactNode }) {
         )}
       </header>
       <main className="page-container">{children}</main>
+
+      {/* Floating Kisan Doctor Button for immediate access on any page */}
+      {location.pathname !== '/assistant' && (
+        <button
+          onClick={() => setAssistantOpen(true)}
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 bg-gradient-to-r from-emerald-700 via-teal-700 to-green-800 hover:from-emerald-800 hover:to-green-900 text-white px-4 py-2.5 sm:py-3 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2.5 font-bold text-xs sm:text-sm border-2 border-white/60 group"
+          aria-label="Open Kisan Doctor Assistant"
+        >
+          <span className="text-lg sm:text-xl group-hover:rotate-12 transition-transform">👨‍🌾</span>
+          <span>{language === 'hi' ? 'किसान डॉक्टर' : 'Kisan Doctor AI'}</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping ml-0.5" />
+        </button>
+      )}
+
+      {/* Pop-in Right Side Assistant Dialog Box */}
+      <AssistantDialog isOpen={assistantOpen} onClose={() => setAssistantOpen(false)} />
     </div>
   )
 }

@@ -40,7 +40,7 @@ function AssistantPage() {
   // Image upload & camera capture state
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  const [selectedCropHint, setSelectedCropHint] = useState<string>('Tomato')
+  const [selectedCropHint, setSelectedCropHint] = useState<string>('')
   const [analyzingImage, setAnalyzingImage] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
@@ -69,7 +69,11 @@ function AssistantPage() {
       setError('')
       setAnalyzingImage(true)
       const userMsgId = Date.now().toString()
-      const questionText = textToSend || (language === 'hi' ? `📸 इस ${selectedCropHint} की फोटो की जांच करें और दवा बताएं` : `📸 Please diagnose this ${selectedCropHint} photo and recommend treatment`)
+      const questionText = textToSend || (
+        selectedCropHint
+          ? (language === 'hi' ? `📸 इस ${selectedCropHint} की फोटो की जांच करें और दवा बताएं` : `📸 Please diagnose this ${selectedCropHint} photo and recommend treatment`)
+          : (language === 'hi' ? '📸 इस पौधे / पत्ते की फोटो की जांच करें और समस्या व उपचार बताएं' : '📸 Please diagnose this crop / plant photo and recommend treatment')
+      )
 
       // Append user message with image and question
       setMessages((prev) => [
@@ -83,8 +87,9 @@ function AssistantPage() {
       ])
 
       const imgData = selectedImage
-      const cropHint = selectedCropHint
+      const cropHint = selectedCropHint ? selectedCropHint : undefined
       setSelectedImage(null)
+      setSelectedCropHint('')
       setInput('')
       if (fileInputRef.current) fileInputRef.current.value = ''
 

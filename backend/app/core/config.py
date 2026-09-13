@@ -41,7 +41,7 @@ class Settings:
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
     ASSISTANT_MODEL: str = os.getenv("ASSISTANT_MODEL", "claude-haiku-4-5-20251001")
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "") or os.getenv("GOOGLE_API_KEY", "")
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
     DATA_GOV_API_KEY: str = os.getenv("DATA_GOV_API_KEY", "")
     DATA_GOV_MANDI_RESOURCE_ID: str = os.getenv(
         "DATA_GOV_MANDI_RESOURCE_ID",

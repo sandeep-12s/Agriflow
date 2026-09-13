@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Layout from '../components/Layout'
 import { useAuth } from '../context/AuthContext'
-import { speakText } from '../services/voice'
+import { speakText, stopSpeech } from '../services/voice'
 import { getWastePageContent } from '../services/wasteTranslations'
 
 export default function WasteUtilizationPage() {
@@ -13,6 +13,7 @@ export default function WasteUtilizationPage() {
   const [selectedCondition, setSelectedCondition] = useState<string>('rotten')
   const [quantityQtl, setQuantityQtl] = useState<number>(20)
   const [originalPricePerQtl, setOriginalPricePerQtl] = useState<number>(1200)
+  const [isSpeaking, setIsSpeaking] = useState(false)
 
   const activeCrop = data.crops.find((c) => c.id === selectedCrop) || data.crops[0]
   const activeCondition = data.conditions.find((c) => c.id === selectedCondition) || data.conditions[0]
@@ -41,8 +42,20 @@ export default function WasteUtilizationPage() {
   const recoveryPercentage = totalOriginalValue > 0 ? Math.min(100, Math.round((maxRecoverable / totalOriginalValue) * 100)) : 0
 
   const handleSpeakPlan = () => {
+    if (isSpeaking) {
+      stopSpeech()
+      setIsSpeaking(false)
+      return
+    }
     const text = data.speakText(activeCrop.name, activeCondition.label, quantityQtl, maxRecoverable)
-    speakText(text, language)
+    setIsSpeaking(true)
+    speakText(
+      text,
+      language,
+      true, // Force speak regardless of tab navigation mute setting
+      () => setIsSpeaking(false),
+      () => setIsSpeaking(false)
+    )
   }
 
   const vermiData = data.pathways.vermicompost(vermicompostVal, vermicompostKg)
@@ -71,10 +84,14 @@ export default function WasteUtilizationPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleSpeakPlan}
-              className="bg-white text-emerald-900 hover:bg-emerald-50 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition flex items-center gap-2"
+              className={`px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition flex items-center gap-2 ${
+                isSpeaking
+                  ? 'bg-amber-400 text-amber-950 animate-pulse ring-2 ring-white shadow-lg'
+                  : 'bg-white text-emerald-900 hover:bg-emerald-50'
+              }`}
             >
-              <span>🔊</span>
-              <span>{data.listenBtn}</span>
+              <span>{isSpeaking ? '⏹️' : '🔊'}</span>
+              <span>{isSpeaking ? (language === 'hi' ? 'बोलना बंद करें' : 'Stop Audio') : data.listenBtn}</span>
             </button>
           </div>
         </div>

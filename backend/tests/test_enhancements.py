@@ -302,3 +302,69 @@ def test_crop_vision_with_question(client, auth_headers):
     assert diag["is_crop"] is True
     assert "Rose" in diag["crop_name"]
     assert "how to cure white powder on rose?" in diag["summary"]
+
+
+def test_crop_vision_non_crop_and_vague_question_rejection(client, auth_headers):
+    import base64
+    fake_img = base64.b64encode(b"fake_image_bytes").decode("utf-8")
+
+    # When user uploads an image and asks "What is this" without crop hint
+    res = client.post(
+        "/assistant/analyze-crop-image",
+        json={
+            "image_base64": fake_img,
+            "question": "What is this",
+            "language": "hi",
+        },
+        headers=auth_headers,
+    )
+    assert res.status_code == 200
+    diag = res.json()
+    assert diag["is_crop"] is False
+    assert "टमाटर" not in diag["crop_name"]
+
+    # When non-crop object like switchboard/wall is indicated
+    res2 = client.post(
+        "/assistant/analyze-crop-image",
+        json={
+            "image_base64": fake_img,
+            "question": "switch board on wall",
+            "language": "en",
+        },
+        headers=auth_headers,
+    )
+    assert res2.status_code == 200
+    assert res2.json()["is_crop"] is False
+
+
+def test_distinct_crop_problem_answers(client, auth_headers):
+    # 1. Tomato fruit borer -> Coragen / Emamectin, NOT general blight/mandi text
+    res1 = client.post(
+        "/assistant/chat",
+        json={"message": "टमाटर में फल में छेद करने वाली इल्ली लगी है", "language": "hi"},
+        headers=auth_headers,
+    )
+    assert res1.status_code == 200
+    reply1 = res1.json()["reply"]
+    assert "इल्ली" in reply1 or "छेदक" in reply1 or "कोराजन" in reply1
+
+    # 2. Mustard aphids -> Rogor / Dimethoate
+    res2 = client.post(
+        "/assistant/chat",
+        json={"message": "सरसों में माहू चेपा लगा है", "language": "hi"},
+        headers=auth_headers,
+    )
+    assert res2.status_code == 200
+    reply2 = res2.json()["reply"]
+    assert "माहू" in reply2 or "रोगोर" in reply2
+
+    # 3. Wheat termites -> Chlorpyrifos / Fipronil
+    res3 = client.post(
+        "/assistant/chat",
+        json={"message": "गेहूं की जड़ में दीमक लग गई है", "language": "hi"},
+        headers=auth_headers,
+    )
+    assert res3.status_code == 200
+    reply3 = res3.json()["reply"]
+    assert "दीमक" in reply3 or "क्लोरोपायरीफॉस" in reply3 or "फिप्रोनिल" in reply3
+
