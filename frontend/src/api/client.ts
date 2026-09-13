@@ -463,7 +463,7 @@ export interface StorageFacility {
   latitude?: number | null
   longitude?: number | null
   type: string
-  distance_km: number
+  distance_km?: number | null
   capacity: number
   available_capacity: number
   cost_per_unit: number
@@ -492,7 +492,7 @@ export interface ProcessingUnit {
   processing_cost: number
   output_product: string
   estimated_output: number
-  distance_km: number
+  distance_km?: number | null
   contact_email?: string | null
   contact_phone?: string | null
   description?: string | null
@@ -528,6 +528,7 @@ export interface AssistantChatResponse {
 }
 
 export interface CropImageAnalysisResponse {
+  is_crop?: boolean
   crop_name: string
   condition: string
   severity: 'Healthy' | 'Mild' | 'Moderate' | 'Severe'

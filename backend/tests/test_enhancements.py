@@ -189,6 +189,19 @@ def test_crop_image_analysis_endpoint(client, auth_headers):
     assert diag["confidence_pct"] > 50
 
 
+def test_crop_image_analysis_rejects_non_crop(client, auth_headers):
+    payload = {
+        "image_base64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP///w==",
+        "crop_hint": "Marble Wall with Air Conditioner",
+        "language": "en",
+    }
+    res = client.post("/assistant/analyze-crop-image", json=payload, headers=auth_headers)
+    assert res.status_code == 200
+    diag = res.json()
+    assert diag["is_crop"] is False
+    assert "Not an Agricultural Crop" in diag["condition"]
+
+
 def test_buyer_dashboard_summary(client, auth_headers):
     res = client.get("/dashboard/buyer-summary", headers=auth_headers)
     assert res.status_code == 200

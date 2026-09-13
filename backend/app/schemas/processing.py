@@ -15,6 +15,7 @@ class ProcessingUnitOut(BaseModel):
     output_product: str
     estimated_output: float
     distance_km: float
+    distance_km: Optional[float] = None
     contact_email: Optional[str] = None
     contact_phone: Optional[str] = None
     description: Optional[str] = None

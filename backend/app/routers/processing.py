@@ -54,6 +54,7 @@ def _calculate_processing_distances(
             description=u.description,
         ))
     result.sort(key=lambda x: x.distance_km)
+    result.sort(key=lambda x: x.distance_km if x.distance_km is not None else 99999)
     return result
 
 

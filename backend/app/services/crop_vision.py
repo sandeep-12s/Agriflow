@@ -119,6 +119,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
 ]
 
 DEFAULT_DIAGNOSIS_EN = {
+    "is_crop": True,
     "crop_name": "Agricultural Crop",
     "condition": "Foliar Blight & Nutrient Stress",
     "severity": "Moderate",
@@ -131,6 +132,7 @@ DEFAULT_DIAGNOSIS_EN = {
 }
 
 DEFAULT_DIAGNOSIS_HI = {
+    "is_crop": True,
     "crop_name": "कृषि फसल (Crop)",
     "condition": "पत्ती का धब्बा रोग एवं पोषण तनाव (Foliar Spot)",
     "severity": "Moderate",
@@ -141,6 +143,40 @@ DEFAULT_DIAGNOSIS_HI = {
     "prevention": "खेत में जलभराव न होने दें; शाम के समय हल्की सिंचाई करें और संक्रमित पत्तियों को हटा दें।",
     "summary": "चित्र विश्लेषण से पत्ती पर फफूंद जनित धब्बा रोग पाया गया। बचाव के लिए मैनकोजेब और नीम तेल का छिड़काव तुरंत करें।"
 }
+
+NON_CROP_REJECTION_EN = {
+    "is_crop": False,
+    "crop_name": "Non-Agricultural Object",
+    "condition": "Not an Agricultural Crop / Invalid Image",
+    "severity": "Mild",
+    "confidence_pct": 98,
+    "symptoms": "The uploaded photo contains an indoor room, appliance, wall, furniture, person, or non-plant object.",
+    "chemical_treatment": "No agricultural treatment applicable.",
+    "organic_remedy": "No remedy applicable.",
+    "prevention": "Please upload a clear, focused photo of your crop, leaf, stem, fruit, or farm produce for diagnosis.",
+    "summary": "This image does not contain an agricultural crop or plant. Please take a clear photo of your plant or crop leaf so our Kisan Doctor can diagnose it accurately."
+}
+
+NON_CROP_REJECTION_HI = {
+    "is_crop": False,
+    "crop_name": "गैर-कृषि वस्तु (Non-Crop)",
+    "condition": "फसल का चित्र नहीं है (Invalid Image)",
+    "severity": "Mild",
+    "confidence_pct": 98,
+    "symptoms": "अपलोड किया गया चित्र किसी कमरे, दीवार, एसी, फर्नीचर, व्यक्ति या गैर-कृषि वस्तु का है।",
+    "chemical_treatment": "कोई रासायनिक उपचार लागू नहीं है।",
+    "organic_remedy": "कोई जैविक उपचार लागू नहीं है।",
+    "prevention": "कृपया सटीक जांच के लिए केवल अपनी फसल, पौधे, पत्ते या फल की साफ फोटो अपलोड करें।",
+    "summary": "यह किसी फसल या पौधे का चित्र नहीं है। कृपया अपनी फसल के पौधे, पत्ते या तने की साफ तस्वीर खींचकर भेजें ताकि किसान डॉक्टर सही बीमारी व उपचार बता सके।"
+}
+
+NON_CROP_KEYWORDS = [
+    "wall", "ac", "air conditioner", "room", "floor", "ceiling", "marble",
+    "tile", "tiles", "fan", "tv", "sofa", "chair", "table", "bed", "door",
+    "window", "car", "bike", "cycle", "person", "man", "woman", "selfie",
+    "dog", "cat", "indoor", "building", "house", "laptop", "mobile", "phone",
+    "दीवार", "कमरा", "एसी", "गाड़ी", "घर"
+]
 
 
 def analyze_crop_image_with_gemini(
@@ -169,9 +205,19 @@ def analyze_crop_image_with_gemini(
     system_prompt = (
         "You are an expert Indian agricultural plant pathologist and agronomist. "
         "Analyze the uploaded crop photo. Detect the crop species, disease/pest/deficiency or if healthy, "
+        "MANDATORY VALIDATION: First determine if the image contains an agricultural crop, leaf, plant, stem, "
+        "fruit, vegetable, or harvest produce. If the image is NOT an agricultural crop or plant (for example: an air conditioner, indoor room, "
+        "wall, marble, furniture, appliance, ceiling, vehicle, human, pet, or household object), you MUST set 'is_crop': false, "
+        "'crop_name': 'Non-Crop Object', 'condition': 'Non-Crop Image Detected', 'severity': 'Mild', 'confidence_pct': 99, "
+        "'symptoms': 'Image contains a non-agricultural object (such as a wall, room, appliance, or furniture).', "
+        "'chemical_treatment': 'None required.', 'organic_remedy': 'None required.', 'prevention': 'Please take a clear photo of your plant or crop.', "
+        "and 'summary': 'This image does not appear to be an agricultural crop or plant. Please upload a clear photo of your crop, leaf, stem, or farm produce for disease diagnosis.' "
+        "DO NOT diagnose plant diseases on non-plant images under any circumstances! "
+        "If it IS an agricultural crop or plant, set 'is_crop': true, detect the crop species, disease/pest/deficiency or if healthy, "
         "and provide exact, actionable treatment and dosages in Indian farming context. "
         "Output ONLY a valid JSON object with these exact keys: "
         "crop_name (string), condition (string), severity (string: 'Healthy'|'Mild'|'Moderate'|'Severe'), "
+        "is_crop (boolean), crop_name (string), condition (string), severity (string: 'Healthy'|'Mild'|'Moderate'|'Severe'), "
         "confidence_pct (integer 0-100), symptoms (string), chemical_treatment (string with chemical name and g/L dosage), "
         "organic_remedy (string with natural solution), prevention (string), summary (string in 1-2 sentences). "
     )
@@ -215,7 +261,11 @@ def analyze_crop_image_with_gemini(
                 raw_json = parts[0]["text"].strip()
                 # Parse JSON
                 parsed = json.loads(raw_json)
+                raw_is_crop = parsed.get("is_crop", True)
+                if isinstance(raw_is_crop, str):
+                    raw_is_crop = raw_is_crop.lower() in ("true", "1", "yes")
                 return {
+                    "is_crop": bool(raw_is_crop),
                     "crop_name": str(parsed.get("crop_name", "Agricultural Crop")),
                     "condition": str(parsed.get("condition", "Foliar Condition")),
                     "severity": str(parsed.get("severity", "Moderate")),
@@ -240,7 +290,14 @@ def diagnose_crop_image(
     """
     Main entrypoint for crop image diagnosis.
     Tries Gemini Vision first; falls back to agronomic knowledge base.
+    Validates crop imagery, tries Gemini Vision, and falls back safely.
     """
+    target_text = (crop_hint or "").lower()
+
+    # Rejection of explicit non-crop hints
+    if any(kw in target_text for kw in NON_CROP_KEYWORDS):
+        return NON_CROP_REJECTION_HI if language == "hi" else NON_CROP_REJECTION_EN
+
     # 1. Try Gemini Vision if API key is active
     gemini_result = analyze_crop_image_with_gemini(image_base64, crop_hint, language)
     if gemini_result:
@@ -251,6 +308,8 @@ def diagnose_crop_image(
     for entry in DISEASE_KNOWLEDGE_BASE:
         if any(kw in target_text for kw in entry["keywords"]):
             return entry["hi"] if language == "hi" else entry["en"]
+            res = entry["hi"] if language == "hi" else entry["en"]
+            return {"is_crop": True, **res}
 
     # 3. Default comprehensive diagnosis
     return DEFAULT_DIAGNOSIS_HI if language == "hi" else DEFAULT_DIAGNOSIS_EN

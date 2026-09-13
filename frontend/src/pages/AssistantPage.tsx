@@ -266,7 +266,22 @@ function AssistantPage() {
               )}
 
               {/* AI Vision Crop Diagnosis Card */}
-              {m.diagnosis && (
+              {m.diagnosis && m.diagnosis.is_crop === false && (
+                <div className="bg-rose-50 border-2 border-dashed border-rose-300 p-4 rounded-2xl text-soil mt-2">
+                  <div className="flex items-center gap-2 mb-2 text-rose-700 font-bold text-sm">
+                    <span className="text-xl">⚠️</span>
+                    <span>{m.diagnosis.condition || 'Not a Crop Photo / फसल का चित्र नहीं है'}</span>
+                  </div>
+                  <p className="text-xs text-soil/80 leading-relaxed bg-white/70 p-3 rounded-xl border border-rose-200/60 mb-2">
+                    {m.diagnosis.summary}
+                  </p>
+                  <div className="text-[11px] text-rose-800 bg-rose-100/70 p-2.5 rounded-xl border border-rose-200">
+                    💡 <strong>कृषि सलाह / Note:</strong> कृपया केवल अपनी फसल, पत्ते, पौधे, तने या उपज की साफ फोटो अपलोड करें ताकि किसान डॉक्टर सही बीमारी और उचित उपचार बता सके।
+                  </div>
+                </div>
+              )}
+
+              {m.diagnosis && m.diagnosis.is_crop !== false && (
                 <div className="space-y-3 pt-1">
                   <div className="flex items-start justify-between gap-2 pb-2 border-b border-soil/10">
                     <div>

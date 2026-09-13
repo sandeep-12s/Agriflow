@@ -20,6 +20,7 @@ const ProduceProcessingPage = lazy(() => import('./pages/ProduceProcessingPage')
 const AssistantPage = lazy(() => import('./pages/AssistantPage'))
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'))
 const BuyerPortalPage = lazy(() => import('./pages/BuyerPortalPage'))
+const WasteUtilizationPage = lazy(() => import('./pages/WasteUtilizationPage'))
 
 function App() {
   return (
@@ -146,6 +147,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AnalyticsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/waste-utilization"
+            element={
+              <ProtectedRoute>
+                <WasteUtilizationPage />
               </ProtectedRoute>
             }
           />

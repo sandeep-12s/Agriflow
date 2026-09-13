@@ -1,11 +1,12 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { SUPPORTED_LANGUAGES } from '../i18n'
+import { SUPPORTED_LANGUAGES, TranslationKey } from '../i18n'
+import { pronounceTab, getVoiceEnabled, setVoiceEnabled, speakText } from '../services/voice'
 
 interface NavItem {
   to: string
-  key: 'dashboard' | 'produce' | 'market' | 'buyers' | 'buyerPortal' | 'storage' | 'processing' | 'assistant' | 'analytics'
+  key: TranslationKey
   roles: ('farmer' | 'buyer')[]
 }
 
@@ -17,6 +18,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { to: '/buyer/portal', key: 'buyerPortal', roles: ['buyer'] },
   { to: '/storage', key: 'storage', roles: ['farmer'] },
   { to: '/processing', key: 'processing', roles: ['farmer'] },
+  { to: '/waste-utilization', key: 'wasteUtilization', roles: ['farmer'] },
   { to: '/assistant', key: 'assistant', roles: ['farmer', 'buyer'] },
   { to: '/analytics', key: 'analytics', roles: ['farmer'] },
 ]
@@ -26,6 +28,29 @@ function Layout({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [voiceActive, setVoiceActive] = useState(() => getVoiceEnabled())
+
+  // Pronounce active tab when navigating between sections
+  useEffect(() => {
+    if (voiceActive) {
+      const timer = setTimeout(() => {
+        pronounceTab(location.pathname, language)
+      }, 200)
+      return () => clearTimeout(timer)
+    }
+  }, [location.pathname, language, voiceActive])
+
+  const toggleVoice = () => {
+    const next = !voiceActive
+    setVoiceActive(next)
+    setVoiceEnabled(next)
+    if (next) {
+      speakText(
+        language === 'hi' ? 'आवाज़ सहायता चालू की गई है' : 'Voice guidance enabled',
+        language
+      )
+    }
+  }
 
   const isBuyer = user?.role === 'buyer'
   const navItems = ALL_NAV_ITEMS.filter((item) =>
@@ -110,6 +135,22 @@ function Layout({ children }: { children: ReactNode }) {
                 ))}
               </select>
             </div>
+
+            {/* Voice Guidance Toggle */}
+            <button
+              onClick={toggleVoice}
+              className={`hidden md:flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-xl border transition shadow-xs ${
+                voiceActive
+                  ? 'bg-emerald-100/90 border-emerald-300 text-emerald-900 hover:bg-emerald-200'
+                  : 'bg-sand/60 border-soil/20 text-soil/60 hover:text-soil hover:bg-husk'
+              }`}
+              title={voiceActive ? 'आवाज़ सहायता चालू है (Voice ON)' : 'आवाज़ सहायता बंद है (Voice Muted)'}
+              aria-label="Toggle Voice Guidance"
+            >
+              <span className="text-sm">{voiceActive ? '🔊' : '🔇'}</span>
+              <span>{voiceActive ? 'आवाज़ चालू' : 'आवाज़ बंद'}</span>
+            </button>
+
             <button
               onClick={handleLogout}
               className="hidden md:inline-block text-sm font-medium text-soil border border-soil/20 rounded-lg px-3 py-2 hover:bg-husk transition"
@@ -173,6 +214,21 @@ function Layout({ children }: { children: ReactNode }) {
                 ))}
               </select>
             </div>
+
+            <div className="flex items-center justify-between py-2 px-3 bg-sand/40 border border-soil/15 rounded-xl my-1">
+              <span className="text-xs font-semibold text-soil/75">🔊 आवाज़ सहायता (Voice):</span>
+              <button
+                onClick={toggleVoice}
+                className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-lg border transition ${
+                  voiceActive
+                    ? 'bg-emerald-100 border-emerald-300 text-emerald-900'
+                    : 'bg-white border-soil/20 text-soil/60'
+                }`}
+              >
+                <span>{voiceActive ? '🔊 चालू (ON)' : '🔇 बंद (Muted)'}</span>
+              </button>
+            </div>
+
             <button
               onClick={handleLogout}
               className="text-left text-sm font-medium text-soil border border-soil/20 rounded-lg px-3 py-2 mt-1 hover:bg-husk transition"

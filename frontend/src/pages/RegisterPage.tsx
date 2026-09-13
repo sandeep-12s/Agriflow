@@ -84,6 +84,11 @@ function RegisterPage() {
       const response = await requestRegistrationOtp(form.phone)
       setOtpRequested(true)
       setOtpMessage(response.dev_code ? `${response.message} Development code: ${response.dev_code}` : response.message)
+      setOtpMessage(
+        response.message.includes('sent')
+          ? `📱 Verification code sent via SMS to ${form.phone}. Please enter the 6-digit code below.`
+          : `📱 6-digit verification code sent to ${form.phone}.`
+      )
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not send verification code.')
     } finally {
@@ -224,17 +229,24 @@ function RegisterPage() {
             <>
               <div className="otp-message" role="status">{otpMessage}</div>
               <label htmlFor="otp" className="auth-label">Phone verification code</label>
+              <div className="p-3 mb-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 font-medium" role="status">
+                {otpMessage}
+              </div>
+              <label htmlFor="otp" className="auth-label">
+                Enter 6-Digit SMS Code / OTP
+              </label>
               <input
                 id="otp"
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]{6}"
                 maxLength={6}
+                placeholder="• • • • • •"
                 autoComplete="one-time-code"
                 required
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="auth-input mb-6"
+                className="auth-input mb-6 tracking-widest text-center text-lg font-bold"
               />
             </>
           )}

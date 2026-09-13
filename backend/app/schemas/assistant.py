@@ -19,6 +19,7 @@ class CropImageAnalysisRequest(BaseModel):
 
 
 class CropImageAnalysisResponse(BaseModel):
+    is_crop: bool = True
     crop_name: str
     condition: str
     severity: str  # "Healthy" | "Mild" | "Moderate" | "Severe"

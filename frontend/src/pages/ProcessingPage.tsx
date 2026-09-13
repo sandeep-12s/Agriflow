@@ -73,6 +73,7 @@ function ProcessingPage() {
       { label: 'Output Product', value: u.output_product },
       { label: 'Capacity', value: `${u.input_capacity} MT/day` },
       { label: 'Distance', value: `${u.distance_km} km away` },
+      { label: 'Distance', value: u.distance_km != null ? `${u.distance_km} km away` : 'Regional Facility' },
       { label: 'Contact', value: u.contact_phone || u.contact_email || 'Verified Facility' },
     ],
   }))
@@ -166,6 +167,7 @@ function ProcessingPage() {
                   </div>
                   <span className="text-[11px] font-semibold text-soil/50 bg-soil/5 px-2 py-0.5 rounded-full">
                     {u.distance_km} km away
+                    {u.distance_km != null ? `${u.distance_km} km away` : 'Regional Facility'}
                   </span>
                 </div>
 

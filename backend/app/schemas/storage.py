@@ -9,6 +9,7 @@ class StorageFacilityOut(BaseModel):
     longitude: float | None = None
     type: str
     distance_km: float
+    distance_km: float | None = None
     capacity: float
     available_capacity: float
     cost_per_unit: float

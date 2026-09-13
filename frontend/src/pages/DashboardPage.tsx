@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ErrorBanner from '../components/ErrorBanner'
+import WeatherWidget from '../components/WeatherWidget'
 import { useAuth } from '../context/AuthContext'
 import {
   getDashboardSummary,
@@ -27,6 +28,7 @@ function DashboardPage() {
   const [profile, setProfile] = useState<FarmerProfile | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [showWeather, setShowWeather] = useState(true)
 
   useEffect(() => {
     if (!token) return
@@ -285,10 +287,157 @@ function DashboardPage() {
 
       {!loading && !isBuyer && (
         <>
-          <div className="flex flex-col gap-1 mb-6">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-leaf/75">{t('farmerOverview')}</p>
-            <h1 className="text-2xl md:text-3xl font-bold text-soil">{t('goodToSeeYou')}{profile ? `, ${profile.name.split(' ')[0]}` : ''}</h1>
-            <p className="text-sm text-soil/60">{t('dashboardIntro')}</p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-leaf/75">{t('farmerOverview')}</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-soil">{t('goodToSeeYou')}{profile ? `, ${profile.name.split(' ')[0]}` : ''}</h1>
+              <p className="text-sm text-soil/60">{t('dashboardIntro')}</p>
+            </div>
+
+            <button
+              onClick={() => setShowWeather((prev) => !prev)}
+              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm border transition shadow-xs ${
+                showWeather
+                  ? 'bg-emerald-100/90 border-emerald-300 text-emerald-950 hover:bg-emerald-200'
+                  : 'bg-white border-soil/20 text-soil hover:bg-sand/40'
+              }`}
+            >
+              <span>{showWeather ? '🌤️ मौसम छुपाएं' : '🌤️ आज का मौसम व कृषि सलाह देखें'}</span>
+            </button>
+          </div>
+
+          {/* Live Farm Weather Widget */}
+          {showWeather && (
+            <WeatherWidget defaultLocationName={profile?.location || 'Field / खेत'} />
+          )}
+
+          {/* Quick Farmer Actions Hub (सरल किसान मेनू) */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h2 className="text-lg md:text-xl font-bold text-soil flex items-center gap-2">
+                  <span>🌾</span>
+                  <span>सरल किसान कार्य (Quick Farmer Actions)</span>
+                </h2>
+                <p className="text-xs text-soil/60">
+                  सीधे बटन दबाकर फसल बेचें, मंडी भाव देखें, डॉक्टर सलाह लें या अपशिष्ट प्रबंधन करें
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <Link
+                to="/produce/new"
+                className="p-4 rounded-2xl bg-gradient-to-br from-emerald-600 to-green-700 text-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-3xl">🚜</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">नया लॉट</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm md:text-base">मेरी उपज बेचें</h3>
+                  <p className="text-[11px] text-emerald-100 font-medium">Add Harvest / Sell</p>
+                </div>
+              </Link>
+
+              <Link
+                to="/market"
+                className="p-4 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-3xl">📊</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">लाइव भाव</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm md:text-base">मंडी के भाव</h3>
+                  <p className="text-[11px] text-amber-100 font-medium">Live APMC Mandi Rates</p>
+                </div>
+              </Link>
+
+              <Link
+                to="/buyers"
+                className="p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-3xl">🤝</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">व्यापारी</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm md:text-base">सीधे खरीदार</h3>
+                  <p className="text-[11px] text-blue-100 font-medium">Wholesale Buyers</p>
+                </div>
+              </Link>
+
+              <Link
+                to="/storage"
+                className="p-4 rounded-2xl bg-gradient-to-br from-cyan-600 to-teal-700 text-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-3xl">❄️</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">गोदाम</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm md:text-base">कोल्ड स्टोरेज</h3>
+                  <p className="text-[11px] text-cyan-100 font-medium">Safe Storage Finder</p>
+                </div>
+              </Link>
+
+              <Link
+                to="/processing"
+                className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-violet-700 text-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-3xl">🏭</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">फैक्ट्री</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm md:text-base">खाद्य प्रसंस्करण</h3>
+                  <p className="text-[11px] text-purple-100 font-medium">Processing Units</p>
+                </div>
+              </Link>
+
+              <Link
+                to="/assistant"
+                className="p-4 rounded-2xl bg-gradient-to-br from-rose-600 to-pink-600 text-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-3xl">🩺</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">फोटो जांच</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm md:text-base">किसान डॉक्टर AI</h3>
+                  <p className="text-[11px] text-rose-100 font-medium">Crop Doctor & Diagnosis</p>
+                </div>
+              </Link>
+
+              <Link
+                to="/waste-utilization"
+                className="p-4 rounded-2xl bg-gradient-to-br from-emerald-800 to-teal-900 text-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex flex-col justify-between col-span-2 sm:col-span-1"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-3xl">♻️</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">नुकसान वसूली</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm md:text-base">खराब फसल समाधान</h3>
+                  <p className="text-[11px] text-emerald-100 font-medium">Waste to Wealth Recovery</p>
+                </div>
+              </Link>
+
+              <Link
+                to="/analytics"
+                className="p-4 rounded-2xl bg-gradient-to-br from-slate-700 to-zinc-800 text-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex flex-col justify-between col-span-2 sm:col-span-1"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-3xl">📈</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">आय रिपोर्ट</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm md:text-base">खेत का हिसाब-किताब</h3>
+                  <p className="text-[11px] text-slate-200 font-medium">Revenue & Farm Analytics</p>
+                </div>
+              </Link>
+            </div>
           </div>
 
           <div className="dashboard-visual mb-6">

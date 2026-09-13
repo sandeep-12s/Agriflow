@@ -49,7 +49,7 @@ type TranslationKey = keyof typeof translations.en
 
 const translations = {
   en: {
-    dashboard: 'Dashboard', produce: 'Produce', market: 'Market', buyers: 'Buyers', buyerPortal: 'Buyer Portal', storage: 'Storage', processing: 'Processing', assistant: 'Assistant', analytics: 'Analytics',
+    dashboard: 'Dashboard', produce: 'Produce', market: 'Market', buyers: 'Buyers', buyerPortal: 'Buyer Portal', storage: 'Storage', processing: 'Processing', assistant: 'Assistant', analytics: 'Analytics', wasteUtilization: 'Waste to Wealth',
     farmerWorkspace: 'FARMER WORKSPACE', logout: 'Log out', closeMenu: 'Close menu', openMenu: 'Open menu',
     farmerOverview: 'Farmer overview', goodToSeeYou: 'Good to see you', dashboardIntro: 'A clear view of what your harvest can do next.', harvestIntelligence: 'Harvest intelligence', harvestTagline: "Turn today's harvest into tomorrow's stronger decision.",
     nextAction: 'What should you do next?', totalProduce: 'Total Produce', estimatedValue: 'Estimated Value', potentialProfit: 'Potential Profit', wastageRisk: 'Wastage Risk', activeRecommendations: 'Active Recommendations', availableBuyers: 'Available Buyers', yourProduce: 'Your Produce', addProduce: 'Add produce', viewAll: 'View all', noProduce: "You haven't added any produce yet.", entriesOnRecord: 'entries on record.',
@@ -64,7 +64,7 @@ const translations = {
     autoDetectRegion: 'Auto-detect (Region)', regionDetected: 'Region detected',
   },
   hi: {
-    dashboard: 'डैशबोर्ड', produce: 'उपज', market: 'बाज़ार', buyers: 'खरीदार', buyerPortal: 'खरीदार पोर्टल', storage: 'भंडारण', processing: 'प्रसंस्करण', assistant: 'सहायक', analytics: 'विश्लेषण',
+    dashboard: 'डैशबोर्ड', produce: 'उपज', market: 'बाज़ार', buyers: 'खरीदार', buyerPortal: 'खरीदार पोर्टल', storage: 'भंडारण', processing: 'प्रसंस्करण', assistant: 'सहायक', analytics: 'विश्लेषण', wasteUtilization: 'खराब फसल समाधान',
     farmerWorkspace: 'किसान कार्यक्षेत्र', logout: 'लॉग आउट', closeMenu: 'मेनू बंद करें', openMenu: 'मेनू खोलें',
     farmerOverview: 'किसान अवलोकन', goodToSeeYou: 'नमस्ते', dashboardIntro: 'आपकी फसल और उपज का संपूर्ण विवरण।', harvestIntelligence: 'फसल की जानकारी', harvestTagline: 'आज की फसल से कल का बेहतर निर्णय लें।',
     nextAction: 'अब आपको क्या करना चाहिए?', totalProduce: 'कुल उपज', estimatedValue: 'अनुमानित मूल्य', potentialProfit: 'संभावित लाभ', wastageRisk: 'बर्बादी का जोखिम', activeRecommendations: 'सक्रिय सुझाव', availableBuyers: 'उपलब्ध खरीदार', yourProduce: 'आपकी उपज', addProduce: 'उपज जोड़ें', viewAll: 'सभी देखें', noProduce: 'आपने अभी तक कोई उपज नहीं जोड़ी है।', entriesOnRecord: 'प्रविष्टियां दर्ज हैं।',
