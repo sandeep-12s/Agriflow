@@ -83,16 +83,10 @@ function RegisterPage() {
     try {
       const response = await requestRegistrationOtp(form.phone)
       setOtpRequested(true)
-      setOtpMessage(response.dev_code ? `${response.message} Development code: ${response.dev_code}` : response.message)
-      setOtpMessage(
-        response.message.includes('sent')
-          ? `📱 Verification code sent via SMS to ${form.phone}. Please enter the 6-digit code below.`
-          : `📱 6-digit verification code sent to ${form.phone}.`
-      )
       if (response.dev_code) {
         setOtp(response.dev_code)
         setOtpMessage(
-          `⚠️ Live SMS gateway (Fast2SMS / Twilio) is not configured in Render environment variables yet. Verification code: ${response.dev_code} (Auto-filled below for instant testing).`
+          `OTP Code: ${response.dev_code} (Auto-filled below). To receive SMS directly to your phone number via telecom networks, add FAST2SMS_API_KEY to Render environment variables.`
         )
       } else {
         setOtp('')
@@ -238,21 +232,27 @@ function RegisterPage() {
 
           {otpRequested && (
             <>
-              <div className="otp-message" role="status">{otpMessage}</div>
-              <label htmlFor="otp" className="auth-label">Phone verification code</label>
-              <div className="p-3 mb-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 font-medium" role="status">
               <div
-                className={`p-3 mb-4 rounded-xl border text-xs font-medium ${
-                  otpMessage.includes('⚠️')
-                    ? 'bg-amber-50 border-amber-300 text-amber-900'
+                className={`p-4 mb-4 rounded-xl border text-xs leading-relaxed ${
+                  otpMessage.includes('FAST2SMS_API_KEY') || otpMessage.includes('OTP Code:')
+                    ? 'bg-amber-50 border-amber-300 text-amber-950'
                     : 'bg-emerald-50 border-emerald-200 text-emerald-900'
                 }`}
                 role="status"
               >
-                {otpMessage}
+                <div className="flex items-center gap-2 mb-1.5 font-bold text-sm">
+                  <span>{otpMessage.includes('OTP Code:') ? '⚡ Quick Verification Code' : '📱 SMS Dispatched'}</span>
+                </div>
+                <p className="mb-2 font-medium">{otpMessage}</p>
+                {otp && (
+                  <div className="flex items-center gap-2 mt-2 pt-2 border-t border-amber-200/60">
+                    <span className="text-soil/70 font-bold">Your OTP:</span>
+                    <span className="text-base font-extrabold tracking-widest text-leaf bg-white px-2.5 py-1 rounded-md border border-leaf/30">{otp}</span>
+                    <span className="text-[11px] text-soil/60">(Auto-filled in the box below)</span>
+                  </div>
+                )}
               </div>
               <label htmlFor="otp" className="auth-label">
-                Enter 6-Digit SMS Code / OTP
                 Enter 6-Digit Verification Code (OTP)
               </label>
               <input
