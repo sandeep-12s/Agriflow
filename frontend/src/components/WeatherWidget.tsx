@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { getWeather, WeatherResponse } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { speakText } from '../services/voice'
+import { getLocalizedCondition, getLocalizedAlert, getWeatherSpeech } from '../services/weatherTranslations'
 
 interface WeatherWidgetProps {
   defaultLocationName?: string
@@ -79,61 +80,13 @@ export default function WeatherWidget({ defaultLocationName }: WeatherWidgetProp
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Localized weather condition description
-  const getLocalizedCondition = (code?: number, fallbackText?: string): string => {
-    if (code === undefined && fallbackText) return fallbackText
-    if (language === 'hi') {
-      switch (code) {
-        case 0: return 'साफ़ आसमान'
-        case 1: return 'मुख्य रूप से साफ़'
-        case 2: return 'हल्के बादल'
-        case 3: return 'घने बादल'
-        case 45: case 48: return 'कोहरा'
-        case 51: case 53: case 55: return 'हल्की बूंदाबांदी'
-        case 61: case 63: return 'मध्यम बारिश'
-        case 65: return 'भारी बारिश'
-        case 80: case 81: case 82: return 'तेज बौछारें'
-        case 95: case 96: case 99: return 'आंधी और तूफान'
-        default: return fallbackText || 'सामान्य'
-      }
-    }
-    return fallbackText || 'Fair'
+  const localizedCondition = (code?: number, fallbackText?: string): string => {
+    return getLocalizedCondition(language, code, fallbackText)
   }
 
   // Localized alerts translation
-  const getLocalizedAlert = (title: string, message: string) => {
-    if (language === 'hi') {
-      if (title.includes('Storm') || title.includes('Heavy Rain')) {
-        return {
-          title: 'तूफान एवं भारी बारिश की चेतावनी',
-          message: 'भारी बारिश या आंधी की संभावना है। कटी हुई फसल को सुरक्षित रखें और खेत में जल निकासी सुनिश्चित करें।'
-        }
-      }
-      if (title.includes('Rain Forecast')) {
-        return {
-          title: 'वर्षा का पूर्वानुमान',
-          message: 'बारिश के आसार हैं। खेत में जलभराव से बचने के लिए सिंचाई से पहले मिट्टी की नमी अवश्य जांचें।'
-        }
-      }
-      if (title.includes('High Wind')) {
-        return {
-          title: 'तेज हवा का जोखिम',
-          message: 'तेज हवा के झोंके संभव हैं। नर्सरी शेड नेट को सुरक्षित करें और खुले भंडारण को ढकें।'
-        }
-      }
-      if (title.includes('Frost')) {
-        return {
-          title: 'पाला / ठंड का जोखिम',
-          message: 'अत्यधिक ठंड और पाले की संभावना। रात में हल्की सिंचाई या मल्चिंग का उपयोग करें।'
-        }
-      }
-      if (title.includes('Heat Stress')) {
-        return {
-          title: 'लू / अत्यधिक गर्मी की सलाह',
-          message: 'उच्च तापमान की चेतावनी। वाष्पीकरण से बचने के लिए सुबह या शाम को ही सिंचाई करें।'
-        }
-      }
-    }
-    return { title, message }
+  const localizedAlert = (title: string, message: string) => {
+    return getLocalizedAlert(language, title, message)
   }
 
   // Derive spray & irrigation advisory based on current data
@@ -180,29 +133,14 @@ export default function WeatherWidget({ defaultLocationName }: WeatherWidgetProp
 
   const handleSpeakAdvisory = () => {
     if (!weather) return
-    const condition = getLocalizedCondition(weather.weather_code, weather.condition_text)
-    const text =
-      language === 'hi'
-        ? `वर्तमान तापमान ${Math.round(weather.temperature_c)} डिग्री सेल्सियस है। ${condition}। ${
-            sprayAdvisory.safe
-              ? 'दवा छिड़काव के लिए आज का मौसम उत्तम है।'
-              : 'दवा का छिड़काव आज रोकें, मौसम अनुकूल नहीं है।'
-          } ${
-            isRain
-              ? 'बारिश के कारण सिंचाई स्थगित रखें।'
-              : 'सामान्य सिंचाई जारी रखें।'
-          }`
-        : `Current temperature is ${Math.round(
-            weather.temperature_c
-          )} degrees Celsius. ${condition}. ${
-            sprayAdvisory.safe
-              ? 'Safe to spray chemicals today.'
-              : 'Delay chemical spray today.'
-          } ${
-            isRain
-              ? 'Postpone irrigation due to expected rain.'
-              : 'Normal irrigation recommended.'
-          }`
+    const condition = localizedCondition(weather.weather_code, weather.condition_text)
+    const text = getWeatherSpeech(
+      language,
+      weather.temperature_c,
+      condition,
+      sprayAdvisory.safe,
+      Boolean(isRain)
+    )
     speakText(text, language)
   }
 
@@ -280,7 +218,7 @@ export default function WeatherWidget({ defaultLocationName }: WeatherWidgetProp
                 {Math.round(weather.temperature_c)}°C
               </p>
               <p className="text-[11px] text-soil/60 mt-0.5 truncate">
-                {getLocalizedCondition(weather.weather_code, weather.condition_text)}
+                {localizedCondition(weather.weather_code, weather.condition_text)}
               </p>
             </div>
 
@@ -379,7 +317,7 @@ export default function WeatherWidget({ defaultLocationName }: WeatherWidgetProp
               {showAdvisories && (
                 <div className="mt-2.5 space-y-2">
                   {weather.advisory_alerts.map((alert, idx) => {
-                    const localized = getLocalizedAlert(alert.title, alert.message)
+                    const localized = localizedAlert(alert.title, alert.message)
                     return (
                       <div
                         key={idx}
