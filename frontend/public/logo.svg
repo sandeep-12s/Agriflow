@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 64" width="240" height="64">
+  <defs>
+    <linearGradient id="bgGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1B4324" />
+      <stop offset="100%" stop-color="#2F5D3A" />
+    </linearGradient>
+    <linearGradient id="leafGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#6EE7B7" />
+    </linearGradient>
+    <linearGradient id="goldGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#D97706" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#FDE68A" />
+    </linearGradient>
+    <linearGradient id="flowGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#60A5FA" />
+    </linearGradient>
+  </defs>
+
+  <!-- Emblem Mark -->
+  <g transform="translate(4, 4)">
+    <rect x="0" y="0" width="56" height="56" rx="15" fill="url(#bgGrad2)" stroke="#4ADE80" stroke-width="1.2" stroke-opacity="0.3" />
+    <circle cx="34" cy="18" r="8" fill="url(#goldGrad2)" opacity="0.35" />
+    <path d="M10 40 C17 37, 24 44, 33 40 C40 36, 44 38, 47 39" fill="none" stroke="url(#flowGrad2)" stroke-width="2.5" stroke-linecap="round" opacity="0.85" />
+    <path d="M16 38 C15 28, 20 18, 29 13 C29 21, 25 32, 18 38 Z" fill="url(#leafGrad2)" />
+    <!-- Wheat Ear -->
+    <g transform="translate(28, 10)">
+      <path d="M2 26 C2 19, 4 10, 6 0" fill="none" stroke="url(#goldGrad2)" stroke-width="1.8" stroke-linecap="round" />
+      <ellipse cx="6" cy="2" rx="2" ry="3.5" transform="rotate(15 6 2)" fill="url(#goldGrad2)" />
+      <ellipse cx="3" cy="7" rx="1.9" ry="3.3" transform="rotate(-30 3 7)" fill="url(#goldGrad2)" />
+      <ellipse cx="8.5" cy="8" rx="1.9" ry="3.3" transform="rotate(35 8.5 8)" fill="url(#goldGrad2)" />
+      <ellipse cx="1.8" cy="13" rx="1.9" ry="3.3" transform="rotate(-35 1.8 13)" fill="url(#goldGrad2)" />
+      <ellipse cx="8.2" cy="14" rx="1.9" ry="3.3" transform="rotate(35 8.2 14)" fill="url(#goldGrad2)" />
+    </g>
+  </g>
+
+  <!-- Typography: AgriFlow -->
+  <text x="74" y="38" font-family="'Space Grotesk', 'DM Sans', system-ui, sans-serif" font-size="28" font-weight="800" letter-spacing="-0.5px">
+    <tspan fill="#1E3A24">Agri</tspan><tspan fill="#E8B84B">Flow</tspan>
+  </text>
+  <text x="75" y="49" font-family="'DM Sans', system-ui, sans-serif" font-size="9.5" font-weight="600" letter-spacing="1.5px" fill="#5B4636" fill-opacity="0.65">
+    HARVEST INTELLIGENCE
+  </text>
+</svg>

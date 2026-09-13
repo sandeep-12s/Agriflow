@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { SUPPORTED_LANGUAGES, Language } from '../i18n'
 import { detectLanguageFromLocationText, detectRegionAndLanguage } from '../utils/regionLanguage'
 import ErrorBanner from '../components/ErrorBanner'
+import Logo from '../components/Logo'
 
 function RegisterPage() {
   const [role, setRole] = useState<'farmer' | 'buyer'>('farmer')
@@ -128,9 +129,8 @@ function RegisterPage() {
           alt=""
         />
         <div className="auth-visual-copy">
-          <div className="flex items-center gap-2.5 mb-12">
-            <span className="brand-mark">AF</span>
-            <span className="text-xl font-bold tracking-tight">AgriFlow</span>
+          <div className="mb-12">
+            <Logo size="lg" variant="light" />
           </div>
           <p className="auth-eyebrow">A better harvest starts here</p>
           <h2>Grow with clarity.</h2>
@@ -140,9 +140,8 @@ function RegisterPage() {
 
       <div className="auth-panel">
         <form onSubmit={handleSubmit} className="auth-form-card auth-register-card">
-          <div className="auth-mobile-brand flex items-center gap-2.5 mb-8">
-            <span className="brand-mark">AF</span>
-            <span className="text-xl font-bold tracking-tight text-soil">AgriFlow</span>
+          <div className="auth-mobile-brand mb-8">
+            <Logo size="md" variant="dark" />
           </div>
           <div className="mb-6">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-leaf/75 mb-2">Get started</p>

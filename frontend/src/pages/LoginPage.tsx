@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { loginFarmer } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import ErrorBanner from '../components/ErrorBanner'
+import Logo from '../components/Logo'
 
 function LoginPage() {
   const [email, setEmail] = useState('')
@@ -35,9 +36,8 @@ function LoginPage() {
           alt=""
         />
         <div className="auth-visual-copy">
-          <div className="flex items-center gap-2.5 mb-12">
-            <span className="brand-mark">AF</span>
-            <span className="text-xl font-bold tracking-tight">AgriFlow</span>
+          <div className="mb-12">
+            <Logo size="lg" variant="light" />
           </div>
           <p className="auth-eyebrow">Harvest intelligence</p>
           <h2>Make every harvest count.</h2>
@@ -47,9 +47,8 @@ function LoginPage() {
 
       <div className="auth-panel">
         <form onSubmit={handleSubmit} className="auth-form-card">
-          <div className="auth-mobile-brand flex items-center gap-2.5 mb-10">
-            <span className="brand-mark">AF</span>
-            <span className="text-xl font-bold tracking-tight text-soil">AgriFlow</span>
+          <div className="auth-mobile-brand mb-10">
+            <Logo size="md" variant="dark" />
           </div>
           <div className="mb-7">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-leaf/75 mb-2">Welcome back</p>

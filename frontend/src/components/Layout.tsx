@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { SUPPORTED_LANGUAGES, TranslationKey } from '../i18n'
 import AssistantDialog from './AssistantDialog'
+import Logo from './Logo'
 
 interface NavItem {
   to: string
@@ -53,9 +54,8 @@ function Layout({ children }: { children: ReactNode }) {
       <header className="app-header">
         <div className="app-header-inner max-w-[1400px] mx-auto flex items-center justify-between px-4 md:px-8">
           <div className="flex items-center gap-7">
-            <Link to={isBuyer ? '/buyer/portal' : '/dashboard'} className="flex items-center gap-2.5 text-soil hover:text-leaf">
-              <span className="brand-mark">AF</span>
-              <span className="text-lg font-bold tracking-tight">AgriFlow</span>
+            <Link to={isBuyer ? '/buyer/portal' : '/dashboard'} className="flex items-center hover:opacity-90 transition-opacity">
+              <Logo size="md" variant="dark" />
             </Link>
             {/* Full nav shown from md breakpoint up — below that it collapses
                 into the hamburger menu so 8 links never overflow a phone screen. */}
