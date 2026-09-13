@@ -30,13 +30,19 @@ const emptyForm: ProducePayload = {
 function ProduceFormPage() {
   const { id } = useParams()
   const isEdit = Boolean(id)
-  const { token, logout, t } = useAuth()
+  const { token, user, logout, t } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState<ProducePayload>(emptyForm)
   const [loading, setLoading] = useState(isEdit)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [crops, setCrops] = useState<string[]>([DEFAULT_CROP])
+
+  useEffect(() => {
+    if (user?.role === 'buyer') {
+      navigate('/buyer/portal', { replace: true })
+    }
+  }, [user, navigate])
 
   useEffect(() => {
     if (!token) return

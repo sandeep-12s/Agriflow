@@ -116,6 +116,131 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
             "summary": "मिर्च में पत्ती मरोड़ और थ्रिप्स का प्रकोप पाया गया। स्टिकी ट्रैप लगाएं और फिप्रोनिल या नीम तेल का स्प्रे करें।"
         }
     },
+    {
+        "keywords": ["rose", "gulab", "गुलाब", "flower", "phool", "फूल"],
+        "en": {
+            "crop_name": "Rose / Floral Horticulture",
+            "condition": "Rose Powdery Mildew & Black Spot (Diplocarpon rosae)",
+            "severity": "Moderate",
+            "confidence_pct": 93,
+            "symptoms": "White talcum-powder-like fungal dust on young tender shoots and flower buds, accompanied by circular black leaf spots with feathered margins causing premature leaf drop.",
+            "chemical_treatment": "Spray Hexaconazole 5% SC @ 1 ml/liter of water or Carbendazim 50% WP (Bavistin) @ 1.5 g/liter every 10–12 days.",
+            "organic_remedy": "Spray baking soda solution (3 g baking soda + 2 ml neem oil + 1 liter water); ensure morning sun exposure and prune dead decaying wood.",
+            "prevention": "Water only at the base/roots, not overhead on flowers; space bushes for ample air circulation; discard fallen infected leaves.",
+            "summary": "Rose Black Spot / Powdery Mildew identified. Spray Hexaconazole or neem-baking soda wash and prune infected canes to stimulate fresh healthy blooming."
+        },
+        "hi": {
+            "crop_name": "गुलाब (Rose / Flower)",
+            "condition": "गुलाब का काला धब्बा व चूर्णिल आसिता (Black Spot & Powdery Mildew)",
+            "severity": "Moderate",
+            "confidence_pct": 93,
+            "symptoms": "पत्तियों और कलियों पर सफेद पाउडर जैसी फफूंद और काले गोल धब्बे, जिसके कारण पत्तियां पीली होकर झड़ने लगती हैं और फूल छोटे आते हैं।",
+            "chemical_treatment": "हेक्साकोनाज़ोल 5% SC (Hexaconazole) 1 मिली प्रति लीटर या बाविस्टिन (Carbendazim) 1.5 ग्राम/लीटर का छिड़काव करें।",
+            "organic_remedy": "3 ग्राम बेकिंग सोडा और 2 मिली नीम तेल प्रति लीटर पानी में मिलाकर स्प्रे करें; सूखी व रोगग्रस्त टहनियों की छंटाई करें।",
+            "prevention": "पौधों के ऊपर से पानी न डालें, सिर्फ जड़ों में पानी दें; पौधों के बीच धूप व हवा का प्रबंध रखें।",
+            "summary": "गुलाब में ब्लैक स्पॉट और सफेद फफूंद पाई गई। हेक्साकोनाज़ोल या नीम-सोडा स्प्रे करें और सूखी डालियां काटें जिससे नए व बड़े फूल आ सकें।"
+        }
+    },
+    {
+        "keywords": ["paddy", "rice", "dhan", "धान", "चावल"],
+        "en": {
+            "crop_name": "Paddy / Rice",
+            "condition": "Bacterial Leaf Blight & Sheath Blight (Xanthomonas oryzae)",
+            "severity": "Moderate",
+            "confidence_pct": 92,
+            "symptoms": "Water-soaked yellowish lesions with wavy margins starting from leaf tips, advancing downward along veins. Gray-green oval lesions on leaf sheaths near water line.",
+            "chemical_treatment": "Spray Validamycin 3% L @ 2 ml/liter or Streptocycline @ 6 g + Copper Oxychloride @ 300 g in 200 liters of water per acre.",
+            "organic_remedy": "Apply Pseudomonas fluorescens @ 5 g/liter to foliage; drain excess standing water from paddy fields for 2–3 days to arrest bacterial spread.",
+            "prevention": "Avoid split excessive urea application during cloudy monsoon weather; maintain optimum seedling spacing.",
+            "summary": "Rice Bacterial Blight / Sheath Blight detected. Spray Validamycin or Streptocycline + Copper and drain stagnant field water temporarily."
+        },
+        "hi": {
+            "crop_name": "धान (Paddy / Rice)",
+            "condition": "जीवाणु झुलसा एवं शीथ ब्लाइट (Bacterial & Sheath Blight)",
+            "severity": "Moderate",
+            "confidence_pct": 92,
+            "symptoms": "पत्तियों के सिरों से शुरू होकर नीचे की ओर पीले-सूखे किनारे (झुलसा), और पानी के स्तर के पास तनों पर धब्बे।",
+            "chemical_treatment": "वैलिडामाइसिन 3% L (Validamycin) 2 मिली प्रति लीटर या स्ट्रेप्टोसाइक्लिन 6 ग्राम + कॉपर ऑक्सीक्लोराइड 300 ग्राम प्रति 200 लीटर पानी प्रति एकड़ छिड़कें।",
+            "organic_remedy": "स्यूडोमोनास फ्लोरेसेन्स (Pseudomonas) 5 ग्राम/लीटर का छिड़काव करें और खेत का अतिरिक्त पानी 2 दिन के लिए निकाल दें।",
+            "prevention": "बादल वाले मौसम में यूरिया की अधिक खुराक न दें और पोटाश खाद का संतुलित उपयोग करें।",
+            "summary": "धान में जीवाणु झुलसा या शीथ ब्लाइट पाया गया। वैलिडामाइसिन या स्ट्रेप्टोसाइक्लिन + कॉपर का छिड़काव करें।"
+        }
+    },
+    {
+        "keywords": ["cotton", "kapas", "कपास"],
+        "en": {
+            "crop_name": "Cotton",
+            "condition": "Cotton Leaf Curl Virus (CLCuV) & Whitefly Complex",
+            "severity": "Moderate",
+            "confidence_pct": 90,
+            "symptoms": "Upward or downward leaf curling, vein thickening, small leaf-like enations on undersides of leaves, caused by Bemisia tabaci whiteflies.",
+            "chemical_treatment": "Spray Afidopyropen 50 g/l DC (Sefina) @ 1 ml/liter or Pyriproxyfen 10% + Fenpropathrin 10% EC @ 1.5 ml/liter.",
+            "organic_remedy": "Erect yellow sticky traps @ 25 per acre; spray 5% neem seed kernel extract (NSKE) @ 5 ml/liter.",
+            "prevention": "Sow resistant Bt cotton hybrids; eradicate weed hosts like Abutilon indicum around fields.",
+            "summary": "Cotton leaf curl and whitefly detected. Use sticky traps and spray Sefina or neem extract to stop transmission."
+        },
+        "hi": {
+            "crop_name": "कपास (Cotton)",
+            "condition": "कपास पत्ती मरोड़ (CLCuV) एवं सफेद मक्खी",
+            "severity": "Moderate",
+            "confidence_pct": 90,
+            "symptoms": "पत्तियों का ऊपर या नीचे मुड़ना, नसों का मोटा होना और पत्तियों के पीछे छोटी पत्तियां (एनेशन) निकलना।",
+            "chemical_treatment": "सेफिना (Afidopyropen) 1 मिली प्रति लीटर या पाइरीप्रॉक्सीफेन 1.5 मिली/लीटर का छिड़काव करें।",
+            "organic_remedy": "प्रति एकड़ 25 पीले स्टिकी ट्रैप लगाएं और 5% नीम काढ़ा (NSKE) 5 मिली/लीटर स्प्रे करें।",
+            "prevention": "रोगरोधी संकर बीजों का चयन करें और मेड़ों पर उगने वाली खरपतवार साफ रखें।",
+            "summary": "कपास में लीफ कर्ल और सफेद मक्खी का प्रकोप पाया गया। पीले ट्रैप लगाएं और सेफिना का स्प्रे करें।"
+        }
+    },
+    {
+        "keywords": ["mustard", "sarson", "sarso", "सरसों"],
+        "en": {
+            "crop_name": "Mustard",
+            "condition": "White Rust (Albugo candida) & Aphid Infestation",
+            "severity": "Moderate",
+            "confidence_pct": 91,
+            "symptoms": "Raised white or creamy pustules on lower leaf surfaces and floral malformation (staghead). Colonies of greenish aphids on terminal twigs.",
+            "chemical_treatment": "Spray Metalaxyl 8% + Mancozeb 64% WP (Ridomil) @ 2 g/liter for white rust, and Dimethoate 30% EC @ 1.5 ml/liter for aphids.",
+            "organic_remedy": "Spray wood ash and cow urine (1:10) on dewy mornings; install yellow sticky traps.",
+            "prevention": "Sow early by mid-October; spray during clear sunny weather when aphid threshold exceeds 15-20 per plant.",
+            "summary": "Mustard white rust and aphids detected. Apply Ridomil and Dimethoate or neem wash to save siliqua pod formation."
+        },
+        "hi": {
+            "crop_name": "सरसों (Mustard)",
+            "condition": "सफेद रतुआ (White Rust) एवं माहू (Aphid)",
+            "severity": "Moderate",
+            "confidence_pct": 91,
+            "symptoms": "पत्तियों की निचली सतह पर सफेद उभरे हुए छाले और फूल वाले हिस्सों का विकृत होना (हिरन-खुरी)। टहनियों पर चिपके हरे-काले माहू कीट।",
+            "chemical_treatment": "सफेद रतुए के लिए रिडोमिल (Metalaxyl + Mancozeb) 2 ग्राम/लीटर और माहू के लिए रोगोर (Dimethoate) 1.5 मिली/लीटर का छिड़काव करें।",
+            "organic_remedy": "सुबह ओस में लकड़ी की राख बुरकें और नीम तेल 3 मिली/लीटर स्प्रे करें।",
+            "prevention": "अक्टूबर के पहले पखवाड़े में बुवाई करें और बादल छाने पर माहू की तुरंत निगरानी करें।",
+            "summary": "सरसों में सफेद रतुआ व माहू पाया गया। फलियां बचाने के लिए रिडोमिल और रोगोर का छिड़काव करें।"
+        }
+    },
+    {
+        "keywords": ["onion", "pyaj", "pyaz", "प्याज", "कांदा"],
+        "en": {
+            "crop_name": "Onion",
+            "condition": "Purple Blotch (Alternaria porri) & Thrips",
+            "severity": "Moderate",
+            "confidence_pct": 92,
+            "symptoms": "Small sunken white water-soaked lesions that turn purplish-brown with yellow rings. Silvery white streaks caused by thrips scraping leaf surface.",
+            "chemical_treatment": "Spray Mancozeb 75% WP @ 2.5 g/liter mixed with sticker/spreader + Fipronil 5% SC @ 1.5 ml/liter.",
+            "organic_remedy": "Spray 5% neem seed extract (NSKE) with soap solution; maintain proper field drainage.",
+            "prevention": "Ensure good drainage; do not over-irrigate during bulb enlargement stage.",
+            "summary": "Onion purple blotch and thrips detected. Spray Mancozeb with sticker and Fipronil to prevent bulb rotting."
+        },
+        "hi": {
+            "crop_name": "प्याज (Onion)",
+            "condition": "बैंगनी धब्बा रोग (Purple Blotch) एवं थ्रिप्स",
+            "severity": "Moderate",
+            "confidence_pct": 92,
+            "symptoms": "पत्तियों पर छोटे धंसे हुए पानी जैसे धब्बे जो बाद में बैंगनी-भूरे हो जाते हैं। पत्तियों पर चांदी जैसी सफेद धारियां (थ्रिप्स के कारण)।",
+            "chemical_treatment": "मैनकोजेब 75% WP 2.5 ग्राम प्रति लीटर (चिपको/स्टिकर के साथ) + फिप्रोनिल 1.5 मिली/लीटर का छिड़काव करें।",
+            "organic_remedy": "नीम काढ़ा (NSKE) 5% स्प्रे करें और खेत में जल निकासी अच्छी रखें।",
+            "prevention": "कंद बनते समय अधिक पानी न दें और खेत में हवा का आवागमन बनाए रखें।",
+            "summary": "प्याज में पर्पल ब्लॉच और थ्रिप्स पाया गया। स्टिकर के साथ मैनकोजेब और फिप्रोनिल का स्प्रे करें।"
+        }
+    },
 ]
 
 DEFAULT_DIAGNOSIS_EN = {
@@ -182,7 +307,8 @@ NON_CROP_KEYWORDS = [
 def analyze_crop_image_with_gemini(
     image_base64: str,
     crop_hint: Optional[str] = None,
-    language: str = "en"
+    language: str = "en",
+    question: Optional[str] = None,
 ) -> Optional[dict[str, Any]]:
     """Call Gemini 2.5 Flash Multimodal Vision API to diagnose crop image."""
     api_key = settings.GEMINI_API_KEY.strip()
@@ -205,8 +331,10 @@ def analyze_crop_image_with_gemini(
     system_prompt = (
         "You are an expert Indian agricultural plant pathologist and agronomist. "
         "Analyze the uploaded crop photo. Detect the crop species, disease/pest/deficiency or if healthy, "
+        "Analyze the uploaded crop photo. Detect the crop species, disease/pest/deficiency or if healthy. "
         "MANDATORY VALIDATION: First determine if the image contains an agricultural crop, leaf, plant, stem, "
         "fruit, vegetable, or harvest produce. If the image is NOT an agricultural crop or plant (for example: an air conditioner, indoor room, "
+        "flower, fruit, vegetable, or harvest produce. If the image is NOT an agricultural crop or plant (for example: an air conditioner, indoor room, "
         "wall, marble, furniture, appliance, ceiling, vehicle, human, pet, or household object), you MUST set 'is_crop': false, "
         "'crop_name': 'Non-Crop Object', 'condition': 'Non-Crop Image Detected', 'severity': 'Mild', 'confidence_pct': 99, "
         "'symptoms': 'Image contains a non-agricultural object (such as a wall, room, appliance, or furniture).', "
@@ -215,6 +343,7 @@ def analyze_crop_image_with_gemini(
         "DO NOT diagnose plant diseases on non-plant images under any circumstances! "
         "If it IS an agricultural crop or plant, set 'is_crop': true, detect the crop species, disease/pest/deficiency or if healthy, "
         "and provide exact, actionable treatment and dosages in Indian farming context. "
+        "IMPORTANT: If the farmer asked a specific question, address it directly in your summary and symptoms. "
         "Output ONLY a valid JSON object with these exact keys: "
         "crop_name (string), condition (string), severity (string: 'Healthy'|'Mild'|'Moderate'|'Severe'), "
         "is_crop (boolean), crop_name (string), condition (string), severity (string: 'Healthy'|'Mild'|'Moderate'|'Severe'), "
@@ -225,6 +354,8 @@ def analyze_crop_image_with_gemini(
         system_prompt += " Translate the values of symptoms, chemical_treatment, organic_remedy, prevention, and summary into clear Hindi (Devanagari script)."
 
     prompt_text = f"Analyze this crop image for health, pests, and diseases. Farmer note / crop hint: {crop_hint or 'None provided'}."
+    if question:
+        prompt_text += f"\nSpecific farmer question / inquiry: '{question}'. Please answer this specific question directly in the diagnosis."
 
     payload = {
         "contents": [
@@ -285,32 +416,38 @@ def analyze_crop_image_with_gemini(
 def diagnose_crop_image(
     image_base64: str,
     crop_hint: Optional[str] = None,
-    language: str = "en"
+    language: str = "en",
+    question: Optional[str] = None,
 ) -> dict[str, Any]:
     """
     Main entrypoint for crop image diagnosis.
     Tries Gemini Vision first; falls back to agronomic knowledge base.
     Validates crop imagery, tries Gemini Vision, and falls back safely.
     """
-    target_text = (crop_hint or "").lower()
+    combined_query = f"{crop_hint or ''} {question or ''}".lower()
 
     # Rejection of explicit non-crop hints
-    if any(kw in target_text for kw in NON_CROP_KEYWORDS):
+    if any(kw in combined_query for kw in NON_CROP_KEYWORDS):
         return NON_CROP_REJECTION_HI if language == "hi" else NON_CROP_REJECTION_EN
 
     # 1. Try Gemini Vision if API key is active
-    gemini_result = analyze_crop_image_with_gemini(image_base64, crop_hint, language)
+    gemini_result = analyze_crop_image_with_gemini(image_base64, crop_hint, language, question)
     if gemini_result:
         return gemini_result
 
-    # 2. Plant pathology diagnostic engine based on crop hint or keywords
-    target_text = (crop_hint or "").lower()
+    # 2. Plant pathology diagnostic engine based on crop hint or user question
     for entry in DISEASE_KNOWLEDGE_BASE:
-        if any(kw in target_text for kw in entry["keywords"]):
-            return entry["hi"] if language == "hi" else entry["en"]
-            res = entry["hi"] if language == "hi" else entry["en"]
-            return {"is_crop": True, **res}
+        if any(kw in combined_query for kw in entry["keywords"]):
+            result = dict(entry["hi"] if language == "hi" else entry["en"])
+            if question and len(question.strip()) > 3:
+                prefix = f"Re: '{question.strip()}' — " if language == "en" else f"आपके प्रश्न '{question.strip()}' के उत्तर में — "
+                result["summary"] = prefix + result["summary"]
+            return {"is_crop": True, **result}
 
     # 3. Default comprehensive diagnosis
-    return DEFAULT_DIAGNOSIS_HI if language == "hi" else DEFAULT_DIAGNOSIS_EN
+    default_res = dict(DEFAULT_DIAGNOSIS_HI if language == "hi" else DEFAULT_DIAGNOSIS_EN)
+    if question and len(question.strip()) > 3:
+        prefix = f"Re: '{question.strip()}' — " if language == "en" else f"आपके प्रश्न '{question.strip()}' के उत्तर में — "
+        default_res["summary"] = prefix + default_res["summary"]
+    return default_res
 

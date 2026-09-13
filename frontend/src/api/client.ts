@@ -551,7 +551,8 @@ export function analyzeCropImage(
   token: string,
   imageBase64: string,
   cropHint?: string,
-  language: string = 'en'
+  language: string = 'en',
+  question?: string
 ) {
   return authRequest<CropImageAnalysisResponse>('/assistant/analyze-crop-image', token, {
     method: 'POST',
@@ -559,6 +560,7 @@ export function analyzeCropImage(
       image_base64: imageBase64,
       crop_hint: cropHint,
       language,
+      question,
     },
   })
 }

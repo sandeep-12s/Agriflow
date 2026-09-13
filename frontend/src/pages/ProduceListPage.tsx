@@ -10,13 +10,20 @@ import NextCropPredictionCard from '../components/NextCropPredictionCard'
 import { getNextCropPredictionForProduce, NextCropPrediction } from '../api/client'
 
 function ProduceListPage() {
-  const { token, logout, t } = useAuth()
+  const { token, user, logout, t } = useAuth()
   const navigate = useNavigate()
   const [items, setItems] = useState<Produce[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [prediction, setPrediction] = useState<{ crop: string; data: NextCropPrediction } | null>(null)
   const [predictionLoading, setPredictionLoading] = useState(false)
+
+  // Buyers should not access farmer produce management
+  useEffect(() => {
+    if (user?.role === 'buyer') {
+      navigate('/buyer/portal', { replace: true })
+    }
+  }, [user, navigate])
 
   const load = () => {
     if (!token) return

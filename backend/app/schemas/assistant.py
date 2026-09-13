@@ -16,6 +16,7 @@ class CropImageAnalysisRequest(BaseModel):
     image_base64: str
     crop_hint: Optional[str] = None
     language: str = "en"
+    question: Optional[str] = None
 
 
 class CropImageAnalysisResponse(BaseModel):

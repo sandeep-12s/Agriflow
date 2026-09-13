@@ -259,3 +259,46 @@ def test_detect_farmer_region_endpoint(client):
     assert res_goa.json()["language"] == "kok"
 
 
+def test_assistant_crop_symptom_awareness(client, auth_headers):
+    # Test potato with typo 'patato'
+    potato_res = client.post(
+        "/assistant/chat",
+        json={"message": "patato blight and leaf curl", "language": "en"},
+        headers=auth_headers,
+    )
+    assert potato_res.status_code == 200
+    potato_reply = potato_res.json()["reply"]
+    assert "Potato" in potato_reply or "Late Blight" in potato_reply
+    assert "Ridomil" in potato_reply or "Curzate" in potato_reply or "PLRV" in potato_reply
+
+    # Test wheat blight and leaf curl -> must NOT give potato blight
+    wheat_res = client.post(
+        "/assistant/chat",
+        json={"message": "wheat blight and leaf curl", "language": "en"},
+        headers=auth_headers,
+    )
+    assert wheat_res.status_code == 200
+    wheat_reply = wheat_res.json()["reply"]
+    assert "Wheat" in wheat_reply
+    assert "Fusarium" in wheat_reply or "Head Blight" in wheat_reply or "Folicur" in wheat_reply or "Tilt" in wheat_reply
+
+
+def test_crop_vision_with_question(client, auth_headers):
+    import base64
+    fake_img = base64.b64encode(b"fake_image_bytes").decode("utf-8")
+
+    res = client.post(
+        "/assistant/analyze-crop-image",
+        json={
+            "image_base64": fake_img,
+            "crop_hint": "Rose / Floral Horticulture",
+            "question": "how to cure white powder on rose?",
+            "language": "en",
+        },
+        headers=auth_headers,
+    )
+    assert res.status_code == 200
+    diag = res.json()
+    assert diag["is_crop"] is True
+    assert "Rose" in diag["crop_name"]
+    assert "how to cure white powder on rose?" in diag["summary"]

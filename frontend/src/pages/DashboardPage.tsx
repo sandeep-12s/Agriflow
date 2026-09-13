@@ -9,13 +9,11 @@ import {
   getDashboardSummary,
   getBuyerDashboardSummary,
   getMyBuyerRequirements,
-  listProduce,
   getMyProfile,
   DashboardSummary,
   BuyerDashboardSummary,
   FarmerProfile,
   Buyer,
-  Produce,
 } from '../api/client'
 
 function DashboardPage() {
@@ -23,7 +21,6 @@ function DashboardPage() {
   const navigate = useNavigate()
   const [summary, setSummary] = useState<DashboardSummary | null>(null)
   const [buyerSummary, setBuyerSummary] = useState<BuyerDashboardSummary | null>(null)
-  const [availableProduce, setAvailableProduce] = useState<Produce[]>([])
   const [buyerRequirements, setBuyerRequirements] = useState<Buyer[]>([])
   const [profile, setProfile] = useState<FarmerProfile | null>(null)
   const [error, setError] = useState('')
@@ -43,11 +40,9 @@ function DashboardPage() {
           return Promise.all([
             getBuyerDashboardSummary(token),
             getMyBuyerRequirements(token),
-            listProduce(token),
-          ]).then(([bSummary, reqs, prodList]) => {
+          ]).then(([bSummary, reqs]) => {
             setBuyerSummary(bSummary)
             setBuyerRequirements(reqs)
-            setAvailableProduce(prodList.filter((x) => x.status === 'available' || !x.status || x.status === 'active'))
           })
         } else {
           return getDashboardSummary(token).then((s) => {
@@ -81,13 +76,13 @@ function DashboardPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-100/80 border border-blue-300/60 text-blue-900 text-xs font-semibold uppercase tracking-wider mb-2 shadow-xs">
-                <span>🏢</span> Wholesale & Procurement Workspace
+                <span>🏢</span> {t('procurementWorkspace')}
               </div>
               <h1 className="text-2xl md:text-3xl font-bold text-soil">
-                Procurement Intelligence{profile ? `, ${profile.name.split(' ')[0]}` : ''}
+                {t('procurementIntelligence')}{profile ? `, ${profile.name.split(' ')[0]}` : ''}
               </h1>
               <p className="text-sm text-soil/60 mt-0.5">
-                Source directly from verified regional farmers, benchmark APMC mandi rates, and manage procurement orders.
+                {t('procurementSubtitle')}
               </p>
             </div>
 
@@ -96,13 +91,13 @@ function DashboardPage() {
                 to="/buyer/portal"
                 className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-leaf text-white text-sm font-semibold rounded-xl shadow-sm hover:bg-leaf/90 transition-colors"
               >
-                <span>➕</span> Post Buying Requirement
+                <span>➕</span> {t('postBuyingRequirement')}
               </Link>
               <Link
                 to="/market"
                 className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-white border border-soil/15 text-soil text-sm font-medium rounded-xl hover:bg-soil/5 transition-colors"
               >
-                <span>📊</span> Mandi Rate Explorer
+                <span>📊</span> {t('mandiRateExplorer')}
               </Link>
             </div>
           </div>
@@ -115,9 +110,9 @@ function DashboardPage() {
               className="w-full h-44 md:h-52 object-cover"
             />
             <div className="dashboard-visual-copy absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-5 md:p-6 flex flex-col justify-end text-white">
-              <p className="text-lg md:text-xl font-bold tracking-tight">Direct Farm Sourcing & Transparent Mandi Benchmarks</p>
+              <p className="text-lg md:text-xl font-bold tracking-tight">{t('directFarmSourcingTitle')}</p>
               <p className="text-xs md:text-sm text-white/80 max-w-xl mt-1">
-                Connect directly with verified local growers in your district. Eliminate intermediary costs and secure transparent farm-gate deliveries.
+                {t('directFarmSourcingDesc')}
               </p>
             </div>
           </div>
@@ -128,7 +123,7 @@ function DashboardPage() {
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-wider text-blue-200 font-semibold mb-1">
-                    Recommended Procurement Action
+                    {t('recommendedProcurementAction')}
                   </p>
                   <p className="font-medium text-base text-white/95">
                     {buyerSummary.next_action}
@@ -138,7 +133,7 @@ function DashboardPage() {
                   to="/buyer/portal"
                   className="inline-flex items-center justify-center px-4 py-2 bg-white text-blue-900 font-semibold text-xs rounded-xl shadow-sm hover:bg-blue-50 transition-colors whitespace-nowrap self-start md:self-auto"
                 >
-                  Manage Requirements →
+                  {t('manageRequirements')}
                 </Link>
               </div>
             </div>
@@ -148,109 +143,53 @@ function DashboardPage() {
           {buyerSummary && (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
               <SummaryCard
-                label="Active Buying Requirements"
-                value={`${buyerSummary.active_requirements_count} active`}
+                label={t('activeBuyingRequirements')}
+                value={`${buyerSummary.active_requirements_count} ${t('activeUnitsCount')}`}
               />
               <SummaryCard
-                label="Farmer Lots Ready"
-                value={`${buyerSummary.total_farmer_produce_lots} lots`}
+                label={t('farmerLotsReady')}
+                value={`${buyerSummary.total_farmer_produce_lots} ${t('lotsCount')}`}
               />
               <SummaryCard
-                label="Total Regional Supply"
+                label={t('totalRegionalSupply')}
                 value={`${buyerSummary.total_supply_quantity_qtl.toLocaleString()} qtl`}
               />
               <SummaryCard
-                label="Available Crop Types"
-                value={`${buyerSummary.unique_crops_available} crops`}
+                label={t('availableCropTypes')}
+                value={`${buyerSummary.unique_crops_available} ${t('cropsCount')}`}
               />
               <SummaryCard
-                label="Avg Mandi Benchmark"
+                label={t('avgMandiBenchmark')}
                 value={`₹${buyerSummary.avg_market_price_qtl.toLocaleString()} / qtl`}
               />
               <SummaryCard
-                label="Active APMC Mandis"
-                value={`${buyerSummary.active_mandis_count} mandis`}
+                label={t('activeApmcMandis')}
+                value={`${buyerSummary.active_mandis_count} ${t('mandisCount')}`}
               />
             </div>
           )}
-
-          {/* Available Farmer Produce Section */}
-          <div className="bg-white rounded-2xl border border-soil/10 p-5 mb-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="font-bold text-soil text-lg">🌾 Available Farmer Harvests in Your Region</h2>
-                <p className="text-xs text-soil/60">Verified farm produce entries ready for wholesale procurement</p>
-              </div>
-              <Link to="/buyer/portal" className="text-xs font-semibold text-leaf hover:underline">
-                View all in Portal →
-              </Link>
-            </div>
-
-            {availableProduce.length === 0 ? (
-              <div className="p-8 text-center bg-sand/30 rounded-xl border border-dashed border-soil/20">
-                <p className="text-sm font-medium text-soil/70">No produce entries currently listed in this region.</p>
-                <p className="text-xs text-soil/50 mt-1">Check back soon or post a buying requirement so local farmers get notified!</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {availableProduce.slice(0, 6).map((item) => (
-                  <div key={item.id} className="p-4 rounded-xl border border-soil/10 bg-sand/20 hover:border-leaf/40 hover:bg-sand/40 transition-all flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-bold text-base text-soil">{item.crop_name}</span>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-leaf/15 text-leaf">
-                          {item.quality}
-                        </span>
-                      </div>
-                      <p className="text-xs text-soil/70 mb-1">
-                        📦 <strong>Quantity:</strong> {item.quantity} {item.unit}
-                      </p>
-                      <p className="text-xs text-soil/70 mb-1">
-                        📍 <strong>Location:</strong> {item.location}
-                      </p>
-                      <p className="text-xs text-soil/50">
-                        🗓️ Harvested: {item.harvest_date}
-                      </p>
-                    </div>
-
-                    <div className="mt-3 pt-3 border-t border-soil/10 flex items-center justify-between">
-                      <span className="text-[11px] font-medium text-leaf bg-leaf/10 px-2 py-0.5 rounded">
-                        {item.status === 'sold' ? 'Sold' : 'Available'}
-                      </span>
-                      <Link
-                        to="/buyer/portal"
-                        className="text-xs font-bold text-soil bg-white border border-soil/20 px-2.5 py-1 rounded-lg hover:border-leaf hover:text-leaf transition-colors"
-                      >
-                        Source Lot →
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
           {/* Your Active Buying Requirements Section */}
           <div className="bg-white rounded-2xl border border-soil/10 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="font-bold text-soil text-lg">📋 Your Posted Buying Requirements (RFQs)</h2>
-                <p className="text-xs text-soil/60">Live purchase inquiries broadcasted to regional farmers</p>
+                <h2 className="font-bold text-soil text-lg">📋 {t('postedBuyingRequirements')}</h2>
+                <p className="text-xs text-soil/60">{t('postedRequirementsSubtitle')}</p>
               </div>
               <Link to="/buyer/portal" className="text-xs font-semibold text-leaf hover:underline">
-                Manage in Portal →
+                {t('manageInPortal')}
               </Link>
             </div>
 
             {buyerRequirements.length === 0 ? (
               <div className="p-6 text-center bg-blue-50/50 rounded-xl border border-dashed border-blue-200">
-                <p className="text-sm font-medium text-blue-900">You haven't posted any buying requirements yet.</p>
-                <p className="text-xs text-blue-700/70 mt-1 mb-3">Post your commodity specifications so farmers can reach out to you directly.</p>
+                <p className="text-sm font-medium text-blue-900">{t('noPostedRequirements')}</p>
+                <p className="text-xs text-blue-700/70 mt-1 mb-3">{t('noPostedRequirementsHelp')}</p>
                 <Link
                   to="/buyer/portal"
                   className="inline-flex items-center gap-1 px-4 py-2 bg-leaf text-white text-xs font-semibold rounded-lg hover:bg-leaf/90 transition-colors"
                 >
-                  + Create Buying Requirement
+                  {t('createBuyingRequirementBtn')}
                 </Link>
               </div>
             ) : (
@@ -263,7 +202,7 @@ function DashboardPage() {
                         <span className="px-2 py-0.5 bg-soil/10 text-soil text-xs rounded-full font-medium">{req.quality_requirement}</span>
                       </div>
                       <p className="text-xs text-soil/70 mt-1">
-                        Demand: <strong>{req.required_quantity} Qtl</strong> • Offering: <strong className="text-leaf">₹{req.offered_price} / Qtl</strong> • Delivery: {req.location}
+                        {t('demandLabel')} <strong>{req.required_quantity} Qtl</strong> • {t('offeringLabel')} <strong className="text-leaf">₹{req.offered_price} / Qtl</strong> • {t('deliveryLabel')} {req.location}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 self-start md:self-auto">
@@ -274,7 +213,7 @@ function DashboardPage() {
                         to="/buyer/portal"
                         className="text-xs font-medium text-leaf hover:underline px-2 py-1"
                       >
-                        Edit / Close
+                        {t('editClose')}
                       </Link>
                     </div>
                   </div>
@@ -302,7 +241,7 @@ function DashboardPage() {
                   : 'bg-white border-soil/20 text-soil hover:bg-sand/40'
               }`}
             >
-              <span>{showWeather ? '🌤️ मौसम छुपाएं' : '🌤️ आज का मौसम व कृषि सलाह देखें'}</span>
+              <span>{showWeather ? t('hideWeather') : t('showWeatherAdvice')}</span>
             </button>
           </div>
 
@@ -311,16 +250,16 @@ function DashboardPage() {
             <WeatherWidget defaultLocationName={profile?.location || 'Field / खेत'} />
           )}
 
-          {/* Quick Farmer Actions Hub (सरल किसान मेनू) */}
+          {/* Quick Farmer Actions Hub */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h2 className="text-lg md:text-xl font-bold text-soil flex items-center gap-2">
                   <span>🌾</span>
-                  <span>सरल किसान कार्य (Quick Farmer Actions)</span>
+                  <span>{t('quickFarmerActions')}</span>
                 </h2>
                 <p className="text-xs text-soil/60">
-                  सीधे बटन दबाकर फसल बेचें, मंडी भाव देखें, डॉक्टर सलाह लें या अपशिष्ट प्रबंधन करें
+                  {t('quickFarmerActionsSubtitle')}
                 </p>
               </div>
             </div>
@@ -332,11 +271,11 @@ function DashboardPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-3xl">🚜</span>
-                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">नया लॉट</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">{t('newLotBadge')}</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm md:text-base">मेरी उपज बेचें</h3>
-                  <p className="text-[11px] text-emerald-100 font-medium">Add Harvest / Sell</p>
+                  <h3 className="font-bold text-sm md:text-base">{t('sellMyProduce')}</h3>
+                  <p className="text-[11px] text-emerald-100 font-medium">{t('addHarvestSell')}</p>
                 </div>
               </Link>
 
@@ -346,11 +285,11 @@ function DashboardPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-3xl">📊</span>
-                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">लाइव भाव</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">{t('liveRatesBadge')}</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm md:text-base">मंडी के भाव</h3>
-                  <p className="text-[11px] text-amber-100 font-medium">Live APMC Mandi Rates</p>
+                  <h3 className="font-bold text-sm md:text-base">{t('mandiRates')}</h3>
+                  <p className="text-[11px] text-amber-100 font-medium">{t('liveMandiRates')}</p>
                 </div>
               </Link>
 
@@ -360,11 +299,11 @@ function DashboardPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-3xl">🤝</span>
-                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">व्यापारी</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">{t('tradersBadge')}</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm md:text-base">सीधे खरीदार</h3>
-                  <p className="text-[11px] text-blue-100 font-medium">Wholesale Buyers</p>
+                  <h3 className="font-bold text-sm md:text-base">{t('directBuyers')}</h3>
+                  <p className="text-[11px] text-blue-100 font-medium">{t('wholesaleBuyers')}</p>
                 </div>
               </Link>
 
@@ -374,11 +313,11 @@ function DashboardPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-3xl">❄️</span>
-                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">गोदाम</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">{t('storageBadge')}</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm md:text-base">कोल्ड स्टोरेज</h3>
-                  <p className="text-[11px] text-cyan-100 font-medium">Safe Storage Finder</p>
+                  <h3 className="font-bold text-sm md:text-base">{t('coldStorage')}</h3>
+                  <p className="text-[11px] text-cyan-100 font-medium">{t('safeStorageFinder')}</p>
                 </div>
               </Link>
 
@@ -388,11 +327,11 @@ function DashboardPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-3xl">🏭</span>
-                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">फैक्ट्री</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">{t('factoryBadge')}</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm md:text-base">खाद्य प्रसंस्करण</h3>
-                  <p className="text-[11px] text-purple-100 font-medium">Processing Units</p>
+                  <h3 className="font-bold text-sm md:text-base">{t('foodProcessing')}</h3>
+                  <p className="text-[11px] text-purple-100 font-medium">{t('processingUnitsTitle')}</p>
                 </div>
               </Link>
 
@@ -402,11 +341,11 @@ function DashboardPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-3xl">🩺</span>
-                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">फोटो जांच</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">{t('photoCheckBadge')}</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm md:text-base">किसान डॉक्टर AI</h3>
-                  <p className="text-[11px] text-rose-100 font-medium">Crop Doctor & Diagnosis</p>
+                  <h3 className="font-bold text-sm md:text-base">{t('cropDoctorAi')}</h3>
+                  <p className="text-[11px] text-rose-100 font-medium">{t('cropDoctorDiagnosis')}</p>
                 </div>
               </Link>
 
@@ -416,11 +355,11 @@ function DashboardPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-3xl">♻️</span>
-                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">नुकसान वसूली</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">{t('recoveryBadge')}</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm md:text-base">खराब फसल समाधान</h3>
-                  <p className="text-[11px] text-emerald-100 font-medium">Waste to Wealth Recovery</p>
+                  <h3 className="font-bold text-sm md:text-base">{t('wasteSolutions')}</h3>
+                  <p className="text-[11px] text-emerald-100 font-medium">{t('wasteToWealth')}</p>
                 </div>
               </Link>
 
@@ -430,11 +369,11 @@ function DashboardPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-3xl">📈</span>
-                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">आय रिपोर्ट</span>
+                  <span className="text-[10px] uppercase font-black bg-white/20 px-2 py-0.5 rounded-full">{t('incomeReportBadge')}</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm md:text-base">खेत का हिसाब-किताब</h3>
-                  <p className="text-[11px] text-slate-200 font-medium">Revenue & Farm Analytics</p>
+                  <h3 className="font-bold text-sm md:text-base">{t('farmAccounting')}</h3>
+                  <p className="text-[11px] text-slate-200 font-medium">{t('revenueAnalytics')}</p>
                 </div>
               </Link>
             </div>

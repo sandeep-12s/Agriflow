@@ -1,5 +1,4 @@
 import { useState, useEffect, FormEvent } from 'react'
-import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Layout from '../components/Layout'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -15,7 +14,7 @@ import {
 } from '../api/client'
 
 export default function BuyerPortalPage() {
-  const { user, token } = useAuth()
+  const { user, token, t } = useAuth()
   const [requirements, setRequirements] = useState<Buyer[]>([])
   const [availableProduce, setAvailableProduce] = useState<Produce[]>([])
   const [loading, setLoading] = useState(true)
@@ -62,11 +61,11 @@ export default function BuyerPortalPage() {
         (pos) => {
           setLatitude(Number(pos.coords.latitude.toFixed(4)))
           setLongitude(Number(pos.coords.longitude.toFixed(4)))
-          setSuccessMsg('GPS Coordinates captured accurately!')
+          setSuccessMsg(t('gpsCapturedSuccess'))
           setTimeout(() => setSuccessMsg(null), 3000)
         },
         () => {
-          setError('Unable to retrieve GPS coordinates from browser.')
+          setError(t('gpsError'))
         }
       )
     }
@@ -90,7 +89,7 @@ export default function BuyerPortalPage() {
         longitude,
       }
       await createBuyerRequirement(token, payload)
-      setSuccessMsg('Purchase requirement published! Farmers can now view your order.')
+      setSuccessMsg(t('orderPublishedSuccess'))
       setShowForm(false)
       loadData()
       setTimeout(() => setSuccessMsg(null), 4000)
@@ -102,7 +101,7 @@ export default function BuyerPortalPage() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!token || !confirm('Mark this purchasing requirement as fulfilled / closed?')) return
+    if (!token || !confirm(t('orderClosedPrompt'))) return
     try {
       await deleteBuyerRequirement(token, id)
       setRequirements((prev) => prev.filter((r) => r.id !== id))
@@ -118,18 +117,18 @@ export default function BuyerPortalPage() {
         <div className="bg-gradient-to-r from-soil to-soil/90 text-white rounded-3xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold uppercase tracking-wider mb-2">
-              <span>🛒 Buyer & Wholesale Portal</span>
+              <span>{t('buyerPortalHeaderBadge')}</span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold">Purchase Requirements Manager</h1>
+            <h1 className="text-2xl md:text-3xl font-bold">{t('purchaseRequirementsManager')}</h1>
             <p className="text-white/70 text-sm mt-1 max-w-2xl">
-              Post what produce you need to buy, your offered prices, and delivery location. Local farmers will view your purchase orders directly.
+              {t('buyerPortalSubtitle')}
             </p>
           </div>
           <button
             onClick={() => setShowForm(!showForm)}
             className="px-5 py-3 rounded-2xl bg-leaf text-white font-semibold text-sm hover:bg-leaf/90 transition shadow-sm whitespace-nowrap"
           >
-            {showForm ? '✕ Close Form' : '+ Post Buying Requirement'}
+            {showForm ? t('closeForm') : t('postBuyingRequirement')}
           </button>
         </div>
 
@@ -137,28 +136,28 @@ export default function BuyerPortalPage() {
         {successMsg && (
           <div className="p-4 rounded-2xl bg-leaf/15 border border-leaf/30 text-leaf text-sm font-semibold flex items-center justify-between">
             <span>✓ {successMsg}</span>
-            <button onClick={() => setSuccessMsg(null)} className="text-xs text-soil/50 hover:text-soil">Dismiss</button>
+            <button onClick={() => setSuccessMsg(null)} className="text-xs text-soil/50 hover:text-soil">✕</button>
           </div>
         )}
 
         {/* Post Requirement Form */}
         {showForm && (
           <div className="bg-white rounded-3xl border border-soil/10 p-6 md:p-8 shadow-sm">
-            <h2 className="text-xl font-bold text-soil mb-1">Create Purchase Requirement</h2>
+            <h2 className="text-xl font-bold text-soil mb-1">{t('createPurchaseRequirement')}</h2>
             <p className="text-xs text-soil/60 mb-6">
-              Specify what crop you are looking for so matching farmers can contact you.
+              {t('specifyCropPrompt')}
             </p>
 
             <form onSubmit={handleCreateRequirement} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-soil/70 mb-1">
-                  Crop / Commodity Needed *
+                  {t('cropCommodityNeeded')}
                 </label>
                 <input
                   type="text"
                   value={cropProduct}
                   onChange={(e) => setCropProduct(e.target.value)}
-                  placeholder="e.g. Tomato, Potato, Wheat, Mustard"
+                  placeholder={t('cropPlaceholder')}
                   required
                   className="w-full px-4 py-2.5 rounded-xl border border-soil/20 focus:outline-none focus:border-leaf"
                 />
@@ -166,7 +165,7 @@ export default function BuyerPortalPage() {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-soil/70 mb-1">
-                  Required Quantity (Quintals) *
+                  {t('requiredQuantityQtl')}
                 </label>
                 <input
                   type="number"
@@ -181,7 +180,7 @@ export default function BuyerPortalPage() {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-soil/70 mb-1">
-                  Offered Price (₹ / Quintal) *
+                  {t('offeredPriceQtl')}
                 </label>
                 <input
                   type="number"
@@ -196,29 +195,29 @@ export default function BuyerPortalPage() {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-soil/70 mb-1">
-                  Quality Specification
+                  {t('qualitySpecification')}
                 </label>
                 <select
                   value={quality}
                   onChange={(e) => setQuality(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-soil/20 focus:outline-none focus:border-leaf bg-white"
                 >
-                  <option value="Grade A">Grade A (Premium / Export quality)</option>
-                  <option value="Grade B">Grade B (Standard market)</option>
-                  <option value="Processing Grade">Processing Grade (Juicing / Puree)</option>
-                  <option value="Organic">Organic Certified</option>
+                  <option value="Grade A">{t('gradeAPremium')}</option>
+                  <option value="Grade B">{t('gradeBStandard')}</option>
+                  <option value="Processing Grade">{t('processingGrade')}</option>
+                  <option value="Organic">{t('organicCertified')}</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-soil/70 mb-1">
-                  Delivery Location / District *
+                  {t('deliveryLocationDistrict')}
                 </label>
                 <input
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="e.g. Bareilly APMC, Uttar Pradesh"
+                  placeholder="Bareilly APMC, Uttar Pradesh"
                   required
                   className="w-full px-4 py-2.5 rounded-xl border border-soil/20 focus:outline-none focus:border-leaf"
                 />
@@ -226,13 +225,13 @@ export default function BuyerPortalPage() {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-soil/70 mb-1">
-                  Contact Phone / Email *
+                  {t('contactPhoneEmail')}
                 </label>
                 <input
                   type="text"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  placeholder="e.g. +91 98765 43210"
+                  placeholder="+91 98765 43210"
                   required
                   className="w-full px-4 py-2.5 rounded-xl border border-soil/20 focus:outline-none focus:border-leaf"
                 />
@@ -240,11 +239,11 @@ export default function BuyerPortalPage() {
 
               <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-3 p-3 bg-soil/5 rounded-2xl">
                 <div className="text-xs text-soil/70">
-                  <span className="font-semibold block text-soil">📍 Map Geolocation Coordinates (Optional)</span>
+                  <span className="font-semibold block text-soil">{t('mapGeolocationOptional')}</span>
                   {latitude && longitude ? (
                     <span className="text-leaf font-bold">Lat: {latitude}, Lng: {longitude}</span>
                   ) : (
-                    <span>Add coordinates so farmers can see your warehouse/shop on Google Maps.</span>
+                    <span>{t('mapCoordinatesHelp')}</span>
                   )}
                 </div>
                 <button
@@ -252,7 +251,7 @@ export default function BuyerPortalPage() {
                   onClick={handleDetectLocation}
                   className="px-3 py-1.5 rounded-xl bg-white border border-soil/20 text-xs font-semibold text-soil hover:bg-soil/10 transition"
                 >
-                  🎯 Use Current GPS Location
+                  {t('useCurrentGps')}
                 </button>
               </div>
 
@@ -262,14 +261,14 @@ export default function BuyerPortalPage() {
                   onClick={() => setShowForm(false)}
                   className="px-4 py-2.5 rounded-xl border border-soil/20 text-soil font-semibold text-xs hover:bg-soil/5 transition"
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
                   className="px-6 py-2.5 rounded-xl bg-leaf text-white font-semibold text-xs hover:bg-leaf/90 transition shadow-sm disabled:opacity-50"
                 >
-                  {submitting ? 'Publishing...' : 'Publish Purchase Order'}
+                  {submitting ? t('publishing') : t('publishPurchaseOrder')}
                 </button>
               </div>
             </form>
@@ -280,25 +279,25 @@ export default function BuyerPortalPage() {
         <div className="bg-white rounded-3xl border border-soil/10 p-6 md:p-8 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-lg font-bold text-soil">My Active Purchase Orders</h2>
-              <p className="text-xs text-soil/60">Manage orders you have posted for farmers to see</p>
+              <h2 className="text-lg font-bold text-soil">{t('activePurchaseOrders')}</h2>
+              <p className="text-xs text-soil/60">{t('manageOrdersSubtitle')}</p>
             </div>
             <span className="text-xs font-bold px-2.5 py-1 bg-soil/10 rounded-full text-soil">
-              {requirements.length} Active
+              {requirements.length} {t('activeBadge')}
             </span>
           </div>
 
           {loading ? (
-            <LoadingSpinner label="Loading your purchase listings..." />
+            <LoadingSpinner label={t('loading')} />
           ) : requirements.length === 0 ? (
             <div className="py-12 text-center text-soil/60 bg-soil/5 rounded-2xl">
-              <p className="text-sm font-medium mb-1">No active purchase orders yet</p>
-              <p className="text-xs text-soil/50 mb-4">Click "Post Buying Requirement" above to list what crop you want to purchase.</p>
+              <p className="text-sm font-medium mb-1">{t('noActiveOrders')}</p>
+              <p className="text-xs text-soil/50 mb-4">{t('noOrdersHelp')}</p>
               <button
                 onClick={() => setShowForm(true)}
                 className="px-4 py-2 rounded-xl bg-leaf text-white text-xs font-semibold hover:bg-leaf/90 transition"
               >
-                + Post Your First Requirement
+                {t('postFirstRequirement')}
               </button>
             </div>
           ) : (
@@ -317,10 +316,10 @@ export default function BuyerPortalPage() {
                     </div>
 
                     <div className="space-y-1 text-xs text-soil/70 mb-4">
-                      <p>📦 <span className="font-medium text-soil">Required:</span> {req.required_quantity} Quintals</p>
-                      <p>🏷️ <span className="font-medium text-soil">Quality:</span> {req.quality_requirement}</p>
-                      <p>📍 <span className="font-medium text-soil">Location:</span> {req.location}</p>
-                      <p>📞 <span className="font-medium text-soil">Contact:</span> {req.contact}</p>
+                      <p>📦 <span className="font-medium text-soil">{t('requiredLabel')}</span> {req.required_quantity} Quintals</p>
+                      <p>🏷️ <span className="font-medium text-soil">{t('qualityLabel')}</span> {req.quality_requirement}</p>
+                      <p>📍 <span className="font-medium text-soil">{t('locationLabel')}</span> {req.location}</p>
+                      <p>📞 <span className="font-medium text-soil">{t('contactLabel')}</span> {req.contact}</p>
                     </div>
                   </div>
 
@@ -332,17 +331,17 @@ export default function BuyerPortalPage() {
                         rel="noopener noreferrer"
                         className="text-[11px] text-leaf font-bold hover:underline"
                       >
-                        📍 View on Maps ↗
+                        {t('viewOnMaps')}
                       </a>
                     ) : (
-                      <span className="text-[11px] text-soil/40">No GPS set</span>
+                      <span className="text-[11px] text-soil/40">{t('noGpsSet')}</span>
                     )}
 
                     <button
                       onClick={() => handleDelete(req.id)}
                       className="px-2.5 py-1 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 transition"
                     >
-                      Close Order
+                      {t('closeOrder')}
                     </button>
                   </div>
                 </div>
@@ -351,20 +350,17 @@ export default function BuyerPortalPage() {
           )}
         </div>
 
-        {/* Live Matching Farmer Produce */}
+        {/* Live Matching Farmer Lots Ready for Procurement */}
         <div className="bg-white rounded-3xl border border-soil/10 p-6 md:p-8 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-lg font-bold text-soil">Matching Harvested Produce from Farmers</h2>
-              <p className="text-xs text-soil/60">Available crops listed by registered farmers in the platform</p>
+              <h2 className="text-lg font-bold text-soil">{t('farmerLotsReady')}</h2>
+              <p className="text-xs text-soil/60">{t('directFarmSourcingDesc')}</p>
             </div>
-            <Link to="/produce" className="text-xs text-leaf font-bold hover:underline">
-              View All Produce →
-            </Link>
           </div>
 
           {availableProduce.length === 0 ? (
-            <p className="text-xs text-soil/50 py-4">No harvested produce currently listed by farmers.</p>
+            <p className="text-xs text-soil/50 py-4">{t('noPostedRequirements')}</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
               {availableProduce.slice(0, 6).map((p) => (
@@ -374,10 +370,10 @@ export default function BuyerPortalPage() {
                       <span>{p.crop_name}</span>
                       <span className="text-leaf">{p.quantity} {p.unit}</span>
                     </div>
-                    <p className="text-soil/60">Quality: {p.quality}</p>
-                    <p className="text-soil/60">Location: {p.location}</p>
+                    <p className="text-soil/60">{t('qualityLabel')} {p.quality}</p>
+                    <p className="text-soil/60">{t('locationLabel')} {p.location}</p>
                   </div>
-                  <p className="text-[10px] text-soil/40 mt-2">Harvested on {p.harvest_date}</p>
+                  <p className="text-[10px] text-soil/40 mt-2">{t('harvested')} {p.harvest_date}</p>
                 </div>
               ))}
             </div>

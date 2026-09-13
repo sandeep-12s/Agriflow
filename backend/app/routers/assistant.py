@@ -33,5 +33,6 @@ def analyze_crop_image(
         image_base64=payload.image_base64,
         crop_hint=payload.crop_hint,
         language=payload.language,
+        question=payload.question,
     )
     return CropImageAnalysisResponse(**diagnosis)

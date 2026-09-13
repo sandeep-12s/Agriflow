@@ -50,15 +50,78 @@ function AssistantPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, sending, analyzingImage])
 
-  const send = async (text: string) => {
-    if (!token || !text.trim()) return
+  const handleImageSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      setSelectedImage(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleSend = async (customText?: string) => {
+    const textToSend = (customText !== undefined ? customText : input).trim()
+    if (!token) return
+
+    // Case 1: Image is attached -> Send multimodal image + question
+    if (selectedImage) {
+      setError('')
+      setAnalyzingImage(true)
+      const userMsgId = Date.now().toString()
+      const questionText = textToSend || (language === 'hi' ? `📸 इस ${selectedCropHint} की फोटो की जांच करें और दवा बताएं` : `📸 Please diagnose this ${selectedCropHint} photo and recommend treatment`)
+
+      // Append user message with image and question
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: userMsgId,
+          role: 'user',
+          text: questionText,
+          imagePreview: selectedImage,
+        },
+      ])
+
+      const imgData = selectedImage
+      const cropHint = selectedCropHint
+      setSelectedImage(null)
+      setInput('')
+      if (fileInputRef.current) fileInputRef.current.value = ''
+
+      try {
+        const diagnosis = await analyzeCropImage(
+          token,
+          imgData,
+          cropHint,
+          language,
+          textToSend || undefined
+        )
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            source: 'ai',
+            diagnosis,
+          },
+        ])
+      } catch {
+        setError('Could not complete image diagnosis. Please check network connection.')
+      } finally {
+        setAnalyzingImage(false)
+      }
+      return
+    }
+
+    // Case 2: Regular text message
+    if (!textToSend) return
     setError('')
     const userMsgId = Date.now().toString()
-    setMessages((prev) => [...prev, { id: userMsgId, role: 'user', text }])
+    setMessages((prev) => [...prev, { id: userMsgId, role: 'user', text: textToSend }])
     setInput('')
     setSending(true)
     try {
-      const res = await sendChatMessage(token, text, language)
+      const res = await sendChatMessage(token, textToSend, language)
       setMessages((prev) => [
         ...prev,
         {
@@ -80,61 +143,9 @@ function AssistantPage() {
     }
   }
 
-  const handleImageSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      setSelectedImage(reader.result as string)
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const handleDiagnoseCropPhoto = async () => {
-    if (!token || !selectedImage) return
-    setError('')
-    setAnalyzingImage(true)
-    const userMsgId = Date.now().toString()
-
-    // Append user image card to chat
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: userMsgId,
-        role: 'user',
-        text: `📸 Analyzing photo of ${selectedCropHint} crop...`,
-        imagePreview: selectedImage,
-      },
-    ])
-
-    try {
-      const diagnosis = await analyzeCropImage(
-        token,
-        selectedImage,
-        selectedCropHint,
-        language
-      )
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          source: 'ai',
-          diagnosis,
-        },
-      ])
-      setSelectedImage(null)
-      if (fileInputRef.current) fileInputRef.current.value = ''
-    } catch {
-      setError('Could not complete image diagnosis. Please check network connection.')
-    } finally {
-      setAnalyzingImage(false)
-    }
-  }
-
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    send(input)
+    handleSend()
   }
 
   return (
@@ -223,7 +234,7 @@ function AssistantPage() {
                     if (item.query === 'analyse this crop') {
                       fileInputRef.current?.click()
                     } else {
-                      send(item.query)
+                      handleSend(item.query)
                     }
                   }}
                   className="text-xs font-semibold text-leaf bg-leaf/10 border border-leaf/20 px-3.5 py-2 rounded-xl hover:bg-leaf hover:text-white transition shadow-xs"
@@ -380,22 +391,29 @@ function AssistantPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Selected Photo Pending Analysis Drawer */}
+      {/* Selected Photo Attachment Chip */}
       {selectedImage && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-4 mb-4 animate-in fade-in duration-200">
+        <div className="bg-emerald-50/90 border border-emerald-300/80 rounded-2xl p-3 mb-3 shadow-xs animate-in fade-in duration-200">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-3">
               <img
                 src={selectedImage}
                 alt="Selected crop"
-                className="w-16 h-16 rounded-2xl object-cover border border-emerald-300 shadow-xs"
+                className="w-14 h-14 rounded-xl object-cover border border-emerald-400/60 shadow-xs"
               />
               <div>
-                <span className="text-xs font-black text-emerald-950 block">
-                  Photo Ready for Disease Diagnosis
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black text-emerald-950">
+                    📸 {language === 'hi' ? 'फोटो संलग्न है' : 'Photo Attached'}
+                  </span>
+                  <span className="text-[10px] bg-emerald-200/70 text-emerald-900 font-bold px-1.5 py-0.5 rounded">
+                    {language === 'hi' ? 'सवाल लिखकर भेजें' : 'Add custom query or send'}
+                  </span>
+                </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[11px] text-emerald-800 font-semibold">Crop:</span>
+                  <span className="text-[11px] text-emerald-800 font-semibold">
+                    {language === 'hi' ? 'फसल:' : 'Crop:'}
+                  </span>
                   <select
                     value={selectedCropHint}
                     onChange={(e) => setSelectedCropHint(e.target.value)}
@@ -404,37 +422,28 @@ function AssistantPage() {
                     <option value="Tomato">Tomato (टमाटर)</option>
                     <option value="Potato">Potato (आलू)</option>
                     <option value="Wheat">Wheat (गेहूं)</option>
+                    <option value="Rose">Rose / Floral (गुलाब / फूल)</option>
                     <option value="Chilli">Chilli (मिर्च)</option>
                     <option value="Onion">Onion (प्याज)</option>
                     <option value="Mustard">Mustard (सरसों)</option>
                     <option value="Rice">Rice / Paddy (धान)</option>
+                    <option value="Cotton">Cotton (कपास)</option>
                     <option value="Other">Other / General Crop</option>
                   </select>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedImage(null)
-                  if (fileInputRef.current) fileInputRef.current.value = ''
-                }}
-                className="text-xs font-bold text-soil/60 hover:text-soil px-3 py-2"
-              >
-                ✕ Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDiagnoseCropPhoto}
-                disabled={analyzingImage}
-                className="px-4 py-2.5 rounded-xl bg-leaf text-white font-bold text-xs hover:bg-leaf/90 transition shadow-xs flex items-center gap-1.5"
-              >
-                <span>🔍</span>
-                <span>Diagnose Crop Disease Now</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedImage(null)
+                if (fileInputRef.current) fileInputRef.current.value = ''
+              }}
+              className="text-xs font-bold text-soil/60 hover:text-rose-700 bg-white border border-soil/15 px-2.5 py-1.5 rounded-lg transition"
+            >
+              ✕ {language === 'hi' ? 'फोटो हटाएं' : 'Remove Photo'}
+            </button>
           </div>
         </div>
       )}
@@ -449,16 +458,16 @@ function AssistantPage() {
         className="hidden"
       />
 
-      {/* Chat & Photo Input Bar */}
+      {/* Unified Chat & Photo Input Bar */}
       <form onSubmit={handleSubmit} className="flex items-center gap-2">
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          title="Take Photo or Upload Crop Image"
+          title={language === 'hi' ? 'कैमरा या गैलरी से फोटो जोड़ें' : 'Take Photo or Attach Crop Image'}
           className="flex items-center gap-1.5 px-3.5 py-3 rounded-2xl bg-white border border-leaf/40 text-leaf hover:bg-leaf/5 transition font-bold text-xs shadow-xs shrink-0"
         >
           <span className="text-base">📸</span>
-          <span className="hidden sm:inline">Take Photo</span>
+          <span className="hidden sm:inline">{language === 'hi' ? 'फोटो लें' : 'Take Photo'}</span>
         </button>
 
         <label htmlFor="assistant-question" className="sr-only">
@@ -470,19 +479,29 @@ function AssistantPage() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={
-            language === 'hi'
-              ? 'फसल, खाद, रोग या मंडी भाव के बारे में पूछें…'
-              : 'Ask about crop health, fertilizers, diseases, or prices…'
+            selectedImage
+              ? (language === 'hi'
+                  ? 'इस फोटो के बारे में अपना सवाल लिखें (जैसे: क्या बीमारी है और दवा बताएं)…'
+                  : 'Type what you want to ask about this photo (or send to diagnose)…')
+              : (language === 'hi'
+                  ? 'फसल, खाद, रोग या मंडी भाव के बारे में पूछें…'
+                  : 'Ask about crop health, fertilizers, diseases, or prices…')
           }
           className="flex-1 border border-soil/20 rounded-2xl px-4 py-3 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-leaf/30 bg-white shadow-xs"
         />
 
         <button
           type="submit"
-          disabled={sending || !input.trim()}
+          disabled={sending || analyzingImage || (!input.trim() && !selectedImage)}
           className="bg-leaf text-white font-bold px-5 py-3 rounded-2xl hover:bg-leaf/90 transition disabled:opacity-50 text-xs md:text-sm shadow-xs shrink-0"
         >
-          {t('send')} ➔
+          {analyzingImage
+            ? (language === 'hi' ? 'जांच जारी है…' : 'Diagnosing…')
+            : sending
+            ? (language === 'hi' ? 'भेज रहे हैं…' : 'Sending…')
+            : selectedImage
+            ? (language === 'hi' ? 'फोटो + सवाल भेजें ➔' : 'Send Photo & Query ➔')
+            : `${t('send')} ➔`}
         </button>
       </form>
     </Layout>

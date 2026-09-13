@@ -1,8 +1,8 @@
-import { ReactNode, useState, useEffect } from 'react'
+import { ReactNode, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { SUPPORTED_LANGUAGES, TranslationKey } from '../i18n'
-import { pronounceTab, getVoiceEnabled, setVoiceEnabled, speakText } from '../services/voice'
+import { setVoiceEnabled, speakText } from '../services/voice'
 
 interface NavItem {
   to: string
@@ -28,17 +28,7 @@ function Layout({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [voiceActive, setVoiceActive] = useState(() => getVoiceEnabled())
-
-  // Pronounce active tab when navigating between sections
-  useEffect(() => {
-    if (voiceActive) {
-      const timer = setTimeout(() => {
-        pronounceTab(location.pathname, language)
-      }, 200)
-      return () => clearTimeout(timer)
-    }
-  }, [location.pathname, language, voiceActive])
+  const [voiceActive, setVoiceActive] = useState(false)
 
   const toggleVoice = () => {
     const next = !voiceActive
