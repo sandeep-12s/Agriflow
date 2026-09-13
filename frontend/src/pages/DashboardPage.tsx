@@ -247,7 +247,7 @@ function DashboardPage() {
 
           {/* Live Farm Weather Widget */}
           {showWeather && (
-            <WeatherWidget defaultLocationName={profile?.location || 'Field / खेत'} />
+            <WeatherWidget defaultLocationName={profile?.location || t('myFarm')} />
           )}
 
           {/* Quick Farmer Actions Hub */}

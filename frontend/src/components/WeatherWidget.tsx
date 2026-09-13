@@ -11,8 +11,8 @@ interface WeatherWidgetProps {
 const DEFAULT_LAT = 28.6139
 const DEFAULT_LON = 77.2090
 
-export default function WeatherWidget({ defaultLocationName = 'Field / खेत' }: WeatherWidgetProps) {
-  const { token, language } = useAuth()
+export default function WeatherWidget({ defaultLocationName }: WeatherWidgetProps) {
+  const { token, language, t } = useAuth()
   const [weather, setWeather] = useState<WeatherResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -20,9 +20,16 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
     lat: DEFAULT_LAT,
     lon: DEFAULT_LON,
   })
-  const [locationName, setLocationName] = useState(defaultLocationName)
+  const [locationName, setLocationName] = useState(defaultLocationName || t('myFarm'))
   const [showAdvisories, setShowAdvisories] = useState(false)
   const [isLocating, setIsLocating] = useState(false)
+
+  // Update location name if language changes and no custom location was passed
+  useEffect(() => {
+    if (!defaultLocationName || defaultLocationName === 'Field / खेत') {
+      setLocationName(t('myFarm'))
+    }
+  }, [language, defaultLocationName, t])
 
   const fetchWeatherForCoords = useCallback(
     async (lat: number, lon: number) => {
@@ -34,12 +41,12 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
         setWeather(data)
       } catch (err) {
         console.warn('Weather fetch failed:', err)
-        setError('मौसम जानकारी लोड नहीं हो सकी (Could not load weather).')
+        setError(t('weatherLoadError'))
       } finally {
         setLoading(false)
       }
     },
-    [token]
+    [token, t]
   )
 
   // Geolocation detection
@@ -55,7 +62,7 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
         const lat = Number(pos.coords.latitude.toFixed(4))
         const lon = Number(pos.coords.longitude.toFixed(4))
         setCoords({ lat, lon })
-        setLocationName('📍 My Farm (मेरा खेत)')
+        setLocationName(`📍 ${t('myFarm')}`)
         fetchWeatherForCoords(lat, lon)
       },
       (err) => {
@@ -65,11 +72,69 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
       },
       { timeout: 8000 }
     )
-  }, [coords.lat, coords.lon, fetchWeatherForCoords])
+  }, [coords.lat, coords.lon, fetchWeatherForCoords, t])
 
   useEffect(() => {
     detectLocation()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Localized weather condition description
+  const getLocalizedCondition = (code?: number, fallbackText?: string): string => {
+    if (code === undefined && fallbackText) return fallbackText
+    if (language === 'hi') {
+      switch (code) {
+        case 0: return 'साफ़ आसमान'
+        case 1: return 'मुख्य रूप से साफ़'
+        case 2: return 'हल्के बादल'
+        case 3: return 'घने बादल'
+        case 45: case 48: return 'कोहरा'
+        case 51: case 53: case 55: return 'हल्की बूंदाबांदी'
+        case 61: case 63: return 'मध्यम बारिश'
+        case 65: return 'भारी बारिश'
+        case 80: case 81: case 82: return 'तेज बौछारें'
+        case 95: case 96: case 99: return 'आंधी और तूफान'
+        default: return fallbackText || 'सामान्य'
+      }
+    }
+    return fallbackText || 'Fair'
+  }
+
+  // Localized alerts translation
+  const getLocalizedAlert = (title: string, message: string) => {
+    if (language === 'hi') {
+      if (title.includes('Storm') || title.includes('Heavy Rain')) {
+        return {
+          title: 'तूफान एवं भारी बारिश की चेतावनी',
+          message: 'भारी बारिश या आंधी की संभावना है। कटी हुई फसल को सुरक्षित रखें और खेत में जल निकासी सुनिश्चित करें।'
+        }
+      }
+      if (title.includes('Rain Forecast')) {
+        return {
+          title: 'वर्षा का पूर्वानुमान',
+          message: 'बारिश के आसार हैं। खेत में जलभराव से बचने के लिए सिंचाई से पहले मिट्टी की नमी अवश्य जांचें।'
+        }
+      }
+      if (title.includes('High Wind')) {
+        return {
+          title: 'तेज हवा का जोखिम',
+          message: 'तेज हवा के झोंके संभव हैं। नर्सरी शेड नेट को सुरक्षित करें और खुले भंडारण को ढकें।'
+        }
+      }
+      if (title.includes('Frost')) {
+        return {
+          title: 'पाला / ठंड का जोखिम',
+          message: 'अत्यधिक ठंड और पाले की संभावना। रात में हल्की सिंचाई या मल्चिंग का उपयोग करें।'
+        }
+      }
+      if (title.includes('Heat Stress')) {
+        return {
+          title: 'लू / अत्यधिक गर्मी की सलाह',
+          message: 'उच्च तापमान की चेतावनी। वाष्पीकरण से बचने के लिए सुबह या शाम को ही सिंचाई करें।'
+        }
+      }
+    }
+    return { title, message }
+  }
 
   // Derive spray & irrigation advisory based on current data
   const isRain =
@@ -81,38 +146,44 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
   const sprayAdvisory = isRain || isHighWind
     ? {
         safe: false,
-        badge: '❌ दवा छिड़काव रोकें (Delay Spray)',
-        detail: 'बारिश या तेज हवा के कारण कीटनाशक/उर्वरक धुल जाएगा। (Rain or high wind will wash off chemicals).',
+        badgeText: t('delayBadge'),
+        badgeTitle: `❌ ${t('delaySprayTitle')}`,
+        detail: t('delaySprayDesc'),
       }
     : {
         safe: true,
-        badge: '✅ दवा छिड़काव के लिए उत्तम (Safe to Spray)',
-        detail: 'हवा शांत है और धूप अनुकूल है। दवा पत्तियों पर अच्छे से असर करेगी। (Calm wind & clear sky: optimal absorption).',
+        badgeText: t('optimalBadge'),
+        badgeTitle: `✅ ${t('safeToSprayTitle')}`,
+        detail: t('safeToSprayDesc'),
       }
 
   const irrigationAdvisory = isRain
     ? {
         safe: false,
-        badge: '⏸️ सिंचाई स्थगित करें (Postpone Irrigation)',
-        detail: 'वर्षा होने के आसार हैं। खेत में अतिरिक्त पानी भरने से फसल को नुकसान हो सकता है।',
+        badgeText: t('postponeBadge'),
+        badgeTitle: `⏸️ ${t('postponeIrrigationTitle')}`,
+        detail: t('postponeIrrigationDesc'),
       }
     : isExtremeHeat
     ? {
         safe: true,
-        badge: '💧 सुबह या शाम हल्की सिंचाई करें (Irrigate Early/Late)',
-        detail: 'तेज धूप और उच्च तापमान के कारण दोपहर में सिंचाई न करें। वाष्पीकरण से बचें।',
+        badgeText: t('adviceBadge'),
+        badgeTitle: `💧 ${t('heatIrrigationTitle')}`,
+        detail: t('heatIrrigationDesc'),
       }
     : {
         safe: true,
-        badge: '🟢 सामान्य सिंचाई जारी रखें (Normal Irrigation)',
-        detail: 'मिट्टी की नमी देख कर जरूरत अनुसार पानी दें। (Check soil moisture before watering).',
+        badgeText: t('adviceBadge'),
+        badgeTitle: `🟢 ${t('normalIrrigationTitle')}`,
+        detail: t('normalIrrigationDesc'),
       }
 
   const handleSpeakAdvisory = () => {
     if (!weather) return
+    const condition = getLocalizedCondition(weather.weather_code, weather.condition_text)
     const text =
       language === 'hi'
-        ? `वर्तमान तापमान ${Math.round(weather.temperature_c)} डिग्री सेल्सियस है। ${weather.condition_text}। ${
+        ? `वर्तमान तापमान ${Math.round(weather.temperature_c)} डिग्री सेल्सियस है। ${condition}। ${
             sprayAdvisory.safe
               ? 'दवा छिड़काव के लिए आज का मौसम उत्तम है।'
               : 'दवा का छिड़काव आज रोकें, मौसम अनुकूल नहीं है।'
@@ -123,7 +194,7 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
           }`
         : `Current temperature is ${Math.round(
             weather.temperature_c
-          )} degrees Celsius. ${weather.condition_text}. ${
+          )} degrees Celsius. ${condition}. ${
             sprayAdvisory.safe
               ? 'Safe to spray chemicals today.'
               : 'Delay chemical spray today.'
@@ -156,9 +227,8 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
           <div>
             <div className="flex items-center gap-2">
               <h2 className="font-bold text-soil text-base md:text-lg">
-                खेत का मौसम और कृषि सलाह
+                {t('farmWeatherTitle')}
               </h2>
-              <span className="text-xs text-soil/50 font-medium">| Farm Weather</span>
             </div>
             <p className="text-xs text-soil/60 font-medium">{locationName}</p>
           </div>
@@ -169,10 +239,10 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
             onClick={detectLocation}
             disabled={isLocating || loading}
             className="text-xs font-semibold text-leaf bg-leaf/10 hover:bg-leaf/20 border border-leaf/30 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5"
-            title="Update weather with GPS"
+            title="Update location with GPS"
           >
             <span>{isLocating ? '🔄' : '📍'}</span>
-            <span>{isLocating ? 'स्थान खोज रहे हैं…' : 'स्थान अपडेट करें'}</span>
+            <span>{isLocating ? t('locating') : t('updateLocation')}</span>
           </button>
 
           {weather && (
@@ -182,7 +252,7 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
               title="Listen to weather advisory"
             >
               <span>🔊</span>
-              <span>बोलकर सुनें</span>
+              <span>{t('listenAdvisory')}</span>
             </button>
           )}
         </div>
@@ -190,7 +260,7 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
 
       {loading && (
         <div className="py-4 text-center text-xs font-medium text-soil/60 animate-pulse">
-          🌤️ मौसम पूर्वानुमान प्राप्त किया जा रहा है (Loading live weather & advisories)…
+          🌤️ {t('loadingWeather')}
         </div>
       )}
 
@@ -205,40 +275,42 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
           {/* Main Weather Metrics Bar */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 my-3">
             <div className="bg-white/90 border border-emerald-100 rounded-xl p-3 shadow-xs">
-              <p className="text-[11px] font-semibold text-soil/60">तापमान (Temp)</p>
+              <p className="text-[11px] font-semibold text-soil/60">{t('temperature')}</p>
               <p className="text-xl md:text-2xl font-black text-emerald-950 mt-0.5">
                 {Math.round(weather.temperature_c)}°C
               </p>
-              <p className="text-[11px] text-soil/60 mt-0.5 truncate">{weather.condition_text}</p>
+              <p className="text-[11px] text-soil/60 mt-0.5 truncate">
+                {getLocalizedCondition(weather.weather_code, weather.condition_text)}
+              </p>
             </div>
 
             <div className="bg-white/90 border border-emerald-100 rounded-xl p-3 shadow-xs">
-              <p className="text-[11px] font-semibold text-soil/60">नमी (Humidity)</p>
+              <p className="text-[11px] font-semibold text-soil/60">{t('humidity')}</p>
               <p className="text-xl md:text-2xl font-black text-blue-900 mt-0.5">
                 {weather.humidity_percent}%
               </p>
               <p className="text-[11px] text-blue-700/70 mt-0.5">
-                {weather.humidity_percent > 75 ? '💧 अधिक नमी' : 'हवा में सामान्य नमी'}
+                {weather.humidity_percent > 75 ? `💧 ${t('highHumidity')}` : t('normalHumidity')}
               </p>
             </div>
 
             <div className="bg-white/90 border border-emerald-100 rounded-xl p-3 shadow-xs">
-              <p className="text-[11px] font-semibold text-soil/60">हवा की गति (Wind)</p>
+              <p className="text-[11px] font-semibold text-soil/60">{t('windSpeed')}</p>
               <p className="text-xl md:text-2xl font-black text-teal-900 mt-0.5">
                 {Math.round(weather.wind_speed_kmh)} <span className="text-xs font-normal">km/h</span>
               </p>
               <p className="text-[11px] text-teal-700/70 mt-0.5">
-                {isHighWind ? '💨 तेज हवा' : 'हवा शांत'}
+                {isHighWind ? `💨 ${t('highWind')}` : t('calmWind')}
               </p>
             </div>
 
             <div className="bg-white/90 border border-emerald-100 rounded-xl p-3 shadow-xs">
-              <p className="text-[11px] font-semibold text-soil/60">महसूस (Feels like)</p>
+              <p className="text-[11px] font-semibold text-soil/60">{t('feelsLike')}</p>
               <p className="text-xl md:text-2xl font-black text-amber-950 mt-0.5">
                 {Math.round(weather.apparent_temperature_c)}°C
               </p>
               <p className="text-[11px] text-amber-700/70 mt-0.5">
-                {weather.apparent_temperature_c > 35 ? 'गर्मी' : 'सामान्य'}
+                {weather.apparent_temperature_c > 35 ? t('hotWeather') : t('normalWeather')}
               </p>
             </div>
           </div>
@@ -255,17 +327,17 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-bold uppercase tracking-wide">
-                  🚜 कीटनाशक / छिड़काव सलाह (Spray Advice)
+                  🚜 {t('sprayAdvisoryHeader')}
                 </span>
                 <span
                   className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                     sprayAdvisory.safe ? 'bg-emerald-200 text-emerald-900' : 'bg-rose-200 text-rose-900'
                   }`}
                 >
-                  {sprayAdvisory.safe ? 'अनुकूल' : 'रोकें'}
+                  {sprayAdvisory.badgeText}
                 </span>
               </div>
-              <p className="text-xs font-semibold mt-1">{sprayAdvisory.badge}</p>
+              <p className="text-xs font-semibold mt-1">{sprayAdvisory.badgeTitle}</p>
               <p className="text-[11px] opacity-80 mt-0.5">{sprayAdvisory.detail}</p>
             </div>
 
@@ -279,17 +351,17 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-bold uppercase tracking-wide">
-                  💧 सिंचाई सलाह (Irrigation Advice)
+                  💧 {t('irrigationAdvisoryHeader')}
                 </span>
                 <span
                   className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                     irrigationAdvisory.safe ? 'bg-blue-200 text-blue-900' : 'bg-amber-200 text-amber-900'
                   }`}
                 >
-                  {irrigationAdvisory.safe ? 'सलाह' : 'स्थगित'}
+                  {irrigationAdvisory.badgeText}
                 </span>
               </div>
-              <p className="text-xs font-semibold mt-1">{irrigationAdvisory.badge}</p>
+              <p className="text-xs font-semibold mt-1">{irrigationAdvisory.badgeTitle}</p>
               <p className="text-[11px] opacity-80 mt-0.5">{irrigationAdvisory.detail}</p>
             </div>
           </div>
@@ -301,29 +373,32 @@ export default function WeatherWidget({ defaultLocationName = 'Field / खेत
                 onClick={() => setShowAdvisories(!showAdvisories)}
                 className="text-xs font-semibold text-emerald-800 hover:text-emerald-950 flex items-center gap-1.5"
               >
-                <span>{showAdvisories ? '▲ छुपाएं' : '▼ कृषि मौसम चेतावनी और विवरण देखें (More Alerts)'}</span>
+                <span>{showAdvisories ? `▲ ${t('hideAlerts')}` : `▼ ${t('viewAlerts')}`}</span>
               </button>
 
               {showAdvisories && (
                 <div className="mt-2.5 space-y-2">
-                  {weather.advisory_alerts.map((alert, idx) => (
-                    <div
-                      key={idx}
-                      className={`p-2.5 rounded-xl border text-xs ${
-                        alert.level === 'high'
-                          ? 'bg-red-50 border-red-200 text-red-900'
-                          : alert.level === 'medium'
-                          ? 'bg-amber-50 border-amber-200 text-amber-900'
-                          : 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                      }`}
-                    >
-                      <p className="font-bold flex items-center gap-1.5">
-                        <span>{alert.level === 'high' ? '⚠️' : alert.level === 'medium' ? '⚡' : '🌾'}</span>
-                        {alert.title}
-                      </p>
-                      <p className="text-[11px] mt-0.5 opacity-90">{alert.message}</p>
-                    </div>
-                  ))}
+                  {weather.advisory_alerts.map((alert, idx) => {
+                    const localized = getLocalizedAlert(alert.title, alert.message)
+                    return (
+                      <div
+                        key={idx}
+                        className={`p-2.5 rounded-xl border text-xs ${
+                          alert.level === 'high'
+                            ? 'bg-red-50 border-red-200 text-red-900'
+                            : alert.level === 'medium'
+                            ? 'bg-amber-50 border-amber-200 text-amber-900'
+                            : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                        }`}
+                      >
+                        <p className="font-bold flex items-center gap-1.5">
+                          <span>{alert.level === 'high' ? '⚠️' : alert.level === 'medium' ? '⚡' : '🌾'}</span>
+                          {localized.title}
+                        </p>
+                        <p className="text-[11px] mt-0.5 opacity-90">{localized.message}</p>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
             </div>

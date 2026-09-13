@@ -181,7 +181,7 @@ function MarketPage() {
             className="flex items-center gap-1.5 border border-leaf text-leaf rounded-xl px-3 py-2 text-xs font-bold hover:bg-leaf/5 disabled:opacity-60 transition shadow-xs"
           >
             <span>📍</span>
-            <span>{locationLoading ? t('findingLocation') : 'Detect My Location'}</span>
+            <span>{locationLoading ? t('findingLocation') : t('useMyLocation')}</span>
           </button>
 
           {crops.length > 0 && (
@@ -209,7 +209,7 @@ function MarketPage() {
           <div className="flex items-center gap-2">
             <span className="text-lg">🌤️</span>
             <strong>{weather.temperature_c}°C</strong>
-            <span className="text-soil/70">feels like {weather.apparent_temperature_c}°C</span>
+            <span className="text-soil/70">({t('feelsLike')}: {weather.apparent_temperature_c}°C)</span>
             <span className="text-soil/40">|</span>
             <span>{t('humidity')}: {weather.humidity_percent}%</span>
             <span className="text-soil/40">|</span>
