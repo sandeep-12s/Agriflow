@@ -103,15 +103,20 @@ function DashboardPage() {
           </div>
 
           {/* Buyer Visual Banner */}
-          <div className="dashboard-visual mb-6 overflow-hidden rounded-2xl relative shadow-sm border border-soil/10">
+          <div className="mb-6 overflow-hidden rounded-2xl relative shadow-sm border border-soil/10 h-36 sm:h-44 md:h-52 w-full bg-soil/10">
             <img
-              src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1600&q=85"
+              src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80"
               alt="Wholesale Procurement Intelligence"
-              className="w-full h-44 md:h-52 object-cover"
+              className="w-full h-full object-cover object-center"
             />
-            <div className="dashboard-visual-copy absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-5 md:p-6 flex flex-col justify-end text-white">
-              <p className="text-lg md:text-xl font-bold tracking-tight">{t('directFarmSourcingTitle')}</p>
-              <p className="text-xs md:text-sm text-white/80 max-w-xl mt-1">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4 sm:p-5 md:p-6 flex flex-col justify-end text-white">
+              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-blue-300 mb-1">
+                {t('procurementIntelligence')}
+              </p>
+              <h2 className="text-base sm:text-xl md:text-2xl font-bold leading-tight max-w-xl text-white">
+                {t('directFarmSourcingTitle')}
+              </h2>
+              <p className="text-xs md:text-sm text-white/80 max-w-xl mt-1 hidden sm:block">
                 {t('directFarmSourcingDesc')}
               </p>
             </div>
@@ -379,14 +384,20 @@ function DashboardPage() {
             </div>
           </div>
 
-          <div className="dashboard-visual mb-6">
+          {/* Farmer Visual Banner */}
+          <div className="mb-6 overflow-hidden rounded-2xl relative shadow-sm border border-soil/10 h-36 sm:h-44 md:h-52 w-full bg-soil/10">
             <img
-              src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1600&q=85"
+              src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=1200&q=80"
               alt={t('harvestIntelligence')}
+              className="w-full h-full object-cover object-center"
             />
-            <div className="dashboard-visual-copy">
-              <p>{t('harvestIntelligence')}</p>
-              <p>{t('harvestTagline')}</p>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4 sm:p-5 md:p-6 flex flex-col justify-end text-white">
+              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-300 mb-1">
+                {t('harvestIntelligence')}
+              </p>
+              <h2 className="text-base sm:text-xl md:text-2xl font-bold leading-tight max-w-xl text-white">
+                {t('harvestTagline')}
+              </h2>
             </div>
           </div>
 

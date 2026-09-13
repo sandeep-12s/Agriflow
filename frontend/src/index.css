@@ -306,28 +306,21 @@ textarea:focus-visible {
 
 .dashboard-visual {
   position: relative;
-  min-height: 220px;
+  height: 190px;
+  max-height: 220px;
   overflow: hidden;
   border-radius: 18px;
   background: #446b43;
-  box-shadow: 0 16px 34px rgba(91, 70, 54, 0.12);
+  box-shadow: 0 8px 24px rgba(91, 70, 54, 0.08);
 }
 
 .dashboard-visual img {
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 220px;
+  max-height: 220px;
   object-fit: cover;
   object-position: center 54%;
-}
-
-.dashboard-visual::after {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(25, 52, 32, 0.72), rgba(25, 52, 32, 0.05) 72%);
-  content: '';
-  pointer-events: none;
 }
 
 .dashboard-visual-copy {
@@ -471,7 +464,8 @@ textarea:focus-visible {
 
   .dashboard-visual,
   .dashboard-visual img {
-    min-height: 185px;
+    height: 160px;
+    max-height: 180px;
   }
 
   .dashboard-visual-copy {
