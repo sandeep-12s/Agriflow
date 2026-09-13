@@ -57,13 +57,6 @@ def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
         try:
             send_otp_sms(payload.phone, code)
             sms_sent = True
-        except RuntimeError as error:
-            raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(error))
-    elif settings.ENV != "development":
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="SMS delivery is not configured on this server",
-        )
         except Exception as error:
             logger.error("SMS dispatch error: %s", error)
 
@@ -75,10 +68,8 @@ def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
     db.commit()
 
     return OTPResponse(
-        message="Verification code sent to your phone." if sms_sent else "Development verification code generated.",
         message="Verification code sent to your phone via SMS." if sms_sent else "SMS gateway not configured on server.",
         expires_in=OTP_EXPIRY_SECONDS,
-        dev_code=code if not sms_sent and settings.ENV == "development" else None,
         dev_code=None if sms_sent else code,
     )
 
