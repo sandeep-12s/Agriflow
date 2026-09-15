@@ -49,3 +49,56 @@ def init_db() -> None:
     """
     from app.db import models  # noqa: F401 — registers all tables on Base
     Base.metadata.create_all(bind=engine)
+    run_migrations()
+
+
+def run_migrations() -> None:
+    """
+    Lightweight, additive-only schema migrations.
+
+    SQLAlchemy's create_all() will create new tables but will NOT add
+    new columns to already-existing tables. This function handles that
+    gap by issuing safe ALTER TABLE … ADD COLUMN IF NOT EXISTS statements
+    for any columns that were added to models after initial deployment.
+
+    Safe to run every startup — IF NOT EXISTS means it's a no-op when
+    the column already exists.
+    """
+    import logging
+    from sqlalchemy import text
+
+    log = logging.getLogger(__name__)
+
+    # Map of (table, column, column_definition) to add if missing
+    migrations = [
+        ("users", "sms_weather_alerts", "BOOLEAN DEFAULT TRUE"),
+        ("sms_logs", "id", None),  # whole table — handled by create_all above
+    ]
+
+    with engine.connect() as conn:
+        is_postgres = settings.DATABASE_URL.startswith("postgresql")
+        for table, column, definition in migrations:
+            if definition is None:
+                continue  # whole-table creation handled by create_all
+            try:
+                if is_postgres:
+                    conn.execute(
+                        text(
+                            f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS"
+                            f" {column} {definition}"
+                        )
+                    )
+                else:
+                    # SQLite doesn't support IF NOT EXISTS on ALTER TABLE —
+                    # check manually before adding
+                    result = conn.execute(text(f"PRAGMA table_info({table})"))
+                    existing = {row[1] for row in result}
+                    if column not in existing:
+                        conn.execute(
+                            text(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+                        )
+                conn.commit()
+                log.info("Migration OK: %s.%s", table, column)
+            except Exception as exc:
+                log.warning("Migration skipped (%s.%s): %s", table, column, exc)
+
