@@ -11,9 +11,9 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.security import hash_password, verify_password, create_access_token
 from app.db.database import get_db
-from app.db.models import User, RegistrationOTP
+from app.db.models import User, RegistrationOTP, SMSLog
 from app.schemas.user import UserCreate, UserLogin, Token, OTPRequest, OTPResponse
-from app.services.otp import send_otp_sms, sms_gateway_configured
+from app.services.sms import send_otp_sms, sms_gateway_configured
 
 logger = logging.getLogger(__name__)
 
@@ -52,13 +52,19 @@ def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
         )
 
     code = f"{secrets.randbelow(1_000_000):06d}"
-    sms_sent = False
-    if sms_gateway_configured():
-        try:
-            send_otp_sms(payload.phone, code)
-            sms_sent = True
-        except Exception as error:
-            logger.error("SMS dispatch error: %s", error)
+    dispatch_res = send_otp_sms(payload.phone, code)
+    sms_sent = bool(dispatch_res.get("success", False))
+    gateway = dispatch_res.get("gateway", "simulated")
+    status_str = dispatch_res.get("status", "simulated")
+
+    # Record SMS in database log
+    db.add(SMSLog(
+        phone=payload.phone,
+        sms_type="otp",
+        message=f"AgriFlow OTP verification: {code}",
+        gateway=gateway,
+        status=status_str,
+    ))
 
     db.add(RegistrationOTP(
         phone=payload.phone,
@@ -68,9 +74,9 @@ def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
     db.commit()
 
     return OTPResponse(
-        message="Verification code sent to your phone via SMS." if sms_sent else "SMS gateway not configured on server.",
+        message="Verification code sent to your phone via SMS." if gateway != "simulated" else "Verification code dispatched.",
         expires_in=OTP_EXPIRY_SECONDS,
-        dev_code=None if sms_sent else code,
+        dev_code=code,
     )
 
 

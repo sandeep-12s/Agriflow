@@ -320,6 +320,45 @@ export function getWeather(token: string, latitude: number, longitude: number) {
   return authRequest<WeatherResponse>(`/weather?${params}`, token)
 }
 
+export interface WeatherSMSAlertResponse {
+  success: boolean
+  sms_sent: boolean
+  gateway: string
+  phone: string
+  alert_title: string
+  message: string
+  status: string
+  dispatched_at: string
+  note?: string
+}
+
+export interface SMSLogItem {
+  id: number
+  phone: string
+  sms_type: string
+  message: string
+  gateway: string
+  status: string
+  created_at: string
+}
+
+export function sendWeatherAlertSms(token: string, latitude?: number, longitude?: number, forceTest = false) {
+  return authRequest<WeatherSMSAlertResponse>('/weather/send-alert-sms', token, {
+    method: 'POST',
+    body: JSON.stringify({ latitude, longitude, force_test: forceTest }),
+  })
+}
+
+export function getWeatherSmsHistory(token: string) {
+  return authRequest<SMSLogItem[]>('/weather/sms-history', token)
+}
+
+export function toggleWeatherSmsAlerts(token: string) {
+  return authRequest<{ sms_weather_alerts: boolean; message: string }>('/weather/toggle-sms-alerts', token, {
+    method: 'POST',
+  })
+}
+
 // ---- Recommendations ----
 
 export interface RecommendationOption {

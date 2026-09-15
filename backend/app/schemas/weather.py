@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -15,3 +15,31 @@ class WeatherOut(BaseModel):
     source: str
     condition_text: str = "Clear sky"
     advisory_alerts: list[dict] = []
+
+
+class WeatherSMSAlertRequest(BaseModel):
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    force_test: bool = False
+
+
+class WeatherSMSAlertResponse(BaseModel):
+    success: bool
+    sms_sent: bool
+    gateway: str
+    phone: str
+    alert_title: str
+    message: str
+    status: str
+    dispatched_at: datetime
+    note: Optional[str] = None
+
+
+class SMSLogItem(BaseModel):
+    id: int
+    phone: str
+    sms_type: str
+    message: str
+    gateway: str
+    status: str
+    created_at: datetime

@@ -51,6 +51,7 @@ class User(Base):
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.farmer)
     location: Mapped[str] = mapped_column(String(120))
     language: Mapped[str] = mapped_column(String(10), default="en")
+    sms_weather_alerts: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
 
     produce: Mapped[list["Produce"]] = relationship(back_populates="farmer", cascade="all, delete-orphan")
@@ -67,6 +68,19 @@ class RegistrationOTP(Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime)
     attempts: Mapped[int] = mapped_column(Integer, default=0)
     used: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
+
+
+class SMSLog(Base):
+    __tablename__ = "sms_logs"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    phone: Mapped[str] = mapped_column(String(20), index=True)
+    sms_type: Mapped[str] = mapped_column(String(30))  # "otp", "weather_alert", "test"
+    message: Mapped[str] = mapped_column(Text)
+    gateway: Mapped[str] = mapped_column(String(30))   # "fast2sms", "twilio", "simulated"
+    status: Mapped[str] = mapped_column(String(30))    # "delivered", "sent", "failed", "simulated"
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
 
 
