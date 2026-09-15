@@ -81,13 +81,10 @@ function RegisterPage() {
 
     setLoading(true)
     try {
-      const response = await requestRegistrationOtp(form.phone)
+      await requestRegistrationOtp(form.phone)
       setOtpRequested(true)
       setOtp('')
-      // In production: real SMS is sent to phone. In dev/simulated mode: auto-fill OTP silently.
-      if (response.dev_code) {
-        setOtp(response.dev_code)
-      }
+      // OTP is sent to farmer's phone — they must enter it manually.
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not send verification code.')
     } finally {
