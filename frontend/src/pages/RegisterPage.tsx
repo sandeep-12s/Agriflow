@@ -85,12 +85,16 @@ function RegisterPage() {
       const response = await requestRegistrationOtp(form.phone)
       setOtpRequested(true)
       setOtp('')
-      setOtpMessage(
-        `📱 A 6-digit verification code has been sent via SMS to ${form.phone}. Please check your phone messages and enter the code below.`
-      )
-      // If server returned a dev/simulated code, store it for the discreet notification helper
+      // In production: real SMS is sent. In dev/simulated mode: auto-fill OTP silently.
       if (response.dev_code) {
-        setSimulatedOtp(response.dev_code)
+        setOtp(response.dev_code)
+        setOtpMessage(
+          `✅ Verification code sent! (Dev mode: code auto-filled for testing)`
+        )
+      } else {
+        setOtpMessage(
+          `📱 A 6-digit verification code has been sent via SMS to ${form.phone}. Please check your phone messages and enter the code below.`
+        )
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not send verification code.')

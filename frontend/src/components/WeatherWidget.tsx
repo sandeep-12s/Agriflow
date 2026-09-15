@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { getWeather, WeatherResponse } from '../api/client'
+import { getWeather, WeatherResponse, sendWeatherAlertSms } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { speakText } from '../services/voice'
 import { getLocalizedCondition, getLocalizedAlert, getWeatherSpeech } from '../services/weatherTranslations'
@@ -24,6 +24,8 @@ export default function WeatherWidget({ defaultLocationName }: WeatherWidgetProp
   const [locationName, setLocationName] = useState(defaultLocationName || t('myFarm'))
   const [showAdvisories, setShowAdvisories] = useState(false)
   const [isLocating, setIsLocating] = useState(false)
+  const [smsSending, setSmsSending] = useState(false)
+  const [smsStatus, setSmsStatus] = useState<{ success: boolean; msg: string } | null>(null)
 
   // Update location name if language changes and no custom location was passed
   useEffect(() => {
@@ -144,6 +146,24 @@ export default function WeatherWidget({ defaultLocationName }: WeatherWidgetProp
     speakText(text, language)
   }
 
+  const handleSendSmsAlert = async () => {
+    if (!token) return
+    setSmsSending(true)
+    setSmsStatus(null)
+    try {
+      const result = await sendWeatherAlertSms(token, coords.lat, coords.lon)
+      if (result.sms_sent) {
+        setSmsStatus({ success: true, msg: result.message || '✅ Weather alert SMS sent!' })
+      } else {
+        setSmsStatus({ success: false, msg: result.message || 'No severe weather to alert about.' })
+      }
+    } catch {
+      setSmsStatus({ success: false, msg: 'Failed to send alert. Please try again.' })
+    } finally {
+      setSmsSending(false)
+    }
+  }
+
   const getWeatherIcon = (code?: number) => {
     if (code === undefined) return '🌤️'
     if (code === 0) return '☀️'
@@ -193,8 +213,30 @@ export default function WeatherWidget({ defaultLocationName }: WeatherWidgetProp
               <span>{t('listenAdvisory')}</span>
             </button>
           )}
+
+          <button
+            onClick={handleSendSmsAlert}
+            disabled={smsSending}
+            className="text-xs font-bold text-orange-800 bg-orange-100 hover:bg-orange-200 border border-orange-300 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 shadow-xs disabled:opacity-60"
+            title="Send weather alert SMS to your phone"
+          >
+            <span>{smsSending ? '⏳' : '📲'}</span>
+            <span>{smsSending ? 'Sending...' : 'Alert SMS'}</span>
+          </button>
         </div>
       </div>
+
+      {smsStatus && (
+        <div
+          className={`text-xs px-3 py-2 rounded-xl mb-2 border font-medium ${
+            smsStatus.success
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+              : 'bg-amber-50 border-amber-200 text-amber-900'
+          }`}
+        >
+          {smsStatus.msg}
+        </div>
+      )}
 
       {loading && (
         <div className="py-4 text-center text-xs font-medium text-soil/60 animate-pulse">
