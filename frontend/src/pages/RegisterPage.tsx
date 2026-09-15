@@ -21,7 +21,6 @@ function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [otpRequested, setOtpRequested] = useState(false)
   const [otp, setOtp] = useState('')
-  const [otpMessage, setOtpMessage] = useState('')
   const [detectedRegionBadge, setDetectedRegionBadge] = useState<string | null>(null)
   const [detectingGps, setDetectingGps] = useState(false)
   const { login } = useAuth()
@@ -85,16 +84,9 @@ function RegisterPage() {
       const response = await requestRegistrationOtp(form.phone)
       setOtpRequested(true)
       setOtp('')
-      // In production: real SMS is sent. In dev/simulated mode: auto-fill OTP silently.
+      // In production: real SMS is sent to phone. In dev/simulated mode: auto-fill OTP silently.
       if (response.dev_code) {
         setOtp(response.dev_code)
-        setOtpMessage(
-          `✅ Verification code sent! (Dev mode: code auto-filled for testing)`
-        )
-      } else {
-        setOtpMessage(
-          `📱 A 6-digit verification code has been sent via SMS to ${form.phone}. Please check your phone messages and enter the code below.`
-        )
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not send verification code.')
@@ -233,24 +225,15 @@ function RegisterPage() {
           {otpRequested && (
             <>
               <div
-                className={`p-4 mb-4 rounded-xl border text-xs leading-relaxed ${
-                  otpMessage.includes('FAST2SMS_API_KEY') || otpMessage.includes('OTP Code:')
-                    ? 'bg-amber-50 border-amber-300 text-amber-950'
-                    : 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                }`}
+                className="p-4 mb-4 rounded-xl border text-xs leading-relaxed bg-emerald-50 border-emerald-200 text-emerald-900"
                 role="status"
               >
                 <div className="flex items-center gap-2 mb-1.5 font-bold text-sm">
-                  <span>{otpMessage.includes('OTP Code:') ? '⚡ Quick Verification Code' : '📱 SMS Dispatched'}</span>
+                  <span>📱 Verification Code Sent</span>
                 </div>
-                <p className="mb-2 font-medium">{otpMessage}</p>
-                {otp && (
-                  <div className="flex items-center gap-2 mt-2 pt-2 border-t border-amber-200/60">
-                    <span className="text-soil/70 font-bold">Your OTP:</span>
-                    <span className="text-base font-extrabold tracking-widest text-leaf bg-white px-2.5 py-1 rounded-md border border-leaf/30">{otp}</span>
-                    <span className="text-[11px] text-soil/60">(Auto-filled in the box below)</span>
-                  </div>
-                )}
+                <p className="font-medium">
+                  A 6-digit code has been sent to <strong>{form.phone}</strong>. Enter it below to verify your number.
+                </p>
               </div>
               <label htmlFor="otp" className="auth-label">
                 Enter 6-Digit Verification Code (OTP)
@@ -281,7 +264,7 @@ function RegisterPage() {
           </button>
 
           {otpRequested && (
-            <button type="button" className="auth-secondary-action" onClick={() => { setOtpRequested(false); setOtpMessage(''); setOtp('') }}>
+            <button type="button" className="auth-secondary-action" onClick={() => { setOtpRequested(false); setOtp('') }}>
               Change phone number
             </button>
           )}
