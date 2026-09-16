@@ -338,6 +338,65 @@ def test_crop_vision_non_crop_and_vague_question_rejection(client, auth_headers)
     assert res2.json()["is_crop"] is False
 
 
+def test_corn_smut_auto_detection_and_multi_crop(client, auth_headers):
+    import base64
+    from PIL import Image
+    import io
+
+    # Generate synthetic corn plant with ear and smut fungal gall
+    img = Image.new("RGB", (40, 40), (20, 140, 30))
+    for x in range(10, 25):
+        for y in range(10, 30):
+            img.putpixel((x, y), (210, 170, 30))
+    for x in range(12, 18):
+        for y in range(15, 22):
+            img.putpixel((x, y), (140, 140, 140))
+    for x in range(14, 17):
+        for y in range(17, 20):
+            img.putpixel((x, y), (20, 20, 20))
+
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG")
+    corn_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+    # 1. Corn image with vague question "why is this?" and NO crop hint -> Must identify Maize Corn Smut
+    res1 = client.post(
+        "/assistant/analyze-crop-image",
+        json={"image_base64": corn_b64, "question": "why is this?", "language": "en"},
+        headers=auth_headers,
+    )
+    assert res1.status_code == 200
+    d1 = res1.json()
+    assert d1["is_crop"] is True
+    assert "Maize" in d1["crop_name"]
+    assert "Smut" in d1["condition"]
+    assert "why is this?" in d1["summary"]
+
+    # 2. Corn image with single question mark "?"
+    res2 = client.post(
+        "/assistant/analyze-crop-image",
+        json={"image_base64": corn_b64, "question": "?", "language": "en"},
+        headers=auth_headers,
+    )
+    assert res2.status_code == 200
+    d2 = res2.json()
+    assert d2["is_crop"] is True
+    assert "Maize" in d2["crop_name"]
+
+    # 3. Other crops via hint or selection must never hallucinate Tomato
+    crops = ["Wheat", "Potato", "Paddy / Rice", "Cotton", "Sugarcane", "Soybean"]
+    for c in crops:
+        res_c = client.post(
+            "/assistant/analyze-crop-image",
+            json={"image_base64": corn_b64, "crop_hint": c, "language": "en"},
+            headers=auth_headers,
+        )
+        assert res_c.status_code == 200
+        d_c = res_c.json()
+        assert d_c["is_crop"] is True
+        assert "Tomato" not in d_c["crop_name"], f"Defaulted to Tomato for {c}!"
+
+
 def test_distinct_crop_problem_answers(client, auth_headers):
     # 1. Tomato fruit borer -> Coragen / Emamectin, NOT general blight/mandi text
     res1 = client.post(

@@ -846,6 +846,7 @@ def analyze_crop_image_with_gemini(
         "'chemical_treatment': 'None required.', 'organic_remedy': 'None required.', 'prevention': 'Please take a clear photo of your plant or crop.', "
         "and 'summary': 'This image does not appear to be an agricultural crop or plant. Please upload a clear photo of your crop, leaf, stem, or farm produce for disease diagnosis.' "
         "DO NOT diagnose plant diseases on non-plant images under any circumstances! "
+        "NOTE: Agricultural plants and produce include diseased or malformed ears of maize/corn (such as corn smut galls, damaged cobs), grain ears, root tubers, infected leaves, and farm produce; these ARE agricultural crops and must be identified as 'is_crop': true. "
         "If it IS an agricultural crop or plant, set 'is_crop': true, detect the crop species, disease/pest/deficiency or if healthy, "
         "and provide exact, actionable treatment and dosages in Indian farming context. "
         "IMPORTANT: If the farmer asked a specific question, address it directly in your summary and symptoms. "
@@ -902,6 +903,13 @@ def analyze_crop_image_with_gemini(
                     raw_is_crop = parsed.get("is_crop", True)
                     if isinstance(raw_is_crop, str):
                         raw_is_crop = raw_is_crop.lower() in ("true", "1", "yes")
+
+                    # If Gemini erroneously classified a crop as non-crop, verify with visual cues
+                    if not raw_is_crop and not is_non_crop_query(question or ""):
+                        cues = extract_image_visual_cues(image_base64)
+                        if cues.get("is_crop") or cues.get("inferred_crop"):
+                            raw_is_crop = True
+
                     return {
                         "is_crop": bool(raw_is_crop),
                         "crop_name": str(parsed.get("crop_name", "Agricultural Crop")),
@@ -942,18 +950,39 @@ def extract_image_visual_cues(image_base64: str) -> dict[str, Any]:
         clean_b64 = image_base64
         if "," in clean_b64:
             clean_b64 = clean_b64.split(",", 1)[1]
+        clean_b64 = clean_b64.strip().replace(" ", "+").replace("\n", "").replace("\r", "")
+        missing_padding = len(clean_b64) % 4
+        if missing_padding:
+            clean_b64 += "=" * (4 - missing_padding)
 
         raw_bytes = base64.b64decode(clean_b64)
         img = Image.open(io.BytesIO(raw_bytes)).convert("RGB")
         img.thumbnail((160, 160))
 
+        # Safely extract RGB tuples across all Pillow versions (Pillow 9, 10, 11+)
+        pixels: list[tuple[int, int, int]] = []
         if hasattr(img, "get_flattened_data"):
-            flat = list(img.get_flattened_data())
-            pixels = [tuple(flat[i : i + 3]) for i in range(0, len(flat), 3)]
-        elif hasattr(img, "getdata"):
-            pixels = list(img.getdata())
-        else:
-            pixels = []
+            try:
+                raw = list(img.get_flattened_data())
+                if raw:
+                    if isinstance(raw[0], (tuple, list)) and len(raw[0]) >= 3 and isinstance(raw[0][0], (int, float)):
+                        pixels = [(int(p[0]), int(p[1]), int(p[2])) for p in raw]
+                    elif isinstance(raw[0], (int, float)):
+                        pixels = [
+                            (int(raw[i]), int(raw[i + 1]), int(raw[i + 2]))
+                            for i in range(0, len(raw) - 2, 3)
+                        ]
+            except Exception as e:
+                logger.debug("get_flattened_data extraction failed: %s", e)
+
+        if not pixels and hasattr(img, "getdata"):
+            try:
+                raw_data = list(img.getdata())
+                if raw_data and isinstance(raw_data[0], (tuple, list)) and len(raw_data[0]) >= 3:
+                    pixels = [(int(p[0]), int(p[1]), int(p[2])) for p in raw_data]
+            except Exception as e:
+                logger.debug("getdata extraction failed: %s", e)
+
         total = len(pixels)
         if total == 0:
             return {"is_crop": True, "inferred_crop": None, "inferred_disease": None}
@@ -1003,13 +1032,13 @@ def extract_image_visual_cues(image_base64: str) -> dict[str, Any]:
         white_powdery_ratio = white_powdery_count / total
 
         is_plant = (
-            veg_ratio > 0.04
-            or corn_gold_ratio > 0.03
-            or yellow_ratio > 0.05
-            or orange_rust_ratio > 0.02
-            or red_fruit_ratio > 0.04
-            or silvery_gall_ratio > 0.02
-            or (veg_ratio > 0.015 and (dark_spore_ratio > 0.015 or yellow_ratio > 0.03))
+            veg_ratio > 0.03
+            or corn_gold_ratio > 0.02
+            or yellow_ratio > 0.04
+            or orange_rust_ratio > 0.015
+            or red_fruit_ratio > 0.03
+            or silvery_gall_ratio > 0.002
+            or (veg_ratio > 0.01 and (dark_spore_ratio > 0.003 or yellow_ratio > 0.02))
         )
 
         inferred_crop = None
@@ -1017,9 +1046,13 @@ def extract_image_visual_cues(image_base64: str) -> dict[str, Any]:
 
         # --- A. CORN / MAIZE DETECTION ---
         # Golden cob kernels, ear, or silvery/black smut gall on corn
-        if corn_gold_ratio > 0.035 or (corn_gold_ratio > 0.012 and (dark_spore_ratio > 0.003 or silvery_gall_ratio > 0.002)):
+        if (
+            corn_gold_ratio > 0.025
+            or (corn_gold_ratio > 0.006 and (dark_spore_ratio > 0.002 or silvery_gall_ratio > 0.001))
+            or (silvery_gall_ratio > 0.002 and veg_ratio > 0.15)
+        ):
             inferred_crop = "Maize / Corn"
-            if dark_spore_ratio > 0.003 or silvery_gall_ratio > 0.002:
+            if dark_spore_ratio > 0.002 or silvery_gall_ratio > 0.001:
                 inferred_disease = "Corn Smut"
             elif veg_ratio > 0.45 and dark_spore_ratio > 0.01:
                 inferred_disease = "Turcicum Leaf Blight"
@@ -1027,25 +1060,25 @@ def extract_image_visual_cues(image_base64: str) -> dict[str, Any]:
                 inferred_disease = "Corn Smut" if (silvery_gall_ratio > 0.001 or dark_spore_ratio > 0.002) else "Fall Armyworm"
 
         # --- B. WHEAT DETECTION ---
-        # Orange/yellow linear rust pustules
+        # Orange/yellow linear rust pustules on cereal leaves
         elif orange_rust_ratio > 0.015:
             inferred_crop = "Wheat"
             inferred_disease = "Yellow Stripe Rust"
 
         # --- C. SOYBEAN DETECTION ---
         # Intense yellow mosaic on trifoliate canopy without gold corn kernels
-        elif yellow_ratio > 0.12 and veg_ratio > 0.20 and corn_gold_ratio < 0.03:
+        elif yellow_ratio > 0.10 and veg_ratio > 0.18 and corn_gold_ratio < 0.02:
             inferred_crop = "Soybean"
             inferred_disease = "Yellow Mosaic Virus"
 
         # --- D. POTATO DETECTION ---
         # Dark necrotic water-soaked late blight patches on broad green leaves
-        elif dark_spore_ratio > 0.035 and veg_ratio > 0.25 and corn_gold_ratio < 0.02:
+        elif dark_spore_ratio > 0.035 and veg_ratio > 0.25 and corn_gold_ratio < 0.015:
             inferred_crop = "Potato"
             inferred_disease = "Late Blight"
 
         # --- E. RED FRUIT (TOMATO / CHILLI) ---
-        elif red_fruit_ratio > 0.07:
+        elif red_fruit_ratio > 0.06:
             inferred_crop = "Tomato"
             inferred_disease = "Fruit Borer"
 
@@ -1136,8 +1169,13 @@ def diagnose_crop_image(
                 best_entry = candidate_entries[0]
 
             result = dict(best_entry["hi"] if language == "hi" else best_entry["en"])
-            if question and len(question.strip()) > 3 and not question.strip().startswith("?"):
-                prefix = f"Re: '{question.strip()}' — " if language == "en" else f"आपके प्रश्न '{question.strip()}' के उत्तर में — "
+            if question and len(question.strip()) > 2 and not question.strip().startswith("?"):
+                q_clean = question.strip()
+                q_lower = q_clean.lower()
+                if any(w in q_lower for w in ("why", "what", "ye kya", "kya hai", "reason", "batao", "bataiye", "help")):
+                    prefix = f"Regarding your inquiry ('{q_clean}'): This condition has been identified as {result['condition']}. " if language == "en" else f"आपके प्रश्न ('{q_clean}') के संदर्भ में: इस स्थिति की पहचान '{result['condition']}' के रूप में हुई है। "
+                else:
+                    prefix = f"Re: '{q_clean}' — " if language == "en" else f"आपके प्रश्न '{q_clean}' के उत्तर में — "
                 result["summary"] = prefix + result["summary"]
             return {"is_crop": True, **result}
 
@@ -1145,7 +1183,12 @@ def diagnose_crop_image(
     # Return professional general foliar health diagnosis with guidance
     general_diag = GENERAL_FOLIAR_DIAGNOSIS_HI if language == "hi" else GENERAL_FOLIAR_DIAGNOSIS_EN
     result = dict(general_diag)
-    if question and len(question.strip()) > 3 and not question.strip().startswith("?"):
-        prefix = f"Re: '{question.strip()}' — " if language == "en" else f"आपके प्रश्न '{question.strip()}' के उत्तर में — "
+    if question and len(question.strip()) > 2 and not question.strip().startswith("?"):
+        q_clean = question.strip()
+        q_lower = q_clean.lower()
+        if any(w in q_lower for w in ("why", "what", "ye kya", "kya hai", "reason", "batao", "bataiye", "help")):
+            prefix = f"Regarding your inquiry ('{q_clean}'): " if language == "en" else f"आपके प्रश्न ('{q_clean}') के उत्तर में: "
+        else:
+            prefix = f"Re: '{q_clean}' — " if language == "en" else f"आपके प्रश्न '{q_clean}' के उत्तर में — "
         result["summary"] = prefix + result["summary"]
     return {"is_crop": True, **result}
