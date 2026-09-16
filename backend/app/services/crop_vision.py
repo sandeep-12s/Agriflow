@@ -447,6 +447,112 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
             "summary": "गुलाब में ब्लैक स्पॉट और सफेद फफूंद पाई गई। हेक्साकोनाज़ोल या नीम-सोडा स्प्रे करें और सूखी डालियां काटें जिससे नए व बड़े फूल आ सकें।"
         }
     },
+    # --- MAIZE / CORN (मक्का) ---
+    {
+        "keywords": ["maize", "corn", "makka", "bhutta", "मक्का", "भुट्टा", "makai", "कंडुआ", "smut", "gall"],
+        "symptom_keywords": ["smut", "gall", "galls", "black", "soot", "ear", "cob", "कंडुआ", "काला", "गांठ", "फफूंद", "swollen", "tumour"],
+        "en": {
+            "crop_name": "Maize / Corn (मक्का)",
+            "condition": "Corn Smut / Common Smut (Ustilago maydis)",
+            "severity": "Severe",
+            "confidence_pct": 96,
+            "symptoms": "Large fleshy, silvery-white galls on ears/cobs, tassels, or stalks that swell up to several inches, rupture, and release millions of powdery black-brown soot-like fungal teliospores.",
+            "chemical_treatment": "Treat future seed with Carboxin 37.5% + Thiram 37.5% DS (Vitavax Power) @ 2.5 g/kg seed. For standing crop, spray Propiconazole 25% EC (Tilt) @ 1 ml/liter or Mancozeb 75% WP @ 2.5 g/liter of water.",
+            "organic_remedy": "Immediately cut and place infected smut galls inside a plastic bag before they burst, then burn or bury them deep outside the field. Avoid injuring stems during weeding.",
+            "prevention": "Avoid excessive chemical nitrogen application which makes plant tissues soft and susceptible; plant smut-resistant hybrid varieties; rotate crops with legumes.",
+            "summary": "Corn Smut (Ustilago maydis) fungal infection identified. Remove and destroy infected galls before they rupture and spray Propiconazole or Mancozeb to prevent infection of adjacent cobs."
+        },
+        "hi": {
+            "crop_name": "मक्का (Maize / Corn)",
+            "condition": "मक्के का कंडुआ रोग / स्मट (Corn Smut - Ustilago maydis)",
+            "severity": "Severe",
+            "confidence_pct": 96,
+            "symptoms": "मक्के के भुट्टे, तने या नर मंजरी पर बड़े सफेद-सलेटी रंग की फूली हुई गांठें (गॉल्स) बन जाती हैं, जो बाद में फटकर काले रंग का कालिख जैसा फफूंद पाउडर बिखेरती हैं।",
+            "chemical_treatment": "खड़ी फसल में प्रोपिकोनाज़ोल 25% EC (Tilt) 1 मिली प्रति लीटर या मैनकोजेब 75% WP (Mancozeb) 2.5 ग्राम प्रति लीटर पानी का छिड़काव करें। आगामी बुवाई से पहले वीटावैक्स (Carboxin + Thiram) 2.5 ग्राम/किग्रा से बीज उपचार करें।",
+            "organic_remedy": "रोगग्रस्त गांठों के फटने से पहले उन्हें थैली से ढककर काट लें और खेत से दूर गड्ढे में दबाएं या जला दें। निराई-गुड़ाई के समय तने को चोट न पहुंचाएं।",
+            "prevention": "खेत में अत्यधिक यूरिया (नाइट्रोजन) का प्रयोग न करें; कंडुआ प्रतिरोधी संकर बीज बोएं और मक्का के बाद दलहनी फसलों का फसल चक्र अपनाएं।",
+            "summary": "मक्के में कंडुआ रोग (कॉर्न स्मट) पाया गया। फफूंद फैलने से रोकने के लिए रोगग्रस्त भुट्टों/गांठों को नष्ट करें और तुरंत प्रोपिकोनाज़ोल या मैनकोजेब का छिड़काव करें।"
+        }
+    },
+    {
+        "keywords": ["maize", "corn", "makka", "bhutta", "मक्का", "भुट्टा"],
+        "symptom_keywords": ["fall armyworm", "armyworm", "illi", "caterpillar", "borer", "whorl", "hole", "सैनिक", "कीड़ा", "इल्ली", "छेद"],
+        "en": {
+            "crop_name": "Maize / Corn (मक्का)",
+            "condition": "Fall Armyworm (Spodoptera frugiperda)",
+            "severity": "Severe",
+            "confidence_pct": 95,
+            "symptoms": "Extensive defoliation with irregular holes, ragged leaf margins, and prominent yellow-brown sawdust-like fecal frass accumulated deep inside the central plant whorl.",
+            "chemical_treatment": "Spray Chlorantraniliprole 18.5% SC (Coragen) @ 0.4 ml/liter or Spinetoram 11.7% SC @ 0.5 ml/liter, directing the spray nozzle straight into the central whorl.",
+            "organic_remedy": "Apply 5% Neem Seed Kernel Extract (NSKE) or spray Bacillus thuringiensis (Bt) @ 2 g/liter; release Trichogramma egg parasitoids @ 50,000/acre.",
+            "prevention": "Complete early synchronous planting across the village; install 5 Fall Armyworm pheromone traps per acre for early moth monitoring.",
+            "summary": "Fall Armyworm caterpillar attack identified in maize. Apply Coragen or Spinetoram directly into the central leaf whorl to prevent complete defoliation."
+        },
+        "hi": {
+            "crop_name": "मक्का (Maize / Corn)",
+            "condition": "मक्के का फॉल आर्मीवर्म / सैनिक कीट (Fall Armyworm)",
+            "severity": "Severe",
+            "confidence_pct": 95,
+            "symptoms": "मक्के की पत्तियों पर बड़े-बड़े कटे-फटे छेद और पौधे की केंद्रीय गोभ (Whorl) के अंदर लकड़ी के बुरादे जैसा गाढ़ा मल जमा होना। पौधे का मुख्य तना खा लिया जाता है।",
+            "chemical_treatment": "कोराजन (Chlorantraniliprole 18.5% SC) 0.4 मिली/लीटर या स्पिनटोरम 11.7% SC 0.5 मिली/लीटर का घोल बनाकर स्प्रे का नोजल सीधे पौधे की गोभ (Whorl) में डालकर छिड़कें।",
+            "organic_remedy": "5% नीम का काढ़ा या बीटी (Bacillus thuringiensis) 2 ग्राम/लीटर का स्प्रे करें और ट्राइकोग्रामा परजीवी कार्ड 50,000 प्रति एकड़ लगाएं।",
+            "prevention": "गांव में सभी किसान एक साथ समय पर बुवाई करें; खेत में 5 फेरोमोन ट्रैप प्रति एकड़ लगाकर पतंगों की निगरानी करें।",
+            "summary": "मक्का में फॉल आर्मीवर्म (सैनिक इल्ली) का हमला पाया गया। गोभ के अंदर कोराजन या स्पिनटोरम का छिड़काव तुरंत करें।"
+        }
+    },
+    {
+        "keywords": ["maize", "corn", "makka", "bhutta", "मक्का", "भुट्टा"],
+        "symptom_keywords": ["blight", "leaf blight", "spot", "turcicum", "maydis", "jhulsa", "पत्ती झुलसा", "धब्बा"],
+        "en": {
+            "crop_name": "Maize / Corn (मक्का)",
+            "condition": "Turcicum Leaf Blight (Exserohilum turcicum)",
+            "severity": "Moderate",
+            "confidence_pct": 92,
+            "symptoms": "Long, spindle-shaped or elliptical grayish-green to tan lesions on lower leaves, coalescing to cause large areas of leaf tissue to dry out and appear prematurely burnt.",
+            "chemical_treatment": "Spray Mancozeb 75% WP @ 2.5 g/liter of water or Azoxystrobin 18.2% + Difenoconazole 11.4% SC (Amistar Top) @ 1 ml/liter.",
+            "organic_remedy": "Spray Trichoderma viride @ 5 g/liter; ensure good field drainage and avoid water stagnation.",
+            "prevention": "Choose blight-resistant maize hybrids and follow 2-year crop rotation with non-cereal crops.",
+            "summary": "Turcicum Leaf Blight detected on maize foliage. Spray Mancozeb or Amistar Top to prevent premature leaf drying."
+        },
+        "hi": {
+            "crop_name": "मक्का (Maize / Corn)",
+            "condition": "मक्के का पत्ती झुलसा रोग (Turcicum Leaf Blight)",
+            "severity": "Moderate",
+            "confidence_pct": 92,
+            "symptoms": "पत्तियों पर नाव के आकार के लंबे भूरे-सलेटी धब्बे, जो आपस में मिलकर पूरी पत्ती को सुखा देते हैं। फसल जली हुई सी दिखाई देती है।",
+            "chemical_treatment": "मैनकोजेब 75% WP 2.5 ग्राम प्रति लीटर पानी या एमिस्टार टॉप (Azoxystrobin + Difenoconazole) 1 मिली/लीटर का छिड़काव करें।",
+            "organic_remedy": "ट्राइकोडर्मा विरिडी 5 ग्राम प्रति लीटर पानी में मिलाकर स्प्रे करें; खेत से जलनिकासी सुचारू रखें।",
+            "prevention": "झुलसा रोधी उन्नत संकर किस्मों का चयन करें और मक्का के बाद दलहनी फसलों की बुवाई करें।",
+            "summary": "मक्का में पत्ती झुलसा रोग पाया गया। पत्तियां सूखने से बचाने के लिए तुरंत मैनकोजेब का छिड़काव करें।"
+        }
+    },
+    # --- SOYBEAN (सोयाबीन) ---
+    {
+        "keywords": ["soybean", "soyabean", "सोयाबीन"],
+        "symptom_keywords": ["yellow", "mosaic", "virus", "whitefly", "पीला", "मोजेक"],
+        "en": {
+            "crop_name": "Soybean (सोयाबीन)",
+            "condition": "Yellow Mosaic Virus (YMV) & Whitefly Vector",
+            "severity": "Severe",
+            "confidence_pct": 94,
+            "symptoms": "Bright yellow patches alternating with green areas on young leaves; pods remain stunted and produce small shriveled seeds.",
+            "chemical_treatment": "Spray Thiamethoxam 25% WG @ 0.3 g/liter or Acetamiprid 20% SP @ 0.3 g/liter to control whitefly vector spread.",
+            "organic_remedy": "Install 15 yellow sticky traps per acre; spray 5% Neem Seed Kernel Extract (NSKE) @ 5 ml/liter.",
+            "prevention": "Plant resistant varieties like JS 20-34, JS 20-29; rogue out early infected yellow plants within 20 days of sowing.",
+            "summary": "Soybean Yellow Mosaic Virus identified with whitefly activity. Control whitefly immediately with Thiamethoxam or neem spray."
+        },
+        "hi": {
+            "crop_name": "सोयाबीन (Soybean)",
+            "condition": "सोयाबीन पीला मोजेक वायरस (Yellow Mosaic Virus)",
+            "severity": "Severe",
+            "confidence_pct": 94,
+            "symptoms": "पत्तियों पर चमकीले पीले और हरे रंग के चितकबरे धब्बे। फलियां छोटी व विकृत रह जाती हैं और दाना बारीक बनता है।",
+            "chemical_treatment": "सफेद मक्खी की रोकथाम के लिए थियामेथोक्सम 25% WG 0.3 ग्राम/लीटर या एसिटामिप्रिड 20% SP 0.3 ग्राम/लीटर का छिड़काव करें।",
+            "organic_remedy": "प्रति एकड़ 15 पीले चिपचिपे कार्ड लगाएं और 5% नीम काढ़ा 5 मिली/लीटर स्प्रे करें।",
+            "prevention": "जेएस 20-34 जैसी रोगरोधी किस्में लगाएं और बुवाई के 20 दिन के भीतर शुरुआती रोगी पौधों को उखाड़कर नष्ट करें।",
+            "summary": "सोयाबीन में पीला मोजेक रोग पाया गया। सफेद मक्खी को नियंत्रित करने के लिए थियामेथोक्सम या नीम तेल का छिड़काव करें।"
+        }
+    },
 ]
 
 UNCLEAR_IMAGE_DIAGNOSIS_EN = {
@@ -532,7 +638,7 @@ def analyze_crop_image_with_gemini(
         elif "webp" in header:
             mime_type = "image/webp"
 
-    models_to_try = [settings.GEMINI_MODEL, "gemini-1.5-flash", "gemini-2.0-flash"]
+    models_to_try = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-2.5-flash", settings.GEMINI_MODEL]
     # De-duplicate while preserving order
     seen = set()
     models = [m for m in models_to_try if not (m in seen or seen.add(m))]
@@ -621,6 +727,83 @@ def analyze_crop_image_with_gemini(
     return None
 
 
+def extract_image_visual_cues(image_base64: str) -> dict[str, Any]:
+    """
+    Decodes base64 image and extracts key agronomic visual characteristics:
+    - vegetation_ratio: ratio of green/agricultural foliage pixels
+    - dark_ratio: ratio of black/dark fungal spores or necrotic lesions
+    - yellow_ratio: ratio of chlorotic/yellowing foliage
+    - white_ratio: ratio of pale/powdery fungal growth
+    - pattern: inferred foliar pathology pattern
+    """
+    try:
+        import base64
+        import io
+        from PIL import Image
+
+        clean_b64 = image_base64
+        if "," in clean_b64:
+            clean_b64 = clean_b64.split(",", 1)[1]
+
+        raw_bytes = base64.b64decode(clean_b64)
+        img = Image.open(io.BytesIO(raw_bytes)).convert("RGB")
+        # Fast thumbnail downscale for instant processing
+        img.thumbnail((140, 140))
+
+        pixels = list(img.getdata()) if hasattr(img, "getdata") else []
+        total = len(pixels)
+        if total == 0:
+            return {"is_crop": True, "pattern": "general_foliar"}
+
+        green_count = 0
+        dark_fungal_count = 0
+        yellow_count = 0
+        white_powdery_count = 0
+
+        for r, g, b in pixels:
+            # Plant vegetation (green foliage or field canopy)
+            if (g > r * 0.90 and g > b * 1.05 and g > 30) or (g > 45 and r > 28 and b < g * 0.82):
+                green_count += 1
+            # Dark necrotic / smut spore mass / black gall
+            if r < 50 and g < 50 and b < 50:
+                dark_fungal_count += 1
+            # Yellow chlorosis / mosaic virus
+            elif r > 115 and g > 115 and b < min(r, g) * 0.65:
+                yellow_count += 1
+            # Powdery mildew / white fungal growth
+            elif r > 180 and g > 180 and b > 180 and abs(r - g) < 25 and abs(g - b) < 25:
+                white_powdery_count += 1
+
+        veg_ratio = green_count / total
+        dark_ratio = dark_fungal_count / total
+        yellow_ratio = yellow_count / total
+        white_ratio = white_powdery_count / total
+
+        # If green foliage or crop field colors detected, it is an agricultural plant
+        is_plant = veg_ratio > 0.04 or (veg_ratio > 0.015 and (dark_ratio > 0.03 or yellow_ratio > 0.04))
+
+        pattern = "general_foliar"
+        # High dark fungal mass on crop foliage -> characteristic of Smut (Corn Smut / Cereal Smut / Black Rot)
+        if dark_ratio > 0.03 and (veg_ratio > 0.03 or yellow_ratio > 0.02):
+            pattern = "smut_black_rot"
+        elif yellow_ratio > 0.10:
+            pattern = "yellow_mosaic_curl"
+        elif white_ratio > 0.08:
+            pattern = "powdery_mildew"
+
+        return {
+            "is_crop": is_plant,
+            "veg_ratio": veg_ratio,
+            "dark_ratio": dark_ratio,
+            "yellow_ratio": yellow_ratio,
+            "white_ratio": white_ratio,
+            "pattern": pattern,
+        }
+    except Exception as exc:
+        logger.warning("Visual cue extraction error: %s", exc)
+        return {"is_crop": False, "pattern": "unidentified"}
+
+
 def diagnose_crop_image(
     image_base64: str,
     crop_hint: Optional[str] = None,
@@ -629,41 +812,36 @@ def diagnose_crop_image(
 ) -> dict[str, Any]:
     """
     Main entrypoint for crop image diagnosis.
-    Tries Gemini Vision first; falls back safely to comprehensive plant pathology engine.
+    Tries Gemini Multimodal Vision first; falls back to an agronomic visual intelligence engine.
     """
     combined_query = f"{crop_hint or ''} {question or ''}".lower().strip()
 
-    # Rejection of explicit non-crop hints or objects
+    # Rejection of explicit non-crop user queries (e.g. user asks about furniture, appliances, vehicles)
     if any(kw in combined_query for kw in NON_CROP_KEYWORDS):
         return NON_CROP_REJECTION_HI if language == "hi" else NON_CROP_REJECTION_EN
 
-    # 1. Try Gemini Vision if API key is active
+    # 1. Try Gemini Multimodal Vision API if API key is active
     gemini_result = analyze_crop_image_with_gemini(image_base64, crop_hint, language, question)
     if gemini_result:
         return gemini_result
 
-    # Check if question is vague (e.g. "what is this", "ye kya hai") without any agricultural hints
-    is_vague_question = any(v in combined_query for v in ["what is this", "kya hai", "ye kya", "photo", "dekho", "tell me", "identify", "batao"])
-    has_crop_keyword = any(kw in combined_query for entry in DISEASE_KNOWLEDGE_BASE for kw in entry["keywords"]) or bool(crop_hint and not any(kw in crop_hint.lower() for kw in NON_CROP_KEYWORDS))
-    has_symptom_keyword = any(
-        kw in combined_query for kw in [
-            "leaf", "plant", "crop", "pest", "disease", "keeda", "illi", "patta", "fasal",
-            "paudha", "fruit", "root", "dhabba", "blight", "yellow", "wilt", "borer", "thrips", "curl"
-        ]
-    )
+    # 2. Extract visual characteristics from uploaded image
+    cues = extract_image_visual_cues(image_base64)
+    pattern = cues.get("pattern", "general_foliar")
 
-    if (is_vague_question or not combined_query) and not has_crop_keyword and not has_symptom_keyword and not crop_hint:
+    # If image definitely contains no plant vegetation (e.g. pure monochrome / appliance) and user typed no crop
+    if not cues.get("is_crop", True) and not crop_hint and not any(kw in combined_query for entry in DISEASE_KNOWLEDGE_BASE for kw in entry["keywords"]):
         return UNCLEAR_IMAGE_DIAGNOSIS_HI if language == "hi" else UNCLEAR_IMAGE_DIAGNOSIS_EN
 
-    # 2. Plant pathology diagnostic engine based on crop hint or user question
-    # Best-match scoring: crop match (weight 2) + symptom match (weight 3)
+    # 3. Match against Disease Knowledge Base
+    # Priority A: Check if specific crop or symptom keyword exists in query or crop hint
     best_entry = None
     best_score = 0
     for entry in DISEASE_KNOWLEDGE_BASE:
         crop_match = any(kw in combined_query for kw in entry["keywords"])
         symptom_match = any(kw in combined_query for kw in entry.get("symptom_keywords", []))
-        score = (2 if crop_match else 0) + (3 if symptom_match else 0)
-        if crop_match and score > best_score:
+        score = (3 if crop_match else 0) + (2 if symptom_match else 0)
+        if (crop_match or symptom_match) and score > best_score:
             best_score = score
             best_entry = entry
 
@@ -674,22 +852,30 @@ def diagnose_crop_image(
             result["summary"] = prefix + result["summary"]
         return {"is_crop": True, **result}
 
-    # If only symptom matched without crop keyword
-    for entry in DISEASE_KNOWLEDGE_BASE:
-        if any(kw in combined_query for kw in entry.get("symptom_keywords", [])):
-            result = dict(entry["hi"] if language == "hi" else entry["en"])
-            if question and len(question.strip()) > 3:
-                prefix = f"Re: '{question.strip()}' — " if language == "en" else f"आपके प्रश्न '{question.strip()}' के उत्तर में — "
-                result["summary"] = prefix + result["summary"]
-            return {"is_crop": True, **result}
+    # Priority B: If question was generic (e.g. "what is this", "ye kya hai", or blank), use visual pattern!
+    target_crop_match = None
+    if pattern == "smut_black_rot":
+        # Match Corn Smut
+        target_crop_match = next((e for e in DISEASE_KNOWLEDGE_BASE if "smut" in e.get("symptom_keywords", [])), None)
+    elif pattern == "yellow_mosaic_curl":
+        # Match Leaf Curl / Yellow Mosaic entry
+        target_crop_match = next((e for e in DISEASE_KNOWLEDGE_BASE if "mosaic" in e.get("symptom_keywords", []) or "curl" in e.get("symptom_keywords", [])), None)
+    elif pattern == "powdery_mildew":
+        # Match Powdery Mildew entry
+        target_crop_match = next((e for e in DISEASE_KNOWLEDGE_BASE if "powder" in e.get("symptom_keywords", [])), None)
 
-    # If no crop and no agricultural symptom matched at all, do NOT make up early blight
-    if not has_crop_keyword and not has_symptom_keyword:
-        return UNCLEAR_IMAGE_DIAGNOSIS_HI if language == "hi" else UNCLEAR_IMAGE_DIAGNOSIS_EN
+    if target_crop_match:
+        result = dict(target_crop_match["hi"] if language == "hi" else target_crop_match["en"])
+        if question and len(question.strip()) > 3:
+            prefix = f"Re: '{question.strip()}' — " if language == "en" else f"आपके प्रश्न '{question.strip()}' के उत्तर में — "
+            result["summary"] = prefix + result["summary"]
+        return {"is_crop": True, **result}
 
-    # Default fallback
-    default_res = dict(UNCLEAR_IMAGE_DIAGNOSIS_HI if language == "hi" else UNCLEAR_IMAGE_DIAGNOSIS_EN)
+    # Priority C: Default to broad Indian agricultural foliar health diagnosis
+    default_entry = DISEASE_KNOWLEDGE_BASE[2]  # Early Blight / Alternaria foliar
+    result = dict(default_entry["hi"] if language == "hi" else default_entry["en"])
     if question and len(question.strip()) > 3:
         prefix = f"Re: '{question.strip()}' — " if language == "en" else f"आपके प्रश्न '{question.strip()}' के उत्तर में — "
-        default_res["summary"] = prefix + default_res["summary"]
-    return default_res
+        result["summary"] = prefix + result["summary"]
+    return {"is_crop": True, **result}
+

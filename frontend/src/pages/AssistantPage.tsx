@@ -424,15 +424,19 @@ function AssistantPage() {
                     onChange={(e) => setSelectedCropHint(e.target.value)}
                     className="text-xs font-bold border border-emerald-300 rounded-lg px-2 py-0.5 bg-white text-emerald-900"
                   >
+                    <option value="">🔍 Auto-Detect (ऑटो-डिटेक्ट)</option>
+                    <option value="Maize / Corn">Maize / Corn (मक्का / भुट्टा)</option>
                     <option value="Tomato">Tomato (टमाटर)</option>
                     <option value="Potato">Potato (आलू)</option>
                     <option value="Wheat">Wheat (गेहूं)</option>
-                    <option value="Rose">Rose / Floral (गुलाब / फूल)</option>
+                    <option value="Rice / Paddy">Rice / Paddy (धान / चावल)</option>
+                    <option value="Cotton">Cotton (कपास)</option>
+                    <option value="Soybean">Soybean (सोयाबीन)</option>
                     <option value="Chilli">Chilli (मिर्च)</option>
                     <option value="Onion">Onion (प्याज)</option>
                     <option value="Mustard">Mustard (सरसों)</option>
-                    <option value="Rice">Rice / Paddy (धान)</option>
-                    <option value="Cotton">Cotton (कपास)</option>
+                    <option value="Sugarcane">Sugarcane (गन्ना)</option>
+                    <option value="Rose">Rose / Floral (गुलाब / फूल)</option>
                     <option value="Other">Other / General Crop</option>
                   </select>
                 </div>
