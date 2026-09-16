@@ -369,3 +369,69 @@ def test_distinct_crop_problem_answers(client, auth_headers):
     reply3 = res3.json()["reply"]
     assert "दीमक" in reply3 or "क्लोरोपायरीफॉस" in reply3 or "फिप्रोनिल" in reply3
 
+
+def test_crop_vision_accurate_crop_diagnosis(client, auth_headers):
+    # Dummy green agricultural pixel base64 (10x10 green png)
+    import base64
+    import io
+    from PIL import Image
+
+    img = Image.new("RGB", (20, 20), color=(34, 139, 34))
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    dummy_b64 = "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode("utf-8")
+
+    # 1. User specifies or asks about Maize / Corn -> Must diagnose Maize / Corn, NOT Tomato!
+    res_corn = client.post(
+        "/assistant/analyze-crop-image",
+        json={"image_base64": dummy_b64, "crop_hint": "Maize / Corn", "language": "en", "question": "caterpillar in whorl"},
+        headers=auth_headers,
+    )
+    assert res_corn.status_code == 200
+    data_corn = res_corn.json()
+    assert data_corn["is_crop"] is True
+    assert "Maize" in data_corn["crop_name"] or "Corn" in data_corn["crop_name"]
+    assert "Fall Armyworm" in data_corn["condition"] or "Smut" in data_corn["condition"]
+
+    # 2. User specifies Wheat -> Must diagnose Wheat, NOT Tomato!
+    res_wheat = client.post(
+        "/assistant/analyze-crop-image",
+        json={"image_base64": dummy_b64, "crop_hint": "Wheat", "language": "en", "question": "yellow rust on leaves"},
+        headers=auth_headers,
+    )
+    assert res_wheat.status_code == 200
+    data_wheat = res_wheat.json()
+    assert "Wheat" in data_wheat["crop_name"]
+    assert "Rust" in data_wheat["condition"]
+
+    # 3. User specifies Sugarcane -> Must diagnose Sugarcane
+    res_cane = client.post(
+        "/assistant/analyze-crop-image",
+        json={"image_base64": dummy_b64, "crop_hint": "Sugarcane", "language": "hi", "question": "गन्ने में लाल सड़न है"},
+        headers=auth_headers,
+    )
+    assert res_cane.status_code == 200
+    data_cane = res_cane.json()
+    assert "गन्ना" in data_cane["crop_name"] or "Sugarcane" in data_cane["crop_name"]
+    assert "लाल सड़न" in data_cane["condition"] or "Red Rot" in data_cane["condition"]
+
+    # 4. User specifies Potato -> Must diagnose Potato
+    res_potato = client.post(
+        "/assistant/analyze-crop-image",
+        json={"image_base64": dummy_b64, "crop_hint": "Potato", "language": "en", "question": "black rot on potato"},
+        headers=auth_headers,
+    )
+    assert res_potato.status_code == 200
+    data_potato = res_potato.json()
+    assert "Potato" in data_potato["crop_name"]
+
+    # 5. Non-crop appliance query must still be rejected
+    res_reject = client.post(
+        "/assistant/analyze-crop-image",
+        json={"image_base64": dummy_b64, "crop_hint": "", "language": "en", "question": "switchboard on wall"},
+        headers=auth_headers,
+    )
+    assert res_reject.status_code == 200
+    assert res_reject.json()["is_crop"] is False
+
+

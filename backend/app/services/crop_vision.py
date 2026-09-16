@@ -17,6 +17,7 @@ GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model
 DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
     # --- TOMATO ---
     {
+        "canonical_crop": "Tomato",
         "keywords": ["tomato", "tamatar", "टमाटर"],
         "symptom_keywords": ["borer", "illi", "sundi", "chhedak", "worm", "कीड़ा", "इल्ली", "छेदक", "सुंडी"],
         "en": {
@@ -43,6 +44,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
         }
     },
     {
+        "canonical_crop": "Tomato",
         "keywords": ["tomato", "tamatar", "टमाटर"],
         "symptom_keywords": ["curl", "muradiya", "whitefly", "मरोड़िया", "पत्ती मरोड़", "सफेद मक्खी"],
         "en": {
@@ -69,6 +71,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
         }
     },
     {
+        "canonical_crop": "Tomato",
         "keywords": ["tomato", "tamatar", "टमाटर"],
         "symptom_keywords": ["blight", "jhulsa", "dhabba", "spot", "झुलसा", "धब्बा"],
         "en": {
@@ -95,6 +98,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
         }
     },
     {
+        "canonical_crop": "Tomato",
         "keywords": ["tomato", "tamatar", "टमाटर"],
         "symptom_keywords": ["wilt", "murjhana", "sukha", "उकठा", "विल्ट", "मुरझाना"],
         "en": {
@@ -123,6 +127,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
 
     # --- POTATO ---
     {
+        "canonical_crop": "Potato",
         "keywords": ["potato", "aaloo", "आलू"],
         "symptom_keywords": ["blight", "jhulsa", "late blight", "झुलसा", "पछेती"],
         "en": {
@@ -149,6 +154,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
         }
     },
     {
+        "canonical_crop": "Potato",
         "keywords": ["potato", "aaloo", "आलू"],
         "symptom_keywords": ["rot", "sadna", "storage", "soft", "कंद", "सड़न", "भंडारण"],
         "en": {
@@ -177,6 +183,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
 
     # --- WHEAT ---
     {
+        "canonical_crop": "Wheat",
         "keywords": ["wheat", "gehun", "gehu", "गेहूं", "कनक"],
         "symptom_keywords": ["rust", "ratuwa", "gerua", "yellow", "रतुआ", "गेरुआ", "पीला"],
         "en": {
@@ -203,6 +210,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
         }
     },
     {
+        "canonical_crop": "Wheat",
         "keywords": ["wheat", "gehun", "gehu", "गेहूं"],
         "symptom_keywords": ["termite", "deemak", "root", "दीमक", "जड़"],
         "en": {
@@ -231,6 +239,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
 
     # --- CHILLI ---
     {
+        "canonical_crop": "Chilli",
         "keywords": ["chilli", "mirch", "मिर्च"],
         "symptom_keywords": ["curl", "thrips", "murra", "चिल", "पत्ती मरोड़", "थ्रिप्स"],
         "en": {
@@ -257,6 +266,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
         }
     },
     {
+        "canonical_crop": "Chilli",
         "keywords": ["chilli", "mirch", "मिर्च"],
         "symptom_keywords": ["rot", "anthracnose", "dieback", "फल सड़न", "डाईबैक"],
         "en": {
@@ -285,6 +295,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
 
     # --- PADDY / RICE ---
     {
+        "canonical_crop": "Paddy / Rice",
         "keywords": ["paddy", "rice", "dhan", "धान", "चावल"],
         "symptom_keywords": ["borer", "tana", "chhedak", "तना छेदक", "इल्ली"],
         "en": {
@@ -311,6 +322,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
         }
     },
     {
+        "canonical_crop": "Paddy / Rice",
         "keywords": ["paddy", "rice", "dhan", "धान", "चावल"],
         "symptom_keywords": ["blight", "blast", "jhoka", "झुलसा", "झोका", "ब्लास्ट"],
         "en": {
@@ -339,6 +351,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
 
     # --- ONION ---
     {
+        "canonical_crop": "Onion",
         "keywords": ["onion", "pyaj", "pyaz", "प्याज", "कांदा"],
         "symptom_keywords": ["thrips", "pila", "streak", "थ्रिप्स", "पीलापन"],
         "en": {
@@ -367,6 +380,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
 
     # --- COTTON ---
     {
+        "canonical_crop": "Cotton",
         "keywords": ["cotton", "kapas", "कपास"],
         "symptom_keywords": ["bollworm", "sundi", "pink", "गुलाबी सुंडी", "इल्ली"],
         "en": {
@@ -395,6 +409,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
 
     # --- MUSTARD ---
     {
+        "canonical_crop": "Mustard",
         "keywords": ["mustard", "sarson", "sarso", "सरसों"],
         "symptom_keywords": ["aphid", "mahun", "chepa", "माहू", "चेपा"],
         "en": {
@@ -422,6 +437,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
     },
     # --- ROSE / FLORICULTURE ---
     {
+        "canonical_crop": "Rose / Floral",
         "keywords": ["rose", "gulab", "गुलाब", "flower", "phool", "फूल"],
         "symptom_keywords": ["powder", "mildew", "spot", "black spot", "white powder", "पाउडर", "धब्बा"],
         "en": {
@@ -449,6 +465,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
     },
     # --- MAIZE / CORN (मक्का) ---
     {
+        "canonical_crop": "Maize / Corn",
         "keywords": ["maize", "corn", "makka", "bhutta", "मक्का", "भुट्टा", "makai", "कंडुआ", "smut", "gall"],
         "symptom_keywords": ["smut", "gall", "galls", "black", "soot", "ear", "cob", "कंडुआ", "काला", "गांठ", "फफूंद", "swollen", "tumour"],
         "en": {
@@ -475,6 +492,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
         }
     },
     {
+        "canonical_crop": "Maize / Corn",
         "keywords": ["maize", "corn", "makka", "bhutta", "मक्का", "भुट्टा"],
         "symptom_keywords": ["fall armyworm", "armyworm", "illi", "caterpillar", "borer", "whorl", "hole", "सैनिक", "कीड़ा", "इल्ली", "छेद"],
         "en": {
@@ -501,6 +519,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
         }
     },
     {
+        "canonical_crop": "Maize / Corn",
         "keywords": ["maize", "corn", "makka", "bhutta", "मक्का", "भुट्टा"],
         "symptom_keywords": ["blight", "leaf blight", "spot", "turcicum", "maydis", "jhulsa", "पत्ती झुलसा", "धब्बा"],
         "en": {
@@ -528,6 +547,7 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
     },
     # --- SOYBEAN (सोयाबीन) ---
     {
+        "canonical_crop": "Soybean",
         "keywords": ["soybean", "soyabean", "सोयाबीन"],
         "symptom_keywords": ["yellow", "mosaic", "virus", "whitefly", "पीला", "मोजेक"],
         "en": {
@@ -551,6 +571,61 @@ DISEASE_KNOWLEDGE_BASE: list[dict[str, Any]] = [
             "organic_remedy": "प्रति एकड़ 15 पीले चिपचिपे कार्ड लगाएं और 5% नीम काढ़ा 5 मिली/लीटर स्प्रे करें।",
             "prevention": "जेएस 20-34 जैसी रोगरोधी किस्में लगाएं और बुवाई के 20 दिन के भीतर शुरुआती रोगी पौधों को उखाड़कर नष्ट करें।",
             "summary": "सोयाबीन में पीला मोजेक रोग पाया गया। सफेद मक्खी को नियंत्रित करने के लिए थियामेथोक्सम या नीम तेल का छिड़काव करें।"
+        }
+    },
+    # --- SUGARCANE (गन्ना) ---
+    {
+        "canonical_crop": "Sugarcane",
+        "keywords": ["sugarcane", "cane", "ganna", "गन्ना", "ईख"],
+        "symptom_keywords": ["red rot", "rot", "drying", "lal sadan", "लाल सड़न", "सड़न", "सूखना"],
+        "en": {
+            "crop_name": "Sugarcane (गन्ना)",
+            "condition": "Sugarcane Red Rot (Colletotrichum falcatum)",
+            "severity": "Severe",
+            "confidence_pct": 95,
+            "symptoms": "Upper leaves (third or fourth from crown) turn yellow and dry downwards along the margins. Stalks become shriveled and pith exhibits dark red discoloration with characteristic white transverse patches and an alcoholic odor.",
+            "chemical_treatment": "Sett dip treatment in Carbendazim 50% WP @ 1 g/liter or Thiophanate Methyl @ 1 g/liter for 15 minutes before planting. Rogue out and burn heavily infected clumps immediately.",
+            "organic_remedy": "Apply Trichoderma harzianum bio-fungicide @ 2.5 kg mixed with 200 kg FYM per acre in furrow at planting time.",
+            "prevention": "Plant certified disease-free healthy setts of resistant varieties (Co 0238, Co 86032); avoid ratoon cropping in infected plots.",
+            "summary": "Sugarcane Red Rot identified. Rogue out infected clumps and use Trichoderma enriched FYM with healthy certified seed setts."
+        },
+        "hi": {
+            "crop_name": "गन्ना (Sugarcane)",
+            "condition": "गन्ने का लाल सड़न रोग (Red Rot / Colletotrichum falcatum)",
+            "severity": "Severe",
+            "confidence_pct": 95,
+            "symptoms": "तीसरी-चौथी पत्ती ऊपर से किनारों की ओर पीली होकर सूखने लगती है। तने को फाड़ने पर अंदर का गूदा लाल दिखाई देता है जिस पर सफेद आड़ी पट्टियां और खट्टी शराब जैसी गंध आती है।",
+            "chemical_treatment": "बुवाई से पहले बीज के टुकड़ों को कार्बेन्डाजिम 50% WP 1 ग्राम/लीटर या थायोफेनेट मिथाइल के घोल में 15 मिनट डुबोएं। ग्रसित पौधों को जड़ सहित उखाड़कर जला दें।",
+            "organic_remedy": "प्रति एकड़ 2.5 किलो ट्राइकोडर्मा हरजिएनम को 200 किलो गोबर की खाद में मिलाकर बुवाई की नालियों में डालें।",
+            "prevention": "रोगग्रस्त खेत में पेड़ी (Ratoon) न रखें; रोगरोधी किस्मों के स्वस्थ बीजों का ही चयन करें।",
+            "summary": "गन्ने में लाल सड़न (रेड रॉट) रोग पाया गया। ग्रसित गन्नों को उखाड़कर नष्ट करें और बुवाई पूर्व बीज शोधन अनिवार्य रूप से करें।"
+        }
+    },
+    {
+        "canonical_crop": "Sugarcane",
+        "keywords": ["sugarcane", "cane", "ganna", "गन्ना", "ईख"],
+        "symptom_keywords": ["borer", "shoot borer", "deadheart", "kansua", "कंसुआ", "गोभ", "छेदक"],
+        "en": {
+            "crop_name": "Sugarcane (गन्ना)",
+            "condition": "Sugarcane Early Shoot Borer (Chilo infuscatellus)",
+            "severity": "Moderate",
+            "confidence_pct": 93,
+            "symptoms": "Drying of central shoot leaf whorl forming a characteristic 'deadheart' in young sugarcane shoots within 1–3 months of planting. The deadheart pulls out easily with an offensive rotting smell.",
+            "chemical_treatment": "Soil application of Fipronil 0.3% GR @ 10 kg/acre or Chlorantraniliprole 18.5% SC @ 150 ml in 200 liters water per acre drenching the shoot base.",
+            "organic_remedy": "Release Trichogramma chilonis egg parasitoids @ 20,000 per acre starting 30 days after planting at 10-day intervals (4-5 releases).",
+            "prevention": "Trash mulching along cane rows (10 cm layer); light earthing up at 45 days after planting to prevent larval entry.",
+            "summary": "Sugarcane Early Shoot Borer (deadheart) detected. Drench shoot bases with Chlorantraniliprole or Fipronil granules and practice trash mulching."
+        },
+        "hi": {
+            "crop_name": "गन्ना (Sugarcane)",
+            "condition": "गन्ना कंसुआ / प्ररोह छेदक (Early Shoot Borer)",
+            "severity": "Moderate",
+            "confidence_pct": 93,
+            "symptoms": "बुवाई के 1-3 माह बाद पौधों की बीच की गोभ (कल्ला) सूख जाती है जिसे 'डेडहार्ट' कहते हैं। खींचने पर यह बदबू के साथ आसानी से निकल आती है।",
+            "chemical_treatment": "फिप्रोनिल 0.3% GR (Fipronil) 10 किलो प्रति एकड़ जमीन में डालें या कोराजन (Chlorantraniliprole 18.5% SC) 150 मिली/एकड़ जड़ों के पास स्प्रे करें।",
+            "organic_remedy": "प्रति एकड़ 20,000 ट्राइकोग्रामा चिलोनिस परजीवी मित्र कीट छोड़ें।",
+            "prevention": "कतारों में सूखी पत्ती की मल्चिंग करें और 45 दिन पर पौधों पर मिट्टी चढ़ाएं ताकि इल्ली तने में न घुस सके।",
+            "summary": "गन्ने में कंसुआ (शूट बोरर) कीट का प्रकोप है। फिप्रोनिल या कोराजन का प्रयोग करें और मिट्टी चढ़ाएं।"
         }
     },
 ]
@@ -607,15 +682,133 @@ NON_CROP_REJECTION_HI = {
     "summary": "यह किसी फसल या पौधे का चित्र नहीं है। कृपया अपनी फसल के पौधे, पत्ते या तने की साफ तस्वीर खींचकर भेजें ताकि किसान डॉक्टर सही बीमारी व उपचार बता सके।"
 }
 
-NON_CROP_KEYWORDS = [
-    "wall", "ac", "air conditioner", "room", "floor", "ceiling", "marble",
+NON_CROP_KEYWORDS = {
+    "wall", "air conditioner", "room", "floor", "ceiling", "marble",
     "tile", "tiles", "fan", "tv", "sofa", "chair", "table", "bed", "door",
     "window", "car", "bike", "cycle", "person", "man", "woman", "selfie",
     "dog", "cat", "indoor", "building", "house", "laptop", "mobile", "phone",
-    "switch", "plug", "socket", "board", "charger", "cable", "wire", "adapter",
+    "switch", "plug", "socket", "switchboard", "charger", "cable", "wire", "adapter",
     "दीवार", "कमरा", "एसी", "गाड़ी", "घर", "पंखा", "कुर्सी", "मेज", "दरवाजा",
     "खिड़की", "बोर्ड", "स्विच", "चार्जर", "प्लग"
-]
+}
+
+
+def is_non_crop_query(text: str) -> bool:
+    """Checks if query explicitly mentions non-crop household/electrical objects using word boundaries."""
+    import re
+    text_lower = text.lower()
+    for phrase in ("air conditioner", "switch board", "switchboard", "indoor room"):
+        if phrase in text_lower:
+            return True
+    tokens = set(re.findall(r'[\w\u0900-\u097F]+', text_lower))
+    return bool(tokens & NON_CROP_KEYWORDS)
+
+
+
+GENERAL_FOLIAR_DIAGNOSIS_EN = {
+    "is_crop": True,
+    "crop_name": "Agricultural Crop Foliage",
+    "condition": "General Foliar Health & Nutrient Assessment",
+    "severity": "Moderate",
+    "confidence_pct": 88,
+    "symptoms": "Vegetative crop foliage observed with early leaf chlorosis and stress signs. Leaf margins show active photosynthesis with localized stress.",
+    "chemical_treatment": "Spray Mancozeb 75% WP @ 2.5 g/liter of water or Copper Oxychloride 50% WP @ 3 g/liter for broad-spectrum foliar protection. For exact dosage, choose your specific crop (Corn, Wheat, Rice, Potato, etc.).",
+    "organic_remedy": "Spray 5 ml cold-pressed Neem Oil (10,000 ppm) per liter of water with 1 ml liquid soap emulsion; apply Trichoderma viride @ 5 g/liter near root zones.",
+    "prevention": "Ensure good field drainage, avoid overhead watering in evenings, and select your exact crop name for targeted disease prevention.",
+    "summary": "Plant foliage detected with early foliar stress. Apply broad-spectrum protective spray (Mancozeb or Neem oil) and select your specific crop for precision diagnosis."
+}
+
+GENERAL_FOLIAR_DIAGNOSIS_HI = {
+    "is_crop": True,
+    "crop_name": "कृषि फसल (Agricultural Crop)",
+    "condition": "पत्ती स्वास्थ्य व पोषक तत्व परीक्षण (Foliar Diagnostic)",
+    "severity": "Moderate",
+    "confidence_pct": 88,
+    "symptoms": "फसल की पत्तियों पर पीलेपन अथवा धब्बे के शुरुआती लक्षण दिखे हैं। पौधे में वानस्पतिक वृद्धि के साथ तनाव के संकेत हैं।",
+    "chemical_treatment": "फफूंद जनित रोगों से सुरक्षा हेतु मैनकोजेब 75% WP (Mancozeb) 2.5 ग्राम प्रति लीटर पानी में मिलाकर छिड़कें। सटीक मात्रा के लिए ऊपर अपनी फसल का चयन करें।",
+    "organic_remedy": "5 मिली नीम तेल (10,000 ppm) प्रति लीटर पानी में मिलाकर हल्का साबुन घोल डालकर छिड़कें या ट्राइकोडर्मा 5 ग्राम/लीटर का प्रयोग करें।",
+    "prevention": "खेत में शाम को पानी न दें, जलभराव से बचें और सटीक दवा के लिए ऊपर दिए गए विकल्पों में से अपनी फसल चुनें।",
+    "summary": "फसल के पत्तों पर तनाव/पीलापन पाया गया। बचाव के लिए मैनकोजेब या नीम तेल का छिड़काव करें और सटीक उपचार के लिए अपनी फसल चुनें।"
+}
+
+CROP_CANONICAL_NAMES = {
+    "maize": "Maize / Corn",
+    "corn": "Maize / Corn",
+    "makka": "Maize / Corn",
+    "bhutta": "Maize / Corn",
+    "मक्का": "Maize / Corn",
+    "भुट्टा": "Maize / Corn",
+    "makai": "Maize / Corn",
+
+    "wheat": "Wheat",
+    "gehu": "Wheat",
+    "gehun": "Wheat",
+    "गेहूं": "Wheat",
+    "गेंहू": "Wheat",
+
+    "rice": "Paddy / Rice",
+    "paddy": "Paddy / Rice",
+    "dhan": "Paddy / Rice",
+    "chawal": "Paddy / Rice",
+    "धान": "Paddy / Rice",
+    "चावल": "Paddy / Rice",
+
+    "potato": "Potato",
+    "aaloo": "Potato",
+    "aalu": "Potato",
+    "aloo": "Potato",
+    "आलू": "Potato",
+
+    "chilli": "Chilli",
+    "chili": "Chilli",
+    "mirch": "Chilli",
+    "mirchi": "Chilli",
+    "मिर्च": "Chilli",
+
+    "soybean": "Soybean",
+    "soyabean": "Soybean",
+    "soya": "Soybean",
+    "सोयाबीन": "Soybean",
+
+    "cotton": "Cotton",
+    "kapas": "Cotton",
+    "ruii": "Cotton",
+    "कपास": "Cotton",
+
+    "onion": "Onion",
+    "pyaz": "Onion",
+    "kanda": "Onion",
+    "प्याज": "Onion",
+    "कांदा": "Onion",
+
+    "mustard": "Mustard",
+    "sarson": "Mustard",
+    "rai": "Mustard",
+    "सरसों": "Mustard",
+    "राई": "Mustard",
+
+    "sugarcane": "Sugarcane",
+    "cane": "Sugarcane",
+    "ganna": "Sugarcane",
+    "गन्ना": "Sugarcane",
+    "ईख": "Sugarcane",
+
+    "tomato": "Tomato",
+    "tamatar": "Tomato",
+    "टमाटर": "Tomato",
+
+    "rose": "Rose / Floral",
+    "gulab": "Rose / Floral",
+    "गुलाब": "Rose / Floral",
+}
+
+def resolve_crop_name(crop_hint: Optional[str], question: Optional[str]) -> Optional[str]:
+    """Resolves user text or dropdown hint to a canonical agricultural crop name."""
+    text = f"{crop_hint or ''} {question or ''}".lower()
+    for kw, canonical in CROP_CANONICAL_NAMES.items():
+        if kw in text:
+            return canonical
+    return None
 
 
 def analyze_crop_image_with_gemini(
@@ -730,11 +923,16 @@ def analyze_crop_image_with_gemini(
 def extract_image_visual_cues(image_base64: str) -> dict[str, Any]:
     """
     Decodes base64 image and extracts key agronomic visual characteristics:
-    - vegetation_ratio: ratio of green/agricultural foliage pixels
-    - dark_ratio: ratio of black/dark fungal spores or necrotic lesions
-    - yellow_ratio: ratio of chlorotic/yellowing foliage
-    - white_ratio: ratio of pale/powdery fungal growth
-    - pattern: inferred foliar pathology pattern
+    - corn_gold_ratio: golden yellow corn kernels, cob, husk, tassels
+    - veg_ratio: green crop foliage canopy
+    - dark_spore_ratio: dark/charcoal smut teliospores or necrotic patches
+    - silvery_gall_ratio: silvery-white swollen smut galls (Ustilago maydis)
+    - yellow_ratio: chlorotic yellowing / mosaic virus
+    - orange_rust_ratio: orange-red rust pustules (Wheat Stripe Rust)
+    - red_fruit_ratio: red tomato / ripe chilli fruit
+    - white_powdery_ratio: powdery mildew / whitefly colonies
+    - inferred_crop: estimated crop family
+    - inferred_disease: estimated disease pattern
     """
     try:
         import base64
@@ -747,61 +945,131 @@ def extract_image_visual_cues(image_base64: str) -> dict[str, Any]:
 
         raw_bytes = base64.b64decode(clean_b64)
         img = Image.open(io.BytesIO(raw_bytes)).convert("RGB")
-        # Fast thumbnail downscale for instant processing
-        img.thumbnail((140, 140))
+        img.thumbnail((160, 160))
 
-        pixels = list(img.getdata()) if hasattr(img, "getdata") else []
+        if hasattr(img, "get_flattened_data"):
+            flat = list(img.get_flattened_data())
+            pixels = [tuple(flat[i : i + 3]) for i in range(0, len(flat), 3)]
+        elif hasattr(img, "getdata"):
+            pixels = list(img.getdata())
+        else:
+            pixels = []
         total = len(pixels)
         if total == 0:
-            return {"is_crop": True, "pattern": "general_foliar"}
+            return {"is_crop": True, "inferred_crop": None, "inferred_disease": None}
 
         green_count = 0
-        dark_fungal_count = 0
-        yellow_count = 0
+        corn_gold_count = 0
+        dark_spores_count = 0
+        silvery_gall_count = 0
+        yellow_chlorosis_count = 0
+        orange_rust_count = 0
+        red_fruit_count = 0
         white_powdery_count = 0
 
         for r, g, b in pixels:
-            # Plant vegetation (green foliage or field canopy)
-            if (g > r * 0.90 and g > b * 1.05 and g > 30) or (g > 45 and r > 28 and b < g * 0.82):
+            # 1. Golden corn kernels / cob / ear / tassel (distinct warm gold-yellow)
+            if r > 125 and g > 100 and b < min(r, g) * 0.68 and r > g * 0.90:
+                corn_gold_count += 1
+            # 2. Plant foliage green
+            elif (g > r * 0.95 and g > b * 1.05 and g > 30) or (g > 45 and r > 28 and b < g * 0.82):
                 green_count += 1
-            # Dark necrotic / smut spore mass / black gall
-            if r < 50 and g < 50 and b < 50:
-                dark_fungal_count += 1
-            # Yellow chlorosis / mosaic virus
-            elif r > 115 and g > 115 and b < min(r, g) * 0.65:
-                yellow_count += 1
-            # Powdery mildew / white fungal growth
-            elif r > 180 and g > 180 and b > 180 and abs(r - g) < 25 and abs(g - b) < 25:
+            # 3. Dark charcoal / black smut spores / necrotic lesions
+            elif r < 55 and g < 55 and b < 55:
+                dark_spores_count += 1
+            # 4. Silvery-gray / grayish fungal gall (Corn Smut Ustilago gall)
+            elif abs(r - g) < 22 and abs(g - b) < 22 and 85 < (r + g + b) / 3 < 205:
+                silvery_gall_count += 1
+            # 5. Chlorotic yellow / mosaic virus
+            elif r > 130 and g > 130 and b < min(r, g) * 0.75:
+                yellow_chlorosis_count += 1
+            # 6. Orange / reddish rust pustules (Wheat Stripe Rust)
+            elif r > 160 and 80 < g < 140 and b < 60:
+                orange_rust_count += 1
+            # 7. Red fruit (Tomato / Chilli pepper)
+            elif r > 140 and g < 75 and b < 75:
+                red_fruit_count += 1
+            # 8. White powdery mildew
+            elif r > 180 and g > 180 and b > 180 and abs(r - g) < 22 and abs(g - b) < 22:
                 white_powdery_count += 1
 
         veg_ratio = green_count / total
-        dark_ratio = dark_fungal_count / total
-        yellow_ratio = yellow_count / total
-        white_ratio = white_powdery_count / total
+        corn_gold_ratio = corn_gold_count / total
+        dark_spore_ratio = dark_spores_count / total
+        silvery_gall_ratio = silvery_gall_count / total
+        yellow_ratio = yellow_chlorosis_count / total
+        orange_rust_ratio = orange_rust_count / total
+        red_fruit_ratio = red_fruit_count / total
+        white_powdery_ratio = white_powdery_count / total
 
-        # If green foliage or crop field colors detected, it is an agricultural plant
-        is_plant = veg_ratio > 0.04 or (veg_ratio > 0.015 and (dark_ratio > 0.03 or yellow_ratio > 0.04))
+        is_plant = (
+            veg_ratio > 0.04
+            or corn_gold_ratio > 0.03
+            or yellow_ratio > 0.05
+            or orange_rust_ratio > 0.02
+            or red_fruit_ratio > 0.04
+            or silvery_gall_ratio > 0.02
+            or (veg_ratio > 0.015 and (dark_spore_ratio > 0.015 or yellow_ratio > 0.03))
+        )
 
-        pattern = "general_foliar"
-        # High dark fungal mass on crop foliage -> characteristic of Smut (Corn Smut / Cereal Smut / Black Rot)
-        if dark_ratio > 0.03 and (veg_ratio > 0.03 or yellow_ratio > 0.02):
-            pattern = "smut_black_rot"
-        elif yellow_ratio > 0.10:
-            pattern = "yellow_mosaic_curl"
-        elif white_ratio > 0.08:
-            pattern = "powdery_mildew"
+        inferred_crop = None
+        inferred_disease = None
+
+        # --- A. CORN / MAIZE DETECTION ---
+        # Golden cob kernels, ear, or silvery/black smut gall on corn
+        if corn_gold_ratio > 0.035 or (corn_gold_ratio > 0.012 and (dark_spore_ratio > 0.003 or silvery_gall_ratio > 0.002)):
+            inferred_crop = "Maize / Corn"
+            if dark_spore_ratio > 0.003 or silvery_gall_ratio > 0.002:
+                inferred_disease = "Corn Smut"
+            elif veg_ratio > 0.45 and dark_spore_ratio > 0.01:
+                inferred_disease = "Turcicum Leaf Blight"
+            else:
+                inferred_disease = "Corn Smut" if (silvery_gall_ratio > 0.001 or dark_spore_ratio > 0.002) else "Fall Armyworm"
+
+        # --- B. WHEAT DETECTION ---
+        # Orange/yellow linear rust pustules
+        elif orange_rust_ratio > 0.015:
+            inferred_crop = "Wheat"
+            inferred_disease = "Yellow Stripe Rust"
+
+        # --- C. SOYBEAN DETECTION ---
+        # Intense yellow mosaic on trifoliate canopy without gold corn kernels
+        elif yellow_ratio > 0.12 and veg_ratio > 0.20 and corn_gold_ratio < 0.03:
+            inferred_crop = "Soybean"
+            inferred_disease = "Yellow Mosaic Virus"
+
+        # --- D. POTATO DETECTION ---
+        # Dark necrotic water-soaked late blight patches on broad green leaves
+        elif dark_spore_ratio > 0.035 and veg_ratio > 0.25 and corn_gold_ratio < 0.02:
+            inferred_crop = "Potato"
+            inferred_disease = "Late Blight"
+
+        # --- E. RED FRUIT (TOMATO / CHILLI) ---
+        elif red_fruit_ratio > 0.07:
+            inferred_crop = "Tomato"
+            inferred_disease = "Fruit Borer"
+
+        # --- F. POWDERY MILDEW ---
+        elif white_powdery_ratio > 0.08 and veg_ratio > 0.15:
+            inferred_crop = "Rose / Floral"
+            inferred_disease = "Powdery Mildew"
 
         return {
             "is_crop": is_plant,
             "veg_ratio": veg_ratio,
-            "dark_ratio": dark_ratio,
+            "corn_gold_ratio": corn_gold_ratio,
+            "dark_spore_ratio": dark_spore_ratio,
+            "silvery_gall_ratio": silvery_gall_ratio,
             "yellow_ratio": yellow_ratio,
-            "white_ratio": white_ratio,
-            "pattern": pattern,
+            "orange_rust_ratio": orange_rust_ratio,
+            "red_fruit_ratio": red_fruit_ratio,
+            "white_powdery_ratio": white_powdery_ratio,
+            "inferred_crop": inferred_crop,
+            "inferred_disease": inferred_disease,
         }
     except Exception as exc:
         logger.warning("Visual cue extraction error: %s", exc)
-        return {"is_crop": False, "pattern": "unidentified"}
+        return {"is_crop": False, "inferred_crop": None, "inferred_disease": None}
 
 
 def diagnose_crop_image(
@@ -813,11 +1081,12 @@ def diagnose_crop_image(
     """
     Main entrypoint for crop image diagnosis.
     Tries Gemini Multimodal Vision first; falls back to an agronomic visual intelligence engine.
+    Guarantees crop specificity so Corn, Wheat, Potato, Soybean, etc. are never misidentified as Tomato.
     """
     combined_query = f"{crop_hint or ''} {question or ''}".lower().strip()
 
-    # Rejection of explicit non-crop user queries (e.g. user asks about furniture, appliances, vehicles)
-    if any(kw in combined_query for kw in NON_CROP_KEYWORDS):
+    # Rejection of explicit non-crop user queries (e.g. furniture, appliances, vehicles)
+    if is_non_crop_query(combined_query):
         return NON_CROP_REJECTION_HI if language == "hi" else NON_CROP_REJECTION_EN
 
     # 1. Try Gemini Multimodal Vision API if API key is active
@@ -825,57 +1094,58 @@ def diagnose_crop_image(
     if gemini_result:
         return gemini_result
 
-    # 2. Extract visual characteristics from uploaded image
+    # 2. Extract visual characteristics and detect crop family
     cues = extract_image_visual_cues(image_base64)
-    pattern = cues.get("pattern", "general_foliar")
 
-    # If image definitely contains no plant vegetation (e.g. pure monochrome / appliance) and user typed no crop
+    # If image definitely contains no plant vegetation and user provided no crop hint
     if not cues.get("is_crop", True) and not crop_hint and not any(kw in combined_query for entry in DISEASE_KNOWLEDGE_BASE for kw in entry["keywords"]):
         return UNCLEAR_IMAGE_DIAGNOSIS_HI if language == "hi" else UNCLEAR_IMAGE_DIAGNOSIS_EN
 
-    # 3. Match against Disease Knowledge Base
-    # Priority A: Check if specific crop or symptom keyword exists in query or crop hint
-    best_entry = None
-    best_score = 0
-    for entry in DISEASE_KNOWLEDGE_BASE:
-        crop_match = any(kw in combined_query for kw in entry["keywords"])
-        symptom_match = any(kw in combined_query for kw in entry.get("symptom_keywords", []))
-        score = (3 if crop_match else 0) + (2 if symptom_match else 0)
-        if (crop_match or symptom_match) and score > best_score:
-            best_score = score
-            best_entry = entry
+    # 3. Determine Target Crop Hierarchy:
+    # Priority A: Explicit crop mention in crop_hint or question
+    explicit_crop = resolve_crop_name(crop_hint, question)
+    # Priority B: Inferred from visual morphology in image (e.g. corn cob/silvery gall, rust pustules, mosaic)
+    target_crop = explicit_crop or cues.get("inferred_crop")
 
-    if best_entry:
-        result = dict(best_entry["hi"] if language == "hi" else best_entry["en"])
-        if question and len(question.strip()) > 3:
-            prefix = f"Re: '{question.strip()}' — " if language == "en" else f"आपके प्रश्न '{question.strip()}' के उत्तर में — "
-            result["summary"] = prefix + result["summary"]
-        return {"is_crop": True, **result}
+    # 4. Match against Disease Knowledge Base for the resolved crop
+    if target_crop:
+        candidate_entries = [e for e in DISEASE_KNOWLEDGE_BASE if e.get("canonical_crop") == target_crop]
+        if not candidate_entries:
+            candidate_entries = [e for e in DISEASE_KNOWLEDGE_BASE if any(kw in target_crop.lower() for kw in e["keywords"])]
 
-    # Priority B: If question was generic (e.g. "what is this", "ye kya hai", or blank), use visual pattern!
-    target_crop_match = None
-    if pattern == "smut_black_rot":
-        # Match Corn Smut
-        target_crop_match = next((e for e in DISEASE_KNOWLEDGE_BASE if "smut" in e.get("symptom_keywords", [])), None)
-    elif pattern == "yellow_mosaic_curl":
-        # Match Leaf Curl / Yellow Mosaic entry
-        target_crop_match = next((e for e in DISEASE_KNOWLEDGE_BASE if "mosaic" in e.get("symptom_keywords", []) or "curl" in e.get("symptom_keywords", [])), None)
-    elif pattern == "powdery_mildew":
-        # Match Powdery Mildew entry
-        target_crop_match = next((e for e in DISEASE_KNOWLEDGE_BASE if "powder" in e.get("symptom_keywords", [])), None)
+        if candidate_entries:
+            best_entry = None
+            inferred_disease_name = cues.get("inferred_disease")
 
-    if target_crop_match:
-        result = dict(target_crop_match["hi"] if language == "hi" else target_crop_match["en"])
-        if question and len(question.strip()) > 3:
-            prefix = f"Re: '{question.strip()}' — " if language == "en" else f"आपके प्रश्न '{question.strip()}' के उत्तर में — "
-            result["summary"] = prefix + result["summary"]
-        return {"is_crop": True, **result}
+            # 4a. Check if question or hint mentions a specific symptom for this crop
+            for entry in candidate_entries:
+                if any(kw in combined_query for kw in entry.get("symptom_keywords", [])):
+                    best_entry = entry
+                    break
 
-    # Priority C: Default to broad Indian agricultural foliar health diagnosis
-    default_entry = DISEASE_KNOWLEDGE_BASE[2]  # Early Blight / Alternaria foliar
-    result = dict(default_entry["hi"] if language == "hi" else default_entry["en"])
-    if question and len(question.strip()) > 3:
+            # 4b. If visual classifier detected a specific disease condition for this crop
+            if not best_entry and inferred_disease_name:
+                for entry in candidate_entries:
+                    cond_en = entry["en"]["condition"].lower()
+                    if inferred_disease_name.lower() in cond_en:
+                        best_entry = entry
+                        break
+
+            # 4c. Default to primary representative condition of this crop
+            if not best_entry:
+                best_entry = candidate_entries[0]
+
+            result = dict(best_entry["hi"] if language == "hi" else best_entry["en"])
+            if question and len(question.strip()) > 3 and not question.strip().startswith("?"):
+                prefix = f"Re: '{question.strip()}' — " if language == "en" else f"आपके प्रश्न '{question.strip()}' के उत्तर में — "
+                result["summary"] = prefix + result["summary"]
+            return {"is_crop": True, **result}
+
+    # 5. Fallback: If crop could not be determined, NEVER default to Tomato!
+    # Return professional general foliar health diagnosis with guidance
+    general_diag = GENERAL_FOLIAR_DIAGNOSIS_HI if language == "hi" else GENERAL_FOLIAR_DIAGNOSIS_EN
+    result = dict(general_diag)
+    if question and len(question.strip()) > 3 and not question.strip().startswith("?"):
         prefix = f"Re: '{question.strip()}' — " if language == "en" else f"आपके प्रश्न '{question.strip()}' के उत्तर में — "
         result["summary"] = prefix + result["summary"]
     return {"is_crop": True, **result}
-

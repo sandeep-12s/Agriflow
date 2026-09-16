@@ -440,6 +440,39 @@ function AssistantPage() {
                     <option value="Other">Other / General Crop</option>
                   </select>
                 </div>
+                {/* 1-Tap Quick Crop Selection Chips */}
+                <div className="flex items-center gap-1.5 flex-wrap mt-2">
+                  <span className="text-[10px] font-bold text-emerald-900/80 mr-0.5">
+                    {language === 'hi' ? 'त्वरित चयन:' : 'Quick Select:'}
+                  </span>
+                  {[
+                    { val: '', label: '🔍 Auto-Detect' },
+                    { val: 'Maize / Corn', label: '🌽 Maize / मक्का' },
+                    { val: 'Wheat', label: '🌾 Wheat / गेहूं' },
+                    { val: 'Rice / Paddy', label: '🍚 Rice / धान' },
+                    { val: 'Potato', label: '🥔 Potato / आलू' },
+                    { val: 'Soybean', label: '🌱 Soybean / सोयाबीन' },
+                    { val: 'Sugarcane', label: '🌾 Sugarcane / गन्ना' },
+                    { val: 'Chilli', label: '🌶️ Chilli / मिर्च' },
+                    { val: 'Tomato', label: '🍅 Tomato / टमाटर' },
+                    { val: 'Onion', label: '🧅 Onion / प्याज' },
+                    { val: 'Cotton', label: '☁️ Cotton / कपास' },
+                    { val: 'Mustard', label: '🌻 Mustard / सरसों' },
+                  ].map((c) => (
+                    <button
+                      key={c.val}
+                      type="button"
+                      onClick={() => setSelectedCropHint(c.val)}
+                      className={`text-[11px] font-bold px-2 py-0.5 rounded-full border transition cursor-pointer ${
+                        selectedCropHint === c.val
+                          ? 'bg-emerald-700 text-white border-emerald-700 shadow-xs'
+                          : 'bg-white/90 text-emerald-950 border-emerald-300 hover:bg-emerald-100'
+                      }`}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 

@@ -32,6 +32,7 @@ export default function AssistantDialog({ isOpen, onClose }: AssistantDialogProp
   const [sending, setSending] = useState(false)
   const [analyzingImage, setAnalyzingImage] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [selectedCropHint, setSelectedCropHint] = useState('')
   const [speakingId, setSpeakingId] = useState<string | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
@@ -65,7 +66,11 @@ export default function AssistantDialog({ isOpen, onClose }: AssistantDialogProp
     if (selectedImage) {
       setAnalyzingImage(true)
       const userMsgId = Date.now().toString()
-      const questionText = textToSend || (language === 'hi' ? '📸 इस पौधे / पत्ते की फोटो की जांच करें' : '📸 Please diagnose this crop leaf photo')
+      const questionText = textToSend || (
+        selectedCropHint
+          ? (language === 'hi' ? `📸 ${selectedCropHint} की फोटो की जांच करें` : `📸 Please diagnose this ${selectedCropHint} photo`)
+          : (language === 'hi' ? '📸 इस पौधे / पत्ते की फोटो की जांच करें' : '📸 Please diagnose this crop leaf photo')
+      )
 
       setMessages((prev) => [
         ...prev,
@@ -78,12 +83,14 @@ export default function AssistantDialog({ isOpen, onClose }: AssistantDialogProp
       ])
 
       const imgData = selectedImage
+      const cropHint = selectedCropHint ? selectedCropHint : undefined
       setSelectedImage(null)
+      setSelectedCropHint('')
       setInput('')
       if (fileInputRef.current) fileInputRef.current.value = ''
 
       try {
-        const diagnosis = await analyzeCropImage(token, imgData, undefined, language, textToSend || undefined)
+        const diagnosis = await analyzeCropImage(token, imgData, cropHint, language, textToSend || undefined)
         setMessages((prev) => [
           ...prev,
           {
@@ -305,22 +312,55 @@ export default function AssistantDialog({ isOpen, onClose }: AssistantDialogProp
 
       {/* Selected Image Preview before sending */}
       {selectedImage && (
-        <div className="px-3 py-2 bg-emerald-50/80 border-t border-emerald-200 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src={selectedImage} alt="Preview thumbnail" className="w-9 h-9 rounded-lg object-cover border border-emerald-300" />
-            <span className="text-[11px] font-bold text-emerald-900">
-              {language === 'hi' ? 'फोटो तैयार है' : 'Image attached'}
-            </span>
+        <div className="px-3 py-2 bg-emerald-50/90 border-t border-emerald-200">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-2">
+              <img src={selectedImage} alt="Preview thumbnail" className="w-9 h-9 rounded-lg object-cover border border-emerald-300" />
+              <span className="text-[11px] font-bold text-emerald-900">
+                {language === 'hi' ? 'फोटो तैयार है' : 'Image attached'}
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setSelectedImage(null)
+                setSelectedCropHint('')
+                if (fileInputRef.current) fileInputRef.current.value = ''
+              }}
+              className="text-xs text-rose-700 font-bold hover:underline cursor-pointer"
+            >
+              ✕ {language === 'hi' ? 'हटाएं' : 'Remove'}
+            </button>
           </div>
-          <button
-            onClick={() => {
-              setSelectedImage(null)
-              if (fileInputRef.current) fileInputRef.current.value = ''
-            }}
-            className="text-xs text-rose-700 font-bold hover:underline"
-          >
-            ✕ {language === 'hi' ? 'हटाएं' : 'Remove'}
-          </button>
+          {/* Quick Crop Selection Chips for Dialog */}
+          <div className="flex items-center gap-1 flex-wrap">
+            <span className="text-[10px] font-bold text-emerald-900/80 mr-0.5">
+              {language === 'hi' ? 'फसल:' : 'Crop:'}
+            </span>
+            {[
+              { val: '', label: '🔍 Auto' },
+              { val: 'Maize / Corn', label: '🌽 Maize' },
+              { val: 'Wheat', label: '🌾 Wheat' },
+              { val: 'Rice / Paddy', label: '🍚 Rice' },
+              { val: 'Potato', label: '🥔 Potato' },
+              { val: 'Soybean', label: '🌱 Soybean' },
+              { val: 'Sugarcane', label: '🌾 Cane' },
+              { val: 'Chilli', label: '🌶️ Chilli' },
+              { val: 'Tomato', label: '🍅 Tomato' },
+            ].map((c) => (
+              <button
+                key={c.val}
+                type="button"
+                onClick={() => setSelectedCropHint(c.val)}
+                className={`text-[10px] font-bold px-2 py-0.5 rounded-full border transition cursor-pointer ${
+                  selectedCropHint === c.val
+                    ? 'bg-emerald-700 text-white border-emerald-700 shadow-2xs'
+                    : 'bg-white text-emerald-950 border-emerald-300 hover:bg-emerald-100'
+                }`}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
