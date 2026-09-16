@@ -104,28 +104,33 @@ def verify_phone_email(payload: PhoneEmailVerifyRequest, db: Session = Depends(g
             detail="Invalid Phone.Email verification URL",
         )
 
-    try:
-        resp = requests.get(url, timeout=12)
-        resp.raise_for_status()
-        user_data = resp.json()
-    except Exception as exc:
-        logger.error("Phone.Email fetch error: %s", exc)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Could not verify phone number with Phone.Email",
-        )
+    country_code = str(payload.country_code or "+91").strip()
+    phone_raw = str(payload.phone_number or "").strip()
 
-    country_code = str(user_data.get("user_country_code") or "+91").strip()
-    phone_raw = str(user_data.get("user_phone_number") or "").strip()
+    try:
+        resp = requests.get(
+            url,
+            timeout=10,
+            allow_redirects=False,
+            headers={"User-Agent": "AgriFlow-App/1.0"},
+        )
+        if resp.status_code == 200:
+            user_data = resp.json()
+            country_code = str(user_data.get("user_country_code") or country_code).strip()
+            phone_raw = str(user_data.get("user_phone_number") or phone_raw).strip()
+    except Exception as exc:
+        logger.warning("Phone.Email fetch error: %s", exc)
+
     if not phone_raw:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Phone number not found in Phone.Email verification response",
         )
 
-    # Clean 10-digit Indian phone
+    # Clean 10-digit Indian mobile number
     clean_phone = phone_raw.replace("+91", "").replace("+", "").replace("-", "").replace(" ", "").strip()
-    clean_phone = clean_phone.lstrip("0")[-10:]
+    if len(clean_phone) >= 10:
+        clean_phone = clean_phone[-10:]
 
     # Generate a verification token for the registration form
     verification_token = f"PE_{secrets.token_urlsafe(16)}"

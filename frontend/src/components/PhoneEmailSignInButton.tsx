@@ -3,7 +3,13 @@ import { verifyPhoneEmailToken, PhoneEmailVerifyResponse } from '../api/client'
 
 declare global {
   interface Window {
-    phoneEmailListener?: ((userObj: { user_json_url: string }) => void) | null
+    phoneEmailListener?:
+      | ((userObj: {
+          user_json_url: string
+          user_phone_number?: string
+          user_country_code?: string
+        }) => void)
+      | null
   }
 }
 
@@ -25,12 +31,23 @@ export default function PhoneEmailSignInButton({
     const container = containerRef.current
     if (!container) return
 
+    // Clean container to avoid duplicate buttons on re-render / StrictMode
+    container.innerHTML = ''
+
     // Define the Phone.Email callback listener
-    window.phoneEmailListener = async function (userObj: { user_json_url: string }) {
+    window.phoneEmailListener = async function (userObj: {
+      user_json_url: string
+      user_phone_number?: string
+      user_country_code?: string
+    }) {
       if (!userObj?.user_json_url) return
       setVerifying(true)
       try {
-        const verifiedData = await verifyPhoneEmailToken(userObj.user_json_url)
+        const verifiedData = await verifyPhoneEmailToken(
+          userObj.user_json_url,
+          userObj.user_phone_number,
+          userObj.user_country_code,
+        )
         onSuccess(verifiedData)
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Phone verification failed'

@@ -20,7 +20,7 @@ function LoginPage() {
       login(data.access_token)
       navigate('/dashboard')
     } else {
-      navigate('/register')
+      navigate(`/register?phone=${encodeURIComponent(data.phone)}&pe_token=${encodeURIComponent(data.verification_token)}`)
     }
   }
 

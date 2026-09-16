@@ -33,6 +33,8 @@ class OTPResponse(BaseModel):
 
 class PhoneEmailVerifyRequest(BaseModel):
     user_json_url: str
+    phone_number: str | None = None
+    country_code: str | None = None
 
 
 class PhoneEmailVerifyResponse(BaseModel):

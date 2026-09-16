@@ -107,12 +107,20 @@ export interface PhoneEmailVerifyResponse {
   token_type?: string | null
 }
 
-export async function verifyPhoneEmailToken(userJsonUrl: string): Promise<PhoneEmailVerifyResponse> {
+export async function verifyPhoneEmailToken(
+  userJsonUrl: string,
+  phoneNumber?: string,
+  countryCode?: string,
+): Promise<PhoneEmailVerifyResponse> {
   try {
     const response = await fetch(`${API_BASE_URL}/auth/verify-phone-email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_json_url: userJsonUrl }),
+      body: JSON.stringify({
+        user_json_url: userJsonUrl,
+        phone_number: phoneNumber,
+        country_code: countryCode,
+      }),
     })
     if (!response.ok) {
       const body = await response.json().catch(() => null)

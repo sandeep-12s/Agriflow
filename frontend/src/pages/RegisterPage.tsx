@@ -1,5 +1,5 @@
-import { useState, FormEvent, ChangeEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect, FormEvent, ChangeEvent } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { registerFarmer, requestRegistrationOtp } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { SUPPORTED_LANGUAGES, Language } from '../i18n'
@@ -10,10 +10,11 @@ import PhoneEmailSignInButton from '../components/PhoneEmailSignInButton'
 import { PhoneEmailVerifyResponse } from '../api/client'
 
 function RegisterPage() {
+  const [searchParams] = useSearchParams()
   const [role, setRole] = useState<'farmer' | 'buyer'>('farmer')
   const [form, setForm] = useState({
     name: '',
-    phone: '',
+    phone: searchParams.get('phone') || '',
     email: '',
     password: '',
     location: '',
@@ -21,16 +22,31 @@ function RegisterPage() {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [otpRequested, setOtpRequested] = useState(false)
-  const [otp, setOtp] = useState('')
-  const [smsSent, setSmsSent] = useState(false)
+  const [otpRequested, setOtpRequested] = useState(Boolean(searchParams.get('pe_token')))
+  const [otp, setOtp] = useState(searchParams.get('pe_token') || '')
+  const [smsSent, setSmsSent] = useState(Boolean(searchParams.get('pe_token')))
   const [simulatedCode, setSimulatedCode] = useState<string | null>(null)
-  const [phoneVerified, setPhoneVerified] = useState(false)
-  const [phoneVerifiedMsg, setPhoneVerifiedMsg] = useState('')
+  const [phoneVerified, setPhoneVerified] = useState(Boolean(searchParams.get('phone') && searchParams.get('pe_token')))
+  const [phoneVerifiedMsg, setPhoneVerifiedMsg] = useState(
+    searchParams.get('phone') ? `+91 ${searchParams.get('phone')}` : ''
+  )
   const [detectedRegionBadge, setDetectedRegionBadge] = useState<string | null>(null)
   const [detectingGps, setDetectingGps] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const phoneParam = searchParams.get('phone')
+    const peTokenParam = searchParams.get('pe_token')
+    if (phoneParam && peTokenParam) {
+      setForm((f) => ({ ...f, phone: phoneParam }))
+      setPhoneVerified(true)
+      setPhoneVerifiedMsg(`+91 ${phoneParam}`)
+      setOtp(peTokenParam)
+      setOtpRequested(true)
+      setSmsSent(true)
+    }
+  }, [searchParams])
 
   const update =
     (field: keyof typeof form) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
