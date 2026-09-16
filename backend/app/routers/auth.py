@@ -73,10 +73,14 @@ def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
     ))
     db.commit()
 
+    real_sms_sent = gateway in ("fast2sms", "twilio") and bool(dispatch_res.get("success"))
+
     return OTPResponse(
-        message="Verification code sent to your phone via SMS." if gateway != "simulated" else "Verification code dispatched.",
+        message="Verification code sent to your phone via SMS." if real_sms_sent else "SMS gateway not configured on server (simulation mode).",
         expires_in=OTP_EXPIRY_SECONDS,
-        dev_code=code,
+        dev_code=None if real_sms_sent else code,
+        gateway=gateway,
+        sms_sent=real_sms_sent,
     )
 
 

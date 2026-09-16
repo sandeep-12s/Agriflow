@@ -21,6 +21,8 @@ function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [otpRequested, setOtpRequested] = useState(false)
   const [otp, setOtp] = useState('')
+  const [smsSent, setSmsSent] = useState(false)
+  const [simulatedCode, setSimulatedCode] = useState<string | null>(null)
   const [detectedRegionBadge, setDetectedRegionBadge] = useState<string | null>(null)
   const [detectingGps, setDetectingGps] = useState(false)
   const { login } = useAuth()
@@ -81,10 +83,11 @@ function RegisterPage() {
 
     setLoading(true)
     try {
-      await requestRegistrationOtp(form.phone)
+      const response = await requestRegistrationOtp(form.phone)
       setOtpRequested(true)
       setOtp('')
-      // OTP is sent to farmer's phone — they must enter it manually.
+      setSmsSent(Boolean(response.sms_sent))
+      setSimulatedCode(response.dev_code || null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not send verification code.')
     } finally {
@@ -221,17 +224,43 @@ function RegisterPage() {
 
           {otpRequested && (
             <>
-              <div
-                className="p-4 mb-4 rounded-xl border text-xs leading-relaxed bg-emerald-50 border-emerald-200 text-emerald-900"
-                role="status"
-              >
-                <div className="flex items-center gap-2 mb-1.5 font-bold text-sm">
-                  <span>📱 Verification Code Sent</span>
+              {smsSent ? (
+                <div
+                  className="p-4 mb-4 rounded-xl border text-xs leading-relaxed bg-emerald-50 border-emerald-200 text-emerald-900 shadow-xs"
+                  role="status"
+                >
+                  <div className="flex items-center gap-2 mb-1.5 font-bold text-sm text-emerald-800">
+                    <span>📱 Real SMS Sent to Phone</span>
+                  </div>
+                  <p className="font-medium">
+                    A 6-digit verification code has been sent via SMS to <strong>{form.phone}</strong>. Please check your phone messages and enter the code below.
+                  </p>
                 </div>
-                <p className="font-medium">
-                  A 6-digit code has been sent to <strong>{form.phone}</strong>. Enter it below to verify your number.
-                </p>
-              </div>
+              ) : (
+                <div
+                  className="p-4 mb-4 rounded-xl border text-xs leading-relaxed bg-amber-50/90 border-amber-300 text-amber-950 shadow-xs"
+                  role="status"
+                >
+                  <div className="flex items-center gap-2 mb-1 font-bold text-sm text-amber-900">
+                    <span>⚠️ SMS Gateway Not Configured on Server</span>
+                  </div>
+                  <p className="font-medium text-soil/80">
+                    No SMS gateway key (Fast2SMS) is active on Render, so SMS cannot reach your phone yet.
+                  </p>
+                  {simulatedCode && (
+                    <div className="bg-white/95 border border-amber-300/80 rounded-lg p-2.5 mt-2.5 flex items-center justify-between shadow-xs">
+                      <span className="font-semibold text-soil/80">Test Verification Code:</span>
+                      <span className="font-mono font-bold text-base tracking-widest text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
+                        {simulatedCode}
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-[11px] text-soil/60 mt-2">
+                    💡 To receive real SMS on your mobile phone, add <strong>FAST2SMS_API_KEY</strong> to Render Environment Variables.
+                  </p>
+                </div>
+              )}
+
               <label htmlFor="otp" className="auth-label">
                 Enter 6-Digit Verification Code (OTP)
               </label>
@@ -261,7 +290,16 @@ function RegisterPage() {
           </button>
 
           {otpRequested && (
-            <button type="button" className="auth-secondary-action" onClick={() => { setOtpRequested(false); setOtp('') }}>
+            <button
+              type="button"
+              className="auth-secondary-action"
+              onClick={() => {
+                setOtpRequested(false)
+                setOtp('')
+                setSmsSent(false)
+                setSimulatedCode(null)
+              }}
+            >
               Change phone number
             </button>
           )}

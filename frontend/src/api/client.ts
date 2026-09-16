@@ -55,6 +55,8 @@ export interface OTPResponse {
   message: string
   expires_in: number
   dev_code?: string | null
+  gateway?: string
+  sms_sent?: boolean
 }
 
 export interface LoginPayload {

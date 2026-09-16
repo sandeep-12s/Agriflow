@@ -27,6 +27,8 @@ class OTPResponse(BaseModel):
     message: str
     expires_in: int
     dev_code: str | None = None
+    gateway: str = "simulated"
+    sms_sent: bool = False
 
 
 class UserLogin(BaseModel):
