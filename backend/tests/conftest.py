@@ -80,9 +80,6 @@ def register_farmer(client):
             "language": "en",
         }
         payload.update(overrides)
-        otp_response = client.post("/auth/request-otp", json={"phone": payload["phone"]})
-        assert otp_response.status_code == 200
-        payload["otp"] = otp_response.json()["dev_code"]
         return client.post("/auth/register", json=payload)
 
     return _register

@@ -182,24 +182,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
             detail="An account with this email or phone already exists",
         )
 
-    otp = (
-        db.query(RegistrationOTP)
-        .filter(RegistrationOTP.phone == phone_clean, RegistrationOTP.used.is_(False))
-        .order_by(RegistrationOTP.created_at.desc())
-        .first()
-    )
-    if otp is None or otp.expires_at <= utc_now():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Verification code expired or not requested")
-    if otp.attempts >= OTP_MAX_ATTEMPTS:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Too many incorrect verification attempts")
-
-    otp.attempts += 1
-    if otp.code_hash != hash_otp(phone_clean, payload.otp):
-        db.commit()
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect verification code")
-    otp.used = True
-
-    role_val = payload.role.strip().lower()
+    role_val = (payload.role or "farmer").strip().lower()
     user_role = "buyer" if role_val == "buyer" else "farmer"
 
     user = User(

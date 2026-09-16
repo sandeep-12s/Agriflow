@@ -48,7 +48,7 @@ export interface RegisterPayload {
   location: string
   language: string
   role?: string
-  otp: string
+  otp?: string
 }
 
 export interface OTPResponse {

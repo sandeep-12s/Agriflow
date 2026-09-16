@@ -1,6 +1,6 @@
 import { useState, FormEvent, ChangeEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { registerFarmer, requestRegistrationOtp } from '../api/client'
+import { registerFarmer } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { SUPPORTED_LANGUAGES, Language } from '../i18n'
 import { detectLanguageFromLocationText, detectRegionAndLanguage } from '../utils/regionLanguage'
@@ -19,10 +19,6 @@ function RegisterPage() {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [otpRequested, setOtpRequested] = useState(false)
-  const [otp, setOtp] = useState('')
-  const [smsSent, setSmsSent] = useState(false)
-  const [simulatedCode, setSimulatedCode] = useState<string | null>(null)
   const [detectedRegionBadge, setDetectedRegionBadge] = useState<string | null>(null)
   const [detectingGps, setDetectingGps] = useState(false)
   const { login } = useAuth()
@@ -74,34 +70,12 @@ function RegisterPage() {
     )
   }
 
-
-  const handleRequestOtp = async () => {
-    setError('')
-    if (form.phone.trim().length < 7) {
-      setError('Enter a valid phone number to receive a verification code.')
-      return
-    }
-
-    setLoading(true)
-    try {
-      const response = await requestRegistrationOtp(form.phone)
-      setOtpRequested(true)
-      setOtp('')
-      setSmsSent(Boolean(response.sms_sent))
-      setSimulatedCode(response.dev_code || null)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not send verification code.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      const { access_token } = await registerFarmer({ ...form, role, otp })
+      const { access_token } = await registerFarmer({ ...form, role })
       login(access_token)
       if (role === 'buyer') {
         navigate('/buyer/portal')
@@ -224,87 +198,13 @@ function RegisterPage() {
             ))}
           </select>
 
-          {otpRequested && (
-            <>
-              {smsSent ? (
-                <div
-                  className="p-4 mb-4 rounded-xl border text-xs leading-relaxed bg-emerald-50 border-emerald-200 text-emerald-900 shadow-xs"
-                  role="status"
-                >
-                  <div className="flex items-center gap-2 mb-1.5 font-bold text-sm text-emerald-800">
-                    <span>📱 Real SMS Sent to Phone</span>
-                  </div>
-                  <p className="font-medium">
-                    A 6-digit verification code has been sent via SMS to <strong>{form.phone}</strong>. Please check your phone messages and enter the code below.
-                  </p>
-                </div>
-              ) : (
-                <div
-                  className="p-4 mb-4 rounded-xl border text-xs leading-relaxed bg-amber-50/90 border-amber-300 text-amber-950 shadow-xs"
-                  role="status"
-                >
-                  <div className="flex items-center gap-2 mb-1 font-bold text-sm text-amber-900">
-                    <span>⚠️ SMS Gateway Not Configured on Server</span>
-                  </div>
-                  <p className="font-medium text-soil/80">
-                    No SMS gateway key (Fast2SMS) is active on Render, so SMS cannot reach your phone yet.
-                  </p>
-                  {simulatedCode && (
-                    <div className="bg-white/95 border border-amber-300/80 rounded-lg p-2.5 mt-2.5 flex items-center justify-between shadow-xs">
-                      <span className="font-semibold text-soil/80">Test Verification Code:</span>
-                      <span className="font-mono font-bold text-base tracking-widest text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">
-                        {simulatedCode}
-                      </span>
-                    </div>
-                  )}
-                  <p className="text-[11px] text-soil/60 mt-2">
-                    💡 To receive real SMS on your mobile phone, add <strong>FAST2SMS_API_KEY</strong> to Render Environment Variables.
-                  </p>
-                </div>
-              )}
-
-              <label htmlFor="otp" className="auth-label">
-                Enter 6-Digit Verification Code (OTP)
-              </label>
-              <input
-                id="otp"
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]{6}"
-                maxLength={6}
-                placeholder="• • • • • •"
-                autoComplete="one-time-code"
-                required
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="auth-input mb-6 tracking-widest text-center text-lg font-bold"
-              />
-            </>
-          )}
-
           <button
-            type={otpRequested ? 'submit' : 'button'}
-            onClick={otpRequested ? undefined : handleRequestOtp}
+            type="submit"
             disabled={loading}
-            className="auth-submit"
+            className="auth-submit mt-2"
           >
-            {loading ? (otpRequested ? 'Verifying…' : 'Sending code…') : otpRequested ? 'Verify and create account' : 'Send verification code'}
+            {loading ? 'Creating account…' : role === 'buyer' ? 'Create buyer account' : 'Create farmer account'}
           </button>
-
-          {otpRequested && (
-            <button
-              type="button"
-              className="auth-secondary-action"
-              onClick={() => {
-                setOtpRequested(false)
-                setOtp('')
-                setSmsSent(false)
-                setSimulatedCode(null)
-              }}
-            >
-              Change phone number
-            </button>
-          )}
 
           <p className="text-sm text-soil/60 text-center mt-5">
             Already have an account?{' '}

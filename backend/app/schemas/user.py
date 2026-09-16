@@ -16,7 +16,7 @@ class UserCreate(BaseModel):
     location: str = Field(min_length=2, max_length=120)
     language: str = Field(default="en", max_length=10)
     role: str = Field(default="farmer", description="User role: farmer or buyer")
-    otp: str = Field(min_length=6, max_length=64, description="Six-digit OTP code or Phone.Email verification token")
+    otp: str | None = Field(default=None, description="Optional OTP code (deprecated)")
 
 
 class OTPRequest(BaseModel):

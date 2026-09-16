@@ -3,9 +3,6 @@ def test_register_creates_account_and_returns_token(client):
         "name": "Ramesh Kumar", "phone": "9876500000", "email": "ramesh@example.com",
         "password": "farmer123", "location": "Bareilly, UP", "language": "en",
     }
-    otp_response = client.post("/auth/request-otp", json={"phone": payload["phone"]})
-    assert otp_response.status_code == 200
-    payload["otp"] = otp_response.json()["dev_code"]
     response = client.post("/auth/register", json=payload)
     assert response.status_code == 201
     body = response.json()
@@ -13,16 +10,14 @@ def test_register_creates_account_and_returns_token(client):
     assert body["token_type"] == "bearer"
 
 
-def test_register_rejects_incorrect_otp(client):
+def test_register_direct_without_otp(client):
     payload = {
-        "name": "OTP Farmer", "phone": "9876500001", "email": "otp@example.com",
-        "password": "farmer123", "location": "Bareilly, UP", "language": "en", "otp": "000000",
+        "name": "Direct Farmer", "phone": "9876500001", "email": "direct@example.com",
+        "password": "farmer123", "location": "Bareilly, UP", "language": "en",
     }
-    response = client.post("/auth/request-otp", json={"phone": payload["phone"]})
-    assert response.status_code == 200
-    registration = client.post("/auth/register", json=payload)
-    assert registration.status_code == 400
-    assert registration.json()["detail"] == "Incorrect verification code"
+    response = client.post("/auth/register", json=payload)
+    assert response.status_code == 201
+    assert "access_token" in response.json()
 
 
 def test_register_rejects_duplicate_email(register_farmer):
