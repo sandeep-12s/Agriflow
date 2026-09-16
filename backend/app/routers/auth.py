@@ -8,11 +8,16 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+import requests
+
 from app.core.config import settings
 from app.core.security import hash_password, verify_password, create_access_token
 from app.db.database import get_db
 from app.db.models import User, RegistrationOTP, SMSLog
-from app.schemas.user import UserCreate, UserLogin, Token, OTPRequest, OTPResponse
+from app.schemas.user import (
+    UserCreate, UserLogin, Token, OTPRequest, OTPResponse,
+    PhoneEmailVerifyRequest, PhoneEmailVerifyResponse,
+)
 from app.services.sms import send_otp_sms, sms_gateway_configured
 
 logger = logging.getLogger(__name__)
@@ -81,6 +86,79 @@ def request_otp(payload: OTPRequest, db: Session = Depends(get_db)):
         dev_code=None if real_sms_sent else code,
         gateway=gateway,
         sms_sent=real_sms_sent,
+    )
+
+
+@router.post("/verify-phone-email", response_model=PhoneEmailVerifyResponse)
+def verify_phone_email(payload: PhoneEmailVerifyRequest, db: Session = Depends(get_db)):
+    """
+    Verifies phone number using Phone.Email (Sign in with Phone) service.
+    Fetches the verified user JSON from user_json_url, extracts phone number,
+    creates a verified OTP token in the DB so registration can proceed,
+    and returns token + login status.
+    """
+    url = payload.user_json_url.strip()
+    if not url.startswith("https://") or "phone.email" not in url:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid Phone.Email verification URL",
+        )
+
+    try:
+        resp = requests.get(url, timeout=12)
+        resp.raise_for_status()
+        user_data = resp.json()
+    except Exception as exc:
+        logger.error("Phone.Email fetch error: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Could not verify phone number with Phone.Email",
+        )
+
+    country_code = str(user_data.get("user_country_code") or "+91").strip()
+    phone_raw = str(user_data.get("user_phone_number") or "").strip()
+    if not phone_raw:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Phone number not found in Phone.Email verification response",
+        )
+
+    # Clean 10-digit Indian phone
+    clean_phone = phone_raw.replace("+91", "").replace("+", "").replace("-", "").replace(" ", "").strip()
+    clean_phone = clean_phone.lstrip("0")[-10:]
+
+    # Generate a verification token for the registration form
+    verification_token = f"PE_{secrets.token_urlsafe(16)}"
+
+    # Add verified OTP token to database valid for 15 minutes
+    db.add(RegistrationOTP(
+        phone=clean_phone,
+        code_hash=hash_otp(clean_phone, verification_token),
+        expires_at=utc_now() + timedelta(minutes=15),
+    ))
+
+    # Log to SMSLog
+    db.add(SMSLog(
+        phone=clean_phone,
+        sms_type="phone_email_otp",
+        message="Phone number successfully verified via Phone.Email SMS / WhatsApp gateway",
+        gateway="phone.email",
+        status="delivered",
+    ))
+    db.commit()
+
+    # Check if this user already exists in AgriFlow
+    existing_user = db.query(User).filter(User.phone == clean_phone).first()
+    access_token = create_access_token(existing_user.id) if existing_user else None
+
+    return PhoneEmailVerifyResponse(
+        verified=True,
+        phone=clean_phone,
+        full_phone=f"{country_code} {clean_phone}",
+        verification_token=verification_token,
+        user_exists=bool(existing_user),
+        access_token=access_token,
+        token_type="bearer" if access_token else None,
     )
 
 

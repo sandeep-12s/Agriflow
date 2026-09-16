@@ -97,6 +97,36 @@ export async function requestRegistrationOtp(phone: string): Promise<OTPResponse
   }
 }
 
+export interface PhoneEmailVerifyResponse {
+  verified: boolean
+  phone: string
+  full_phone: string
+  verification_token: string
+  user_exists: boolean
+  access_token?: string | null
+  token_type?: string | null
+}
+
+export async function verifyPhoneEmailToken(userJsonUrl: string): Promise<PhoneEmailVerifyResponse> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/verify-phone-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_json_url: userJsonUrl }),
+    })
+    if (!response.ok) {
+      const body = await response.json().catch(() => null)
+      throw new Error(extractErrorMessage(body, `Verification failed: ${response.status}`))
+    }
+    return response.json()
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error('Could not connect to the AgriFlow server. Please try again in a moment.')
+    }
+    throw error
+  }
+}
+
 export async function registerFarmer(payload: RegisterPayload): Promise<TokenResponse> {
   try {
     const response = await fetch(`${API_BASE_URL}/auth/register`, {

@@ -4,6 +4,8 @@ import { loginFarmer } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import ErrorBanner from '../components/ErrorBanner'
 import Logo from '../components/Logo'
+import PhoneEmailSignInButton from '../components/PhoneEmailSignInButton'
+import { PhoneEmailVerifyResponse } from '../api/client'
 
 function LoginPage() {
   const [email, setEmail] = useState('')
@@ -12,6 +14,15 @@ function LoginPage() {
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
+
+  const handlePhoneEmailLogin = (data: PhoneEmailVerifyResponse) => {
+    if (data.user_exists && data.access_token) {
+      login(data.access_token)
+      navigate('/dashboard')
+    } else {
+      navigate('/register')
+    }
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -91,6 +102,20 @@ function LoginPage() {
           >
             {loading ? 'Logging in…' : 'Log in'}
           </button>
+
+          <div className="my-5 flex items-center justify-between gap-3">
+            <div className="h-px bg-soil/10 flex-1"></div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-soil/40">OR</span>
+            <div className="h-px bg-soil/10 flex-1"></div>
+          </div>
+
+          <div className="p-3 bg-emerald-50/50 border border-emerald-200 rounded-xl mb-4">
+            <PhoneEmailSignInButton
+              onSuccess={handlePhoneEmailLogin}
+              onError={(msg) => setError(msg)}
+              label="Instant Login with Mobile OTP (Free SMS):"
+            />
+          </div>
 
           <p className="text-sm text-soil/60 text-center mt-5">
             New here?{' '}

@@ -6,6 +6,8 @@ import { SUPPORTED_LANGUAGES, Language } from '../i18n'
 import { detectLanguageFromLocationText, detectRegionAndLanguage } from '../utils/regionLanguage'
 import ErrorBanner from '../components/ErrorBanner'
 import Logo from '../components/Logo'
+import PhoneEmailSignInButton from '../components/PhoneEmailSignInButton'
+import { PhoneEmailVerifyResponse } from '../api/client'
 
 function RegisterPage() {
   const [role, setRole] = useState<'farmer' | 'buyer'>('farmer')
@@ -23,6 +25,8 @@ function RegisterPage() {
   const [otp, setOtp] = useState('')
   const [smsSent, setSmsSent] = useState(false)
   const [simulatedCode, setSimulatedCode] = useState<string | null>(null)
+  const [phoneVerified, setPhoneVerified] = useState(false)
+  const [phoneVerifiedMsg, setPhoneVerifiedMsg] = useState('')
   const [detectedRegionBadge, setDetectedRegionBadge] = useState<string | null>(null)
   const [detectingGps, setDetectingGps] = useState(false)
   const { login } = useAuth()
@@ -72,6 +76,16 @@ function RegisterPage() {
       },
       { timeout: 8000 }
     )
+  }
+
+  const handlePhoneEmailSuccess = (data: PhoneEmailVerifyResponse) => {
+    setError('')
+    setForm((f) => ({ ...f, phone: data.phone }))
+    setPhoneVerified(true)
+    setPhoneVerifiedMsg(`+91 ${data.phone}`)
+    setOtp(data.verification_token)
+    setOtpRequested(true)
+    setSmsSent(true)
   }
 
   const handleRequestOtp = async () => {
@@ -174,6 +188,38 @@ function RegisterPage() {
 
           <Field id="name" label="Full name" value={form.name} onChange={update('name')} autoComplete="name" />
           <Field id="phone" label="Phone" value={form.phone} onChange={update('phone')} type="tel" autoComplete="tel" />
+
+          {phoneVerified ? (
+            <div className="p-3 mb-4 rounded-xl border-2 bg-emerald-50 border-emerald-300 text-emerald-950 shadow-xs flex items-center justify-between animate-fadeIn">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">✅</span>
+                <div>
+                  <p className="font-bold text-xs text-emerald-900">Phone Verified via SMS / WhatsApp</p>
+                  <p className="text-[11px] font-mono font-medium text-emerald-800">{phoneVerifiedMsg}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setPhoneVerified(false)
+                  setOtpRequested(false)
+                  setOtp('')
+                }}
+                className="text-[10px] text-soil/60 hover:text-soil underline cursor-pointer"
+              >
+                Change
+              </button>
+            </div>
+          ) : (
+            <div className="mb-4 p-3 bg-emerald-50/50 border border-emerald-200 rounded-xl">
+              <PhoneEmailSignInButton
+                onSuccess={handlePhoneEmailSuccess}
+                onError={(msg) => setError(msg)}
+                label="Verify Mobile Number via Free SMS (Phone.Email):"
+              />
+            </div>
+          )}
+
           <Field id="email" label="Email" value={form.email} onChange={update('email')} type="email" autoComplete="email" />
           <Field
             id="password"
@@ -222,7 +268,7 @@ function RegisterPage() {
             ))}
           </select>
 
-          {otpRequested && (
+          {otpRequested && !phoneVerified && (
             <>
               {smsSent ? (
                 <div
@@ -256,7 +302,7 @@ function RegisterPage() {
                     </div>
                   )}
                   <p className="text-[11px] text-soil/60 mt-2">
-                    💡 To receive real SMS on your mobile phone, add <strong>FAST2SMS_API_KEY</strong> to Render Environment Variables.
+                    💡 Tip: You can verify instantly with real SMS above using <strong>Phone.Email</strong>, or add <strong>FAST2SMS_API_KEY</strong> to Render.
                   </p>
                 </div>
               )}
@@ -281,15 +327,17 @@ function RegisterPage() {
           )}
 
           <button
-            type={otpRequested ? 'submit' : 'button'}
-            onClick={otpRequested ? undefined : handleRequestOtp}
+            type={otpRequested || phoneVerified ? 'submit' : 'button'}
+            onClick={otpRequested || phoneVerified ? undefined : handleRequestOtp}
             disabled={loading}
             className="auth-submit"
           >
-            {loading ? (otpRequested ? 'Verifying…' : 'Sending code…') : otpRequested ? 'Verify and create account' : 'Send verification code'}
+            {loading
+              ? (phoneVerified ? 'Creating account…' : otpRequested ? 'Verifying…' : 'Sending code…')
+              : (phoneVerified ? (role === 'buyer' ? 'Create buyer account' : 'Create farmer account') : otpRequested ? 'Verify and create account' : 'Send verification code')}
           </button>
 
-          {otpRequested && (
+          {otpRequested && !phoneVerified && (
             <button
               type="button"
               className="auth-secondary-action"

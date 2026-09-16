@@ -16,7 +16,7 @@ class UserCreate(BaseModel):
     location: str = Field(min_length=2, max_length=120)
     language: str = Field(default="en", max_length=10)
     role: str = Field(default="farmer", description="User role: farmer or buyer")
-    otp: str = Field(pattern=r"^\d{6}$", description="Six-digit phone verification code")
+    otp: str = Field(min_length=6, max_length=64, description="Six-digit OTP code or Phone.Email verification token")
 
 
 class OTPRequest(BaseModel):
@@ -29,6 +29,20 @@ class OTPResponse(BaseModel):
     dev_code: str | None = None
     gateway: str = "simulated"
     sms_sent: bool = False
+
+
+class PhoneEmailVerifyRequest(BaseModel):
+    user_json_url: str
+
+
+class PhoneEmailVerifyResponse(BaseModel):
+    verified: bool
+    phone: str
+    full_phone: str
+    verification_token: str
+    user_exists: bool
+    access_token: str | None = None
+    token_type: str | None = None
 
 
 class UserLogin(BaseModel):
