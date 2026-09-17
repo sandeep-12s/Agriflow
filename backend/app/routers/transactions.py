@@ -74,6 +74,16 @@ def list_transactions(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    if current_user.role == "buyer":
+        buyer_ids = [b.id for b in db.query(Buyer.id).filter(Buyer.user_id == current_user.id).all()]
+        if not buyer_ids:
+            return []
+        return (
+            db.query(Transaction)
+            .filter(Transaction.buyer_id.in_(buyer_ids))
+            .order_by(Transaction.created_at.desc())
+            .all()
+        )
     return (
         db.query(Transaction)
         .filter(Transaction.farmer_id == current_user.id)

@@ -42,7 +42,6 @@ def _calculate_storage_distances(
             cost_per_unit=f.cost_per_unit,
             supported_crops=f.supported_crops,
         ))
-    result.sort(key=lambda x: x.distance_km)
     result.sort(key=lambda x: x.distance_km if x.distance_km is not None else 99999)
     return result
 

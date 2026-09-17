@@ -62,7 +62,7 @@ function RecommendationPage() {
             <p className="text-xs uppercase tracking-wide text-white/70 mb-1">
               {t('recommendedAction')}
             </p>
-            <p className="text-lg font-bold">{OPTION_LABELS[data.recommended_option]}</p>
+            <p className="text-lg font-bold">{OPTION_LABELS[data.recommended_option] || data.recommended_option}</p>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
@@ -76,7 +76,7 @@ function RecommendationPage() {
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-soil">{OPTION_LABELS[opt.option]}</h3>
+                  <h3 className="font-semibold text-soil">{OPTION_LABELS[opt.option] || opt.option}</h3>
                   <span className="text-xs bg-husk px-2 py-0.5 rounded-full text-soil/70">
                     {t('score')} {opt.recommendation_score}/100
                   </span>

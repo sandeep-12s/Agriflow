@@ -43,8 +43,17 @@ export default function AssistantDialog({ isOpen, onClose }: AssistantDialogProp
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
       }, 100)
+    } else {
+      stopSpeech()
+      setSpeakingId(null)
     }
   }, [isOpen, messages, sending, analyzingImage])
+
+  useEffect(() => {
+    return () => {
+      stopSpeech()
+    }
+  }, [])
 
   if (!isOpen) return null
 
@@ -275,7 +284,15 @@ export default function AssistantDialog({ isOpen, onClose }: AssistantDialogProp
               {/* Audio Listen Button for assistant message */}
               {!isUser && (m.text || m.diagnosis) && (
                 <button
-                  onClick={() => handleSpeak(m.id, m.text || `${m.diagnosis?.condition}. ${m.diagnosis?.summary}. ${m.diagnosis?.chemical_treatment}`)}
+                  onClick={() => {
+                    const text = m.text || [
+                      m.diagnosis?.condition,
+                      m.diagnosis?.summary,
+                      m.diagnosis?.chemical_treatment && m.diagnosis.chemical_treatment !== 'None required.' ? m.diagnosis.chemical_treatment : '',
+                      m.diagnosis?.organic_remedy && m.diagnosis.organic_remedy !== 'None required.' ? m.diagnosis.organic_remedy : '',
+                    ].filter(Boolean).join('. ')
+                    handleSpeak(m.id, text)
+                  }}
                   className="mt-1 text-[10px] font-semibold text-emerald-700 hover:text-emerald-900 flex items-center gap-1 bg-emerald-50/80 px-2 py-0.5 rounded-md border border-emerald-200/50"
                 >
                   <span>{speakingId === m.id ? '⏹️' : '🔊'}</span>

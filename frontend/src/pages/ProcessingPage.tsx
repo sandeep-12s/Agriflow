@@ -72,7 +72,6 @@ function ProcessingPage() {
       { label: 'Input Crop', value: u.input_product },
       { label: 'Output Product', value: u.output_product },
       { label: 'Capacity', value: `${u.input_capacity} MT/day` },
-      { label: 'Distance', value: `${u.distance_km} km away` },
       { label: 'Distance', value: u.distance_km != null ? `${u.distance_km} km away` : 'Regional Facility' },
       { label: 'Contact', value: u.contact_phone || u.contact_email || 'Verified Facility' },
     ],

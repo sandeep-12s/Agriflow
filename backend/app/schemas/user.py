@@ -48,7 +48,7 @@ class PhoneEmailVerifyResponse(BaseModel):
 
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    email: str = Field(min_length=3, max_length=120, description="Email or phone number")
     password: str
 
 

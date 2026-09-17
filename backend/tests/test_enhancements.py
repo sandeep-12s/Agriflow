@@ -494,3 +494,38 @@ def test_crop_vision_accurate_crop_diagnosis(client, auth_headers):
     assert res_reject.json()["is_crop"] is False
 
 
+def test_storage_and_processing_null_distance_safety(seeded_client, auth_headers):
+    """Verify that storage and processing distance sorting handles None distance_km gracefully without TypeError."""
+    res_storage = seeded_client.get("/storage", headers=auth_headers)
+    assert res_storage.status_code == 200
+    assert isinstance(res_storage.json(), list)
+
+    res_proc = seeded_client.get("/processing", headers=auth_headers)
+    assert res_proc.status_code == 200
+    assert isinstance(res_proc.json(), list)
+
+
+def test_buyer_transactions_query(client, db_session):
+    """Verify that a buyer user can fetch their transactions without error."""
+    # 1. Register buyer
+    res = client.post(
+        "/auth/register",
+        json={
+            "name": "Agro Buyer Corp",
+            "phone": "9998887776",
+            "email": "agrobuyer@example.com",
+            "password": "buyerpassword",
+            "location": "Indore, MP",
+            "role": "buyer",
+        },
+    )
+    assert res.status_code == 201
+    buyer_token = res.json()["access_token"]
+    buyer_headers = {"Authorization": f"Bearer {buyer_token}"}
+
+    # 2. Query transactions as buyer
+    tx_res = client.get("/transactions", headers=buyer_headers)
+    assert tx_res.status_code == 200
+    assert tx_res.json() == []
+
+

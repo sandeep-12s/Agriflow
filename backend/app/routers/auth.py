@@ -203,8 +203,13 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(payload: UserLogin, db: Session = Depends(get_db)):
-    email_clean = payload.email.strip().lower()
-    user = db.query(User).filter(func.lower(User.email) == email_clean).first()
+    identifier = payload.email.strip()
+    identifier_lower = identifier.lower()
+    user = (
+        db.query(User)
+        .filter((func.lower(User.email) == identifier_lower) | (User.phone == identifier))
+        .first()
+    )
     if user is None or not verify_password(payload.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

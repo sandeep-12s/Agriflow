@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Layout from '../components/Layout'
 import { useAuth } from '../context/AuthContext'
@@ -14,6 +14,13 @@ export default function WasteUtilizationPage() {
   const [quantityQtl, setQuantityQtl] = useState<number>(20)
   const [originalPricePerQtl, setOriginalPricePerQtl] = useState<number>(1200)
   const [isSpeaking, setIsSpeaking] = useState(false)
+
+  // Ensure speech synthesis stops if farmer navigates to another page
+  useEffect(() => {
+    return () => {
+      stopSpeech()
+    }
+  }, [])
 
   const activeCrop = data.crops.find((c) => c.id === selectedCrop) || data.crops[0]
   const activeCondition = data.conditions.find((c) => c.id === selectedCondition) || data.conditions[0]

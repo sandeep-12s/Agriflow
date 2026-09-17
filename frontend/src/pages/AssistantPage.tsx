@@ -10,6 +10,7 @@ import {
   analyzeCropImage,
   CropImageAnalysisResponse,
 } from '../api/client'
+import { speakText, stopSpeech } from '../services/voice'
 
 interface ChatMessage {
   id: string
@@ -42,6 +43,7 @@ function AssistantPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [selectedCropHint, setSelectedCropHint] = useState<string>('')
   const [analyzingImage, setAnalyzingImage] = useState(false)
+  const [speakingId, setSpeakingId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => setLanguage(preferredLanguage), [preferredLanguage])
@@ -49,6 +51,29 @@ function AssistantPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, sending, analyzingImage])
+
+  // Stop speech synthesis on component unmount
+  useEffect(() => {
+    return () => {
+      stopSpeech()
+    }
+  }, [])
+
+  const handleSpeak = (msgId: string, text: string) => {
+    if (speakingId === msgId) {
+      stopSpeech()
+      setSpeakingId(null)
+      return
+    }
+    setSpeakingId(msgId)
+    speakText(
+      text,
+      language,
+      true,
+      () => setSpeakingId(null),
+      () => setSpeakingId(null)
+    )
+  }
 
   const handleImageSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -367,10 +392,32 @@ function AssistantPage() {
                 </div>
               )}
 
-              {m.role === 'assistant' && m.source && !m.diagnosis && (
-                <p className="text-[10px] mt-2 opacity-60 font-semibold">
-                  {m.source === 'ai' ? t('aiResponse') : t('quickAnswer')}
-                </p>
+              {m.role === 'assistant' && (
+                <div className="flex items-center justify-between mt-2 pt-1 border-t border-soil/10">
+                  <span className="text-[10px] opacity-60 font-semibold">
+                    {m.diagnosis
+                      ? 'AI Plant Pathology Analysis'
+                      : m.source === 'ai'
+                      ? t('aiResponse')
+                      : t('quickAnswer')}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const textToSpeak = m.text || [
+                        m.diagnosis?.condition,
+                        m.diagnosis?.summary,
+                        m.diagnosis?.chemical_treatment && m.diagnosis.chemical_treatment !== 'None required.' ? m.diagnosis.chemical_treatment : '',
+                        m.diagnosis?.organic_remedy && m.diagnosis.organic_remedy !== 'None required.' ? m.diagnosis.organic_remedy : '',
+                      ].filter(Boolean).join('. ')
+                      handleSpeak(m.id, textToSpeak)
+                    }}
+                    className="text-[11px] font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 bg-white/80 border border-emerald-300 px-2 py-0.5 rounded-lg transition shadow-2xs cursor-pointer"
+                  >
+                    <span>{speakingId === m.id ? '⏹️' : '🔊'}</span>
+                    <span>{speakingId === m.id ? (language === 'hi' ? 'रोकें' : 'Stop') : (language === 'hi' ? 'बोलकर सुनें' : 'Listen')}</span>
+                  </button>
+                </div>
               )}
             </div>
           </div>

@@ -270,9 +270,12 @@ def get_weather_sms_history(
     db: Session = Depends(get_db),
 ):
     """Returns recent SMS alerts sent to the current user."""
+    filter_cond = (SMSLog.user_id == current_user.id)
+    if current_user.phone:
+        filter_cond = filter_cond | (SMSLog.phone == current_user.phone)
     logs = (
         db.query(SMSLog)
-        .filter((SMSLog.user_id == current_user.id) | (SMSLog.phone == current_user.phone))
+        .filter(filter_cond)
         .order_by(SMSLog.created_at.desc())
         .limit(25)
         .all()

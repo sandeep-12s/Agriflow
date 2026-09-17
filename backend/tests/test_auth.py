@@ -107,3 +107,11 @@ def test_phone_email_verification_and_registration(client, monkeypatch):
     assert reg_res.status_code == 201
     assert "access_token" in reg_res.json()
 
+    # 3. Login using phone number instead of email
+    login_phone_res = client.post(
+        "/auth/login",
+        json={"email": "9876543210", "password": "secretpassword"},
+    )
+    assert login_phone_res.status_code == 200
+    assert "access_token" in login_phone_res.json()
+

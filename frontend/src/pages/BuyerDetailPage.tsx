@@ -65,10 +65,14 @@ function BuyerDetailPage() {
           </dl>
 
           <a
-            href={`mailto:${buyer.contact}`}
-            className="block text-center w-full bg-leaf text-white font-medium py-2 rounded-lg hover:bg-leaf/90 transition"
+            href={
+              buyer.contact.includes('@')
+                ? `mailto:${buyer.contact}`
+                : `tel:${buyer.contact.replace(/[^\d+]/g, '')}`
+            }
+            className="block text-center w-full bg-leaf text-white font-medium py-2.5 rounded-xl hover:bg-leaf/90 transition shadow-xs"
           >
-            Contact Buyer
+            {buyer.contact.includes('@') ? '✉️ Email Buyer' : '📞 Call Buyer'} ({buyer.contact})
           </a>
           <p className="text-xs text-soil/40 mt-3 text-center">
             To propose selling to this buyer, open "Find Buyers" from a matching produce entry.

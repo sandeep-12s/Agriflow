@@ -114,8 +114,8 @@ export default function AnalyticsPage() {
     const totalQuantity = activeData.produce_quantity_by_crop.reduce((acc, c) => acc + c.value, 0)
     const profitMargin = totalRevenue > 0 ? ((totalProfit / totalRevenue) * 100).toFixed(1) : '0.0'
     const wastageSaved = activeData.wastage_avoided || 0
-    const txTotalVal = activeData.transactions_summary.total_value || 0
-    const txCount = activeData.transactions_summary.total_transactions || 0
+    const txTotalVal = activeData.transactions_summary?.total_value || 0
+    const txCount = activeData.transactions_summary?.total_transactions || 0
 
     // Waste-to-Wealth potential (Estimated recovery value from biomass residues)
     const wasteWealthPotential = Math.round(totalQuantity * 145)
@@ -710,7 +710,7 @@ export default function AnalyticsPage() {
               <span>♻️</span> Stubble Monetization
             </div>
             <p className="text-xs text-soil/80 leading-relaxed">
-              Harvested crops generate approximately {stats.totalQuantity * 0.8} tons of residue. Connecting with local biomass pellet units can unlock <strong>+₹{stats.wasteWealthPotential.toLocaleString()}</strong> in extra earnings.
+              Harvested crops generate approximately {(stats.totalQuantity * 0.8).toFixed(1)} tons of residue. Connecting with local biomass pellet units can unlock <strong>+₹{stats.wasteWealthPotential.toLocaleString()}</strong> in extra earnings.
             </p>
           </div>
         </div>

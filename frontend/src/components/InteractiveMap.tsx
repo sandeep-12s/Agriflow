@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export interface MapMarkerItem {
   id: string | number
@@ -30,9 +30,22 @@ export default function InteractiveMap({
   title = 'Locations Map View',
 }: InteractiveMapProps) {
   // Find currently selected marker or default to first valid marker
-  const validItems = items.filter((i) => i.latitude && i.longitude)
+  const validItems = items.filter((i) => i.latitude != null && i.longitude != null)
   const initialActive = validItems.find((i) => i.id === selectedId) || validItems[0]
   const [activeItem, setActiveItem] = useState<MapMarkerItem | undefined>(initialActive)
+
+  // Sync activeItem when items load asynchronously or selectedId changes
+  useEffect(() => {
+    const valid = items.filter((i) => i.latitude != null && i.longitude != null)
+    const match = valid.find((i) => i.id === selectedId) || valid[0]
+    if (match) {
+      setActiveItem((prev) => {
+        if (!prev) return match
+        const stillValid = valid.find((i) => i.id === prev.id)
+        return selectedId ? match : (stillValid || match)
+      })
+    }
+  }, [items, selectedId])
 
   const handleSelect = (item: MapMarkerItem) => {
     setActiveItem(item)
@@ -41,14 +54,14 @@ export default function InteractiveMap({
 
   // Generate direct Google Maps directions / search link
   const getGoogleMapsUrl = (item: MapMarkerItem) => {
-    if (item.latitude && item.longitude) {
+    if (item.latitude != null && item.longitude != null) {
       return `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}`
     }
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${item.title}, ${item.address}`)}`
   }
 
-  const currentCenterLat = activeItem?.latitude || centerLatitude
-  const currentCenterLng = activeItem?.longitude || centerLongitude
+  const currentCenterLat = activeItem?.latitude ?? centerLatitude
+  const currentCenterLng = activeItem?.longitude ?? centerLongitude
 
   // Embedded OpenStreetMap view that renders without any API key restrictions
   const osmEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${currentCenterLng - 0.25}%2C${currentCenterLat - 0.20}%2C${currentCenterLng + 0.25}%2C${currentCenterLat + 0.20}&layer=mapnik&marker=${currentCenterLat}%2C${currentCenterLng}`
